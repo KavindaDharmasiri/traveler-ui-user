@@ -10,6 +10,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       },
+      "/storage": {
+        target: "http://localhost:5555",
+        changeOrigin: true,
+        secure: false
+      },
       "/api": {
         target: "http://localhost:5555",
         changeOrigin: true,
@@ -22,6 +27,11 @@ export default defineConfig({
   },
   preview: {
     proxy: {
+      "/storage": {
+        target: "http://localhost:5555",
+        changeOrigin: true,
+        secure: false
+      },
       "/api": {
         target: "http://localhost:5555",
         changeOrigin: true,
