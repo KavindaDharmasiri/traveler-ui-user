@@ -1,5 +1,5 @@
 import React from 'react'
-import traveler_logo from '../../../assets/traveler_logo.png'
+import traveler_logo from '../assets/traveler_logo.png'
 
 export default function Footer() {
     // Placeholder image URL (80x80 pixels, matching the w-20 h-20 size)

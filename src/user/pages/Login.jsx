@@ -173,10 +173,11 @@ export default function Login() {
 
           <div className="text-center text-xs md:text-sm text-slate-500 mt-4">
             Don’t have an account?{' '}
-            <button type="button" className="text-teal-700 font-semibold hover:underline">
+            <button type="button" onClick={() => navigate("/signup")} className="text-teal-700 font-semibold hover:underline">
               Sign up
             </button>
           </div>
+          
 
         </form>
       </div>
