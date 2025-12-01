@@ -5,6 +5,7 @@ import useAuth from "../hooks/useAuth"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import axios from "../api/axios"
 import { API_CONFIG } from "../../config/environment"
+import Swal from 'sweetalert2'
 
 export default function Login() {
   const { setAuthState } = useAuth();
@@ -64,19 +65,24 @@ export default function Login() {
       console.log("AXIOS ERROR:", err);
       console.log("AXIOS ERROR.response:", err?.response);
 
+      let errorMessage = "Login Failed";
+      
       if (!err?.response) {
-        setErrMsg("No Server Response");
+        errorMessage = "No Server Response";
       } else if (err.response?.status === 400) {
-        setErrMsg("Missing Username or Password");
+        errorMessage = "Missing Username or Password";
       } else if (err.response?.status === 401) {
-        setErrMsg("Invalid credentials");
+        errorMessage = "Invalid credentials";
       } else if (err.response?.status === 404) {
-        setErrMsg("User Not Found");
-      } else {
-        setErrMsg("Login Failed");
+        errorMessage = "User Not Found";
       }
 
-      errorRef.current?.focus();
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Failed',
+        text: errorMessage,
+        confirmButtonColor: '#0f766e'
+      });
     }
   };
 
