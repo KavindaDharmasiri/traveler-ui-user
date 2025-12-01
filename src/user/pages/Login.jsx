@@ -4,8 +4,7 @@ import traveler_logo from "../../assets/traveler_logo.png"
 import useAuth from "../hooks/useAuth"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import axios from "../api/axios"
-
-const LOGIN_URL = "/auth/login";
+import { API_CONFIG } from "../../config/environment"
 
 export default function Login() {
   const { setAuthState } = useAuth();
@@ -31,49 +30,55 @@ export default function Login() {
   }, [user, password])
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setErrMsg("");
+    e.preventDefault();
+    setErrMsg("");
 
-  try {
-    const response = await axios.post(
-      LOGIN_URL,
-      // ⚠️ If Postman login body uses "email", keep this.
-      // ⚠️ If it uses "username", change key to username: user.
-      { email: user, password }
-      // No extra config for now – no withCredentials
-    );
+    try {
+      const response = await axios.post(
+        API_CONFIG.ENDPOINTS.AUTH.LOGIN,
+        {
+          email: user,
+          password: password
+        }
+      );
 
-    console.log("LOGIN RESPONSE:", response.data);
+      console.log("LOGIN RESPONSE:", response.data);
 
-    const accessToken = response?.data?.accessToken;
-    const roles = response?.data?.roles;
+      const { accessToken, refreshToken, tokenType, userId, email, name, tenantId } = response.data;
+      
+      // Save to localStorage
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('tokenType', tokenType);
+      localStorage.setItem('userId', userId);
+      localStorage.setItem('email', email);
+      localStorage.setItem('name', name);
+      localStorage.setItem('tenantId', tenantId);
 
-    setAuthState({ user, password, roles, accessToken });
-    setUser("");
-    setPassword("");
+      setAuthState({ user: email, accessToken, tenantId });
+      setUser("");
+      setPassword("");
 
-    navigate(from, { replace: true });
-  } catch (err) {
-    console.log("AXIOS ERROR:", err);              // 👈 super important
-    console.log("AXIOS ERROR.response:", err?.response);
+      navigate(from, { replace: true });
+    } catch (err) {
+      console.log("AXIOS ERROR:", err);
+      console.log("AXIOS ERROR.response:", err?.response);
 
-    if (!err?.response) {
-      // This means truly no HTTP response (network/CORS)
-      setErrMsg("No Server Response");
-    } else if (err.response?.status === 400) {
-      setErrMsg("Missing Username or Password");
-    } else if (err.response?.status === 401) {
-      // Backend is saying "invalid credentials"
-      setErrMsg("Invalid credentials");
-    } else if (err.response?.status === 404) {
-      setErrMsg("User Not Found");
-    } else {
-      setErrMsg("Login Failed");
+      if (!err?.response) {
+        setErrMsg("No Server Response");
+      } else if (err.response?.status === 400) {
+        setErrMsg("Missing Username or Password");
+      } else if (err.response?.status === 401) {
+        setErrMsg("Invalid credentials");
+      } else if (err.response?.status === 404) {
+        setErrMsg("User Not Found");
+      } else {
+        setErrMsg("Login Failed");
+      }
+
+      errorRef.current?.focus();
     }
-
-    errorRef.current?.focus();
-  }
-};
+  };
 
 
   return (

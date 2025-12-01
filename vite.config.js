@@ -6,9 +6,27 @@ export default defineConfig({
   server: {
     proxy: {
       "/auth": {
-        target: "http://localhost:5555", // gateway
+        target: "http://localhost:5555",
         changeOrigin: true,
+        secure: false
       },
+      "/api": {
+        target: "http://localhost:5555",
+        changeOrigin: true,
+        secure: false
+      }
     },
   },
+  build: {
+    outDir: 'dist',
+  },
+  preview: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:5555",
+        changeOrigin: true,
+        secure: false
+      }
+    }
+  }
 })
