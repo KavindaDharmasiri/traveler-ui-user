@@ -45,7 +45,7 @@ export default function Login() {
 
       console.log("LOGIN RESPONSE:", response.data);
 
-      const { accessToken, refreshToken, tokenType, userId, email, name, tenantId } = response.data;
+      const { accessToken, refreshToken, tokenType, userId, email,type, name, tenantId } = response.data;
       
       // Save to localStorage
       localStorage.setItem('accessToken', accessToken);
@@ -55,12 +55,20 @@ export default function Login() {
       localStorage.setItem('email', email);
       localStorage.setItem('name', name);
       localStorage.setItem('tenantId', tenantId);
+      localStorage.setItem('type', type);
 
       setAuthState({ user: email, accessToken, tenantId });
       setUser("");
       setPassword("");
 
-      navigate(from, { replace: true });
+      // Navigate based on user type
+      if (type === 'SERVICE_PROVIDER') {
+        navigate('/provider', { replace: true });
+      } else if (type === 'TRAVELLER') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     } catch (err) {
       console.log("AXIOS ERROR:", err);
       console.log("AXIOS ERROR.response:", err?.response);
