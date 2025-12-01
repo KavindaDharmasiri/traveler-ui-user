@@ -5,6 +5,7 @@ import useAuth from "../hooks/useAuth"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import axios from "../api/axios"
 import { API_CONFIG } from "../../config/environment"
+import { NAVIGATION_CONFIG } from "../../config/navigation"
 import Swal from 'sweetalert2'
 
 export default function Login() {
@@ -81,10 +82,23 @@ export default function Login() {
       setPassword("");
 
       // Navigate based on user type
-      if (type === 'SERVICE_PROVIDER') {
+      if (type === 'TRAVELLER') {
         navigate('/provider', { replace: true });
-      } else if (type === 'TRAVELLER') {
-        navigate('/admin', { replace: true });
+      } else if (type === 'SERVICE_PROVIDER') {
+        console.log('provider login')
+        // Pass auth data via URL params as backup
+        const authData = {
+          accessToken,
+          refreshToken,
+          tokenType,
+          userId,
+          email,
+          name,
+          tenantId,
+          type
+        };
+        const params = new URLSearchParams(authData).toString();
+        window.location.href = `${NAVIGATION_CONFIG.TRAVELLER_APP_PROVIDER_URL}?${params}`;
       } else {
         navigate(from, { replace: true });
       }
