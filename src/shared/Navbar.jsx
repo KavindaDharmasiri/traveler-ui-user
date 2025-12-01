@@ -1,6 +1,6 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
-import { menulinks } from '../../../assets/assets' 
+import { menulinks } from '../assets/assets' 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShop } from '@fortawesome/free-solid-svg-icons'
 import TravelerLogo from './TravelerLogo'; // Assuming this component has the transition logic
