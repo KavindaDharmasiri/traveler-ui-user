@@ -3,7 +3,8 @@ import {Link} from 'react-router-dom'
 import { menulinks } from '../assets/assets' 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShop } from '@fortawesome/free-solid-svg-icons'
-import TravelerLogo from './TravelerLogo'; // Assuming this component has the transition logic
+import TravelerLogo from './TravelerLogo';
+import axios from '../user/api/axios';
 
 export default function Navbar() {
     
@@ -83,9 +84,55 @@ export default function Navbar() {
                         </svg>
                         
                         {/* Login Link */}
-                        <Link to='/login' className={`px-8 py-2.5 rounded-full ml-4 transition-all duration-500 ${!isScrolled ? "bg-white text-black" : "text-white bg-[#217964]"}`}>
-                            Login
-                        </Link>
+                        {localStorage.getItem('accessToken') ? (
+                            <div className="relative ml-4 user-avatar-container">
+                                <div 
+                                    className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        const menu = document.getElementById('userMenu');
+                                        menu.classList.toggle('hidden');
+                                    }}
+                                >
+                                    <img
+                                        src={`https://placehold.co/32x32/${!isScrolled ? 'FFFFFF' : '0F766E'}/${!isScrolled ? '0F766E' : 'FFFFFF'}?text=${(localStorage.getItem('name') || 'U').charAt(0).toUpperCase()}`}
+                                        alt="User Avatar"
+                                        className="w-8 h-8 rounded-full object-cover"
+                                    />
+                                    <div className="text-left">
+                                        <p className={`text-sm font-medium ${!isScrolled ? "text-white" : "text-gray-800"}`}>{localStorage.getItem('name') || 'User'}</p>
+                                        <p className={`text-xs ${!isScrolled ? "text-white/80" : "text-gray-500"}`}>{localStorage.getItem('type') === 'SERVICE_PROVIDER' ? 'Provider' : 'Traveller'}</p>
+                                    </div>
+                                </div>
+                                
+                                <div 
+                                    id="userMenu" 
+                                    className="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <button 
+                                        onClick={() => {
+                                            const refreshToken = localStorage.getItem('refreshToken');
+                                            localStorage.clear();
+                                            window.location.href = '/login';
+                                            
+                                            if (refreshToken) {
+                                                axios.post(`auth/logout?refreshToken=${refreshToken}`).catch(error => {
+                                                    console.error('Logout error:', error);
+                                                });
+                                            }
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                    >
+                                        Log Out
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <Link to='/login' className={`px-8 py-2.5 rounded-full ml-4 transition-all duration-500 ${!isScrolled ? "bg-white text-black" : "text-white bg-[#217964]"}`}>
+                                Login
+                            </Link>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}

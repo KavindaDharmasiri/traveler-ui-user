@@ -1,42 +1,195 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Title from './Title'
-import { dummyItemData } from '../../../assets/assets'
 import RentalItemCard from './RentalItemCard'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFilter,faSearch } from '@fortawesome/free-solid-svg-icons'
-
+import { faFilter, faSearch } from '@fortawesome/free-solid-svg-icons'
+import axios from '../../api/axios'
+import { API_CONFIG } from '../../../config/environment'
 
 export default function Rent() {
-    
-    const[input,setInput]=useState('')
-    
-    
+    const [input, setInput] = useState('')
+    const [providers, setProviders] = useState([])
+    const [filteredItems, setFilteredItems] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [selectedCategory, setSelectedCategory] = useState('ALL')
+    const [imageMapper, setImageMapper] = useState({})
+
+    useEffect(() => {
+        fetchItems()
+    }, [])
+
+    useEffect(() => {
+        filterItems()
+    }, [input, selectedCategory, providers])
+
+    const fetchImages = async (imageUuids) => {
+        const mapper = {}
+        for (const uuid of imageUuids) {
+            try {
+                const response = await axios.get(`storage/files/download/${uuid}`, {
+                    responseType: 'blob'
+                })
+                mapper[uuid] = URL.createObjectURL(response.data)
+            } catch (error) {
+                console.error(`Error fetching image ${uuid}:`, error)
+            }
+        }
+        setImageMapper(mapper)
+    }
+
+    const fetchItems = async () => {
+        try {
+            const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/provider/item/getAllForTraveller`)
+            const providersData = Array.isArray(response.data) ? response.data : []
+            setProviders(providersData)
+            
+            // Collect all image UUIDs
+            const allImageUuids = providersData.flatMap(provider => 
+                provider.items ? provider.items.flatMap(item => item.images || []) : []
+            )
+            if (allImageUuids.length > 0) {
+                await fetchImages(allImageUuids)
+            }
+            
+            setLoading(false)
+        } catch (error) {
+            console.error('Error fetching items:', error)
+            setProviders([])
+            setLoading(false)
+        }
+    }
+
+    const filterItems = () => {
+        if (!Array.isArray(providers)) return
+        
+        let allItems = []
+        providers.forEach(provider => {
+            if (provider.items && Array.isArray(provider.items)) {
+                provider.items.forEach(item => {
+                    allItems.push({ ...item, providerName: provider.providerName, tenant: provider.tenant || 'default' })
+                })
+            }
+        })
+
+        let filtered = allItems.filter(item => {
+            const matchesSearch = item.name.toLowerCase().includes(input.toLowerCase()) ||
+                                item.providerName.toLowerCase().includes(input.toLowerCase()) ||
+                                item.category.toLowerCase().includes(input.toLowerCase())
+            const matchesCategory = selectedCategory === 'ALL' || item.category === selectedCategory
+            return matchesSearch && matchesCategory
+        })
+
+        setFilteredItems(filtered)
+        console.log(filtered)
+    }
+
+    const categories = ['ALL', 'ELECTRONICS', 'VEHICLES', 'CAMPING', 'HOTELS']
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-teal-600"></div>
+            </div>
+        )
+    }
+
     return (
-    <div>
-
-        <div className='flex flex-col items-center py-20 bg-[#F0FAF8] max-md:px-4'>
-            <Title title='Available Items' subTitle='Browse our selection of premium items available for your next adventure' />
-
-            <div className='flex items-center bg-white px-4 mt-6 max-w-96 w-full h-12 rounded-full shadow'>
-                <FontAwesomeIcon icon={faSearch} className='w-4.5 h-4.5 mr-2' />
-
-                <input onClick={(e)=>setInput(e.target.value)} value={input} type='text'placeholder='Search by name,shop, or cateogary'className='w-full h-full outline-none text-gray-500'/>
-
-                <FontAwesomeIcon icon={faFilter} className='w-4.5 h-4.5 ml-2' />
-            </div>
-        </div>
-
-        <div className='px-6 md:px-16 lg:px-24 xl:px-32 mt-10'>
-            <p>Showing {dummyItemData.length} Items</p>
-
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mt-4 xl:px-20 max-w-full mx-auto'>
-                {dummyItemData.map((product,index)=>(
-                    <div key={index}>
-                        <RentalItemCard product={product}/>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50">
+            {/* Hero Section */}
+            <div className='relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-slate-800'>
+                <div className="absolute inset-0 bg-black/20"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-600/90 to-transparent"></div>
+                
+                <div className='relative flex flex-col items-center py-24 px-4 max-w-7xl mx-auto'>
+                    <div className="text-center mb-12 animate-fade-in">
+                        <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                            Discover Amazing
+                            <span className="block bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                                Travel Items
+                            </span>
+                        </h1>
+                        <p className="text-xl text-teal-100 max-w-2xl mx-auto leading-relaxed">
+                            Browse our curated selection of premium items from trusted providers worldwide
+                        </p>
                     </div>
-                ))}
+
+                    {/* Search Bar */}
+                    <div className='relative max-w-2xl w-full mb-8 animate-slide-up'>
+                        <div className='flex items-center bg-white/95 backdrop-blur-sm px-6 py-4 rounded-2xl shadow-2xl border border-white/20'>
+                            <FontAwesomeIcon icon={faSearch} className='w-5 h-5 mr-4 text-teal-600' />
+                            <input 
+                                onChange={(e) => setInput(e.target.value)} 
+                                value={input} 
+                                type='text' 
+                                placeholder='Search by name, provider, or category...' 
+                                className='w-full outline-none text-gray-700 placeholder-gray-500 text-lg bg-transparent'
+                            />
+                            <FontAwesomeIcon icon={faFilter} className='w-5 h-5 ml-4 text-teal-600 cursor-pointer hover:text-teal-700 transition-colors' />
+                        </div>
+                    </div>
+
+                    {/* Category Filter */}
+                    <div className='flex gap-3 flex-wrap justify-center animate-slide-up' style={{animationDelay: '0.2s'}}>
+                        {categories.map((category, index) => (
+                            <button
+                                key={category}
+                                onClick={() => setSelectedCategory(category)}
+                                className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
+                                    selectedCategory === category
+                                        ? 'bg-white text-teal-700 shadow-lg scale-105'
+                                        : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm'
+                                }`}
+                                style={{animationDelay: `${index * 0.1}s`}}
+                            >
+                                {category.replace('_', ' ')}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Content Section */}
+            <div className='px-6 md:px-16 lg:px-24 xl:px-32 py-16'>
+                <div className="flex items-center justify-between mb-12">
+                    <div className="animate-fade-in">
+                        <h2 className="text-3xl font-bold text-gray-900 mb-2">Available Items</h2>
+                        <p className="text-gray-600">Showing {filteredItems.length} items from {providers.length} providers</p>
+                    </div>
+                    
+                    <div className="hidden md:flex items-center space-x-4 text-sm text-gray-500 animate-fade-in">
+                        <div className="flex items-center">
+                            <div className="w-3 h-3 bg-teal-500 rounded-full mr-2 animate-pulse"></div>
+                            Live Results
+                        </div>
+                    </div>
+                </div>
+
+                {providers.length === 0 ? (
+                    <div className="text-center py-32 animate-fade-in">
+                        <div className="max-w-md mx-auto">
+                            <div className="w-32 h-32 bg-gradient-to-br from-teal-100 to-teal-200 rounded-full flex items-center justify-center mx-auto mb-8">
+                                <FontAwesomeIcon icon={faSearch} className="text-5xl text-teal-600" />
+                            </div>
+                            <h3 className="text-3xl font-bold text-gray-900 mb-4">No items found</h3>
+                            <p className="text-gray-600 text-lg leading-relaxed">
+                                We couldn't find any items matching your criteria. Try adjusting your search or category filter.
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-full mx-auto'>
+                        {filteredItems.map((item, index) => (
+                            <div 
+                                key={`${item.id}-${index}`} 
+                                className="animate-fade-in-up"
+                                style={{animationDelay: `${index * 0.1}s`}}
+                            >
+                                <RentalItemCard product={item} imageMapper={imageMapper} />
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
-    </div>
-  )
+    )
 }

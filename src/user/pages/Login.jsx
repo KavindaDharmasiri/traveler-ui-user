@@ -55,7 +55,7 @@ export default function Login() {
 
       console.log("LOGIN RESPONSE:", response.data);
 
-      const { accessToken, refreshToken, tokenType, userId, email,type, name, tenantId } = response.data;
+      const { accessToken, refreshToken, tokenType, userId, email,type, name, tenantId, country } = response.data;
       
       // Save to localStorage
       localStorage.setItem('accessToken', accessToken);
@@ -66,6 +66,7 @@ export default function Login() {
       localStorage.setItem('name', name);
       localStorage.setItem('tenantId', tenantId);
       localStorage.setItem('type', type);
+      localStorage.setItem('country', country);
 
       setAuthState({ user: email, accessToken, tenantId });
       
@@ -95,7 +96,8 @@ export default function Login() {
           email,
           name,
           tenantId,
-          type
+          type,
+          country
         };
         const params = new URLSearchParams(authData).toString();
         window.location.href = `${NAVIGATION_CONFIG.TRAVELLER_APP_PROVIDER_URL}?${params}`;

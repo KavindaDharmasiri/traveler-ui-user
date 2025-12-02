@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { dummyItemData } from '../../../assets/assets'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import ProductDescription from './ProductDescription' // 👈 adjust path if needed
+import ProductDescription from './ProductDescription'
+import axios from '../../api/axios'
+import { API_CONFIG } from '../../../config/environment'
 
 // Fallback thumbnails if no extra images are provided
 const fallbackThumbnails = [
@@ -14,41 +15,80 @@ const fallbackThumbnails = [
 ]
 
 export default function ItemDetails() {
-  const { id } = useParams()
+  const { id, tenant } = useParams()
   const navigate = useNavigate()
   const [item, setItem] = useState(null)
   const [activeImage, setActiveImage] = useState(null)
+  const [imageMapper, setImageMapper] = useState({})
+  const [loading, setLoading] = useState(true)
 
-  // Load item based on URL param
-  useEffect(() => {
-    const foundItem = dummyItemData.find(
-      (it) => String(it.id) === String(id)
-    )
-
-    setItem(foundItem || null)
-
-    if (foundItem) {
-      if (foundItem.image) {
-        setActiveImage(foundItem.image)
-      } else {
-        setActiveImage(fallbackThumbnails[0])
+  const fetchImages = async (imageUuids) => {
+    const mapper = {}
+    for (const uuid of imageUuids) {
+      try {
+        const response = await axios.get(`storage/files/download/${uuid}`, {
+          responseType: 'blob'
+        })
+        mapper[uuid] = URL.createObjectURL(response.data)
+      } catch (error) {
+        console.error(`Error fetching image ${uuid}:`, error)
       }
     }
-  }, [id])
+    setImageMapper(mapper)
+  }
 
-  // Guard: while item is loading or not found
-  if (!item) {
+  useEffect(() => {
+    const fetchItem = async () => {
+      try {
+        const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/provider/item/${id}/${tenant}`, {
+          headers: {
+            'X-Tenant-Id': tenant
+          }
+        })
+        
+        const itemData = response.data
+        setItem(itemData)
+        
+        if (itemData.images && itemData.images.length > 0) {
+          await fetchImages(itemData.images)
+          setActiveImage(itemData.images[0])
+        } else {
+          setActiveImage(fallbackThumbnails[0])
+        }
+        
+        setLoading(false)
+      } catch (error) {
+        console.error('Error fetching item:', error)
+        setLoading(false)
+      }
+    }
+
+    if (id && tenant) {
+      fetchItem()
+    }
+  }, [id, tenant])
+
+  if (loading) {
     return (
-      <div className="px-6 md:px-16 lg:px-24 xl:px-32 mt-16">
-        <p>Loading item details...</p>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-teal-600"></div>
       </div>
     )
   }
 
-  const thumbnails = [item.image, ...fallbackThumbnails.slice(0, 3)]
+  if (!item) {
+    return (
+      <div className="px-6 md:px-16 lg:px-24 xl:px-32 mt-16">
+        <p>Item not found</p>
+      </div>
+    )
+  }
 
-  const displayPrice =
-    item.offerPrice && item.offerPrice > 0 ? item.offerPrice : item.price
+  const thumbnails = item.images && item.images.length > 0 
+    ? item.images.map(uuid => imageMapper[uuid]).filter(Boolean)
+    : fallbackThumbnails.slice(0, 4)
+
+  const displayPrice = item.pricePerDay
 
   return (
     <div className="px-6 md:px-16 lg:px-24 xl:px-32 mt-16">
@@ -71,31 +111,52 @@ export default function ItemDetails() {
           <div className="flex flex-col items-center space-y-4">
             <div className="w-full max-w-3xl">
               <img
-                src={activeImage}
-                alt={item.Brand || item.name || 'Item image'}
+                src={activeImage && imageMapper[activeImage] ? imageMapper[activeImage] : fallbackThumbnails[0]}
+                alt={item.name || 'Item image'}
                 className="w-full rounded-lg object-cover"
               />
             </div>
 
             <div className="grid grid-cols-4 max-w-3xl gap-4">
-              {thumbnails.map((src, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => setActiveImage(src)}
-                  className={`rounded-lg overflow-hidden border ${
-                    activeImage === src
-                      ? 'border-blue-500'
-                      : 'border-transparent'
-                  }`}
-                >
-                  <img
-                    src={src}
-                    alt={`Thumbnail ${index + 1}`}
-                    className="w-full md:h-24 h-14 object-cover cursor-pointer hover:opacity-80"
-                  />
-                </button>
-              ))}
+              {item.images && item.images.length > 0 ? (
+                item.images.map((uuid, index) => (
+                  <button
+                    key={uuid}
+                    type="button"
+                    onClick={() => setActiveImage(uuid)}
+                    className={`rounded-lg overflow-hidden border ${
+                      activeImage === uuid
+                        ? 'border-blue-500'
+                        : 'border-transparent'
+                    }`}
+                  >
+                    <img
+                      src={imageMapper[uuid] || fallbackThumbnails[0]}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full md:h-24 h-14 object-cover cursor-pointer hover:opacity-80"
+                    />
+                  </button>
+                ))
+              ) : (
+                fallbackThumbnails.slice(0, 4).map((src, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => setActiveImage(src)}
+                    className={`rounded-lg overflow-hidden border ${
+                      activeImage === src
+                        ? 'border-blue-500'
+                        : 'border-transparent'
+                    }`}
+                  >
+                    <img
+                      src={src}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full md:h-24 h-14 object-cover cursor-pointer hover:opacity-80"
+                    />
+                  </button>
+                ))
+              )}
             </div>
           </div>
 
@@ -103,21 +164,24 @@ export default function ItemDetails() {
           <div className="space-y-4">
             <div>
               <h1 className="text-3xl font-bold">
-                {item.Brand || item.name}
+                {item.name}
               </h1>
               <p className="text-gray-500 text-lg">
-                {item.category}
+                {item.category.replace('_', ' ')}
               </p>
               <p className="mt-2 text-sm">
                 <span
                   className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                    item.isAvailable
+                    item.status === 'ACTIVE'
                       ? 'bg-green-100 text-green-700'
                       : 'bg-red-100 text-red-700'
                   }`}
                 >
-                  {item.isAvailable ? 'Available' : 'Not Available'}
+                  {item.status === 'ACTIVE' ? 'Available' : item.status}
                 </span>
+              </p>
+              <p className="text-sm text-gray-600 mt-2">
+                Contact: {item.contact}
               </p>
             </div>
 
@@ -132,20 +196,11 @@ export default function ItemDetails() {
         <form className="shadow-lg h-max sticky top-18 rounded-xl p-6 space-y-6 text-gray-500">
           <div className="space-y-1">
             <p className="flex items-center justify-between text-2xl text-gray-800 font-semibold">
-              Rs {displayPrice}
+              {item.currency} {displayPrice}
               <span className="text-base text-gray-400 font-normal">
                 per day
               </span>
             </p>
-
-            {item.isDiscount && item.offerPrice > 0 && (
-              <p className="text-sm text-gray-500">
-                <span className="line-through mr-2">Rs {item.price}</span>
-                <span className="text-green-600 font-medium">
-                  Save Rs {item.price - item.offerPrice}
-                </span>
-              </p>
-            )}
           </div>
 
           <hr className="border-borderColor my-6" />
@@ -173,14 +228,14 @@ export default function ItemDetails() {
 
           <button
             type="submit"
-            disabled={!item.isAvailable}
+            disabled={item.status !== 'ACTIVE'}
             className={`w-full transition-all py-3 font-medium text-white rounded-xl cursor-pointer ${
-              item.isAvailable
+              item.status === 'ACTIVE'
                 ? 'bg-[#217964] hover:bg-[#399e8a]'
                 : 'bg-gray-400 cursor-not-allowed'
             }`}
           >
-            {item.isAvailable ? 'Book Now' : 'Currently Unavailable'}
+            {item.status === 'ACTIVE' ? 'Book Now' : 'Currently Unavailable'}
           </button>
 
           <p className="text-center text-sm">

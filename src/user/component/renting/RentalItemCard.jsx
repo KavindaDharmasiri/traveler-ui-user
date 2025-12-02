@@ -1,66 +1,179 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faBoxOpen } from '@fortawesome/free-solid-svg-icons'
 
-export default function RentalItemCard({product}) {
+export default function RentalItemCard({product, imageMapper}) {
  const [count, setCount] = React.useState(0);
- const navigate =useNavigate()
+ const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+ const navigate = useNavigate()
 
  const discountPercentage = product.isDiscount 
     ? Math.round(((product.price - product.offerPrice) / product.price) * 100) 
     : 0;
 
     return (
-        <div onClick={()=>{navigate(`/item-details/${product.id}`);scrollTo(0,0)}} className="group border border-gray-500/20 overflow-hidden shadow-lg hover:-translate-y-1 transition-all duration-500 rounded-xl md:px-2 px-3 py-2 bg-white min-w-60 max-w-60 w-full cursor-pointer">
-            <div className="relative  h-48 overflow-hidden">
-                <img className="object-cover transition-transform duration-500 group-hover:scale-105 transition w-full h-full" src={product.image} alt={product.name} />
-                {product.isAvailable && <p className='absolute bottom-4 left-1 bg-[#3333cc] text-white text-xs px-2.5 py-1 rounded-full'>Available Now</p>}
-                {product.isDiscount && <p className='absolute top-4 right-1 bg-red-600 text-white text-xs px-2.5 py-1 rounded-full'>- {discountPercentage}% OFF</p>}
-            </div>
-            <div className="text-gray-500/60 text-sm">
-                <p>{product.category}</p>
-                <p className="text-gray-700 font-medium text-lg truncate w-full">{product.name}</p>
-                <div className="flex items-center gap-0.5">
-                    {Array(5).fill('').map((_, i) => (
-                        product.rating > i ? (
-                            <svg key={i} width="14" height="13" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8.049.927c.3-.921 1.603-.921 1.902 0l1.294 3.983a1 1 0 0 0 .951.69h4.188c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 0 0-.364 1.118l1.295 3.983c.299.921-.756 1.688-1.54 1.118L9.589 13.63a1 1 0 0 0-1.176 0l-3.389 2.46c-.783.57-1.838-.197-1.539-1.118L4.78 10.99a1 1 0 0 0-.363-1.118L1.028 7.41c-.783-.57-.38-1.81.588-1.81h4.188a1 1 0 0 0 .95-.69z" fill="#217964" />
-                            </svg>
-                        ) : (
-                            <svg width="14" height="13" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8.04894 0.927049C8.3483 0.00573802 9.6517 0.00574017 9.95106 0.927051L11.2451 4.90983C11.379 5.32185 11.763 5.60081 12.1962 5.60081H16.3839C17.3527 5.60081 17.7554 6.84043 16.9717 7.40983L13.5838 9.87132C13.2333 10.126 13.0866 10.5773 13.2205 10.9894L14.5146 14.9721C14.8139 15.8934 13.7595 16.6596 12.9757 16.0902L9.58778 13.6287C9.2373 13.374 8.7627 13.374 8.41221 13.6287L5.02426 16.0902C4.24054 16.6596 3.18607 15.8934 3.48542 14.9721L4.7795 10.9894C4.91338 10.5773 4.76672 10.126 4.41623 9.87132L1.02827 7.40983C0.244561 6.84043 0.647338 5.60081 1.61606 5.60081H5.8038C6.23703 5.60081 6.62099 5.32185 6.75486 4.90983L8.04894 0.927049Z" fill="#217964" fill-opacity="0.35" />
-                            </svg>
-                        )
-                    ))}
-                    <p>({product.rating})</p>
+        <div
+            onClick={() => {
+                navigate(`/item-details/${product.id}/${product.tenant}`);
+                scrollTo(0, 0)
+            }}
+            className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-gray-100 overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] cursor-pointer backdrop-blur-sm"
+        >
+            <div className="relative h-56 overflow-hidden rounded-t-2xl">
+                {product.images && product.images.length > 0 ? (
+                    <>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10"></div>
+                        <img
+                            className="object-cover transition-all duration-700 group-hover:scale-110 w-full h-full"
+                            src={imageMapper[product.images[currentImageIndex]]}
+                            alt={product.name}
+                        />
+                        {product.images.length > 1 && (
+                            <>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        setCurrentImageIndex(prev => (prev - 1 + product.images.length) % product.images.length)
+                                    }}
+                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/95 backdrop-blur-sm text-gray-800 rounded-full w-8 h-8 flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 shadow-xl z-20 opacity-0 group-hover:opacity-100"
+                                >
+                                    <span className="text-sm font-bold">‹</span>
+                                </button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        setCurrentImageIndex(prev => (prev + 1) % product.images.length)
+                                    }}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/95 backdrop-blur-sm text-gray-800 rounded-full w-8 h-8 flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300 shadow-xl z-20 opacity-0 group-hover:opacity-100"
+                                >
+                                    <span className="text-sm font-bold">›</span>
+                                </button>
+                                <div
+                                    className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+                                    {product.images.map((_, idx) => (
+                                        <div
+                                            key={idx}
+                                            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                                idx === currentImageIndex
+                                                    ? 'bg-white scale-125 shadow-lg'
+                                                    : 'bg-white/70 hover:bg-white/90'
+                                            }`}
+                                        />
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </>
+                ) : (
+                    <div
+                        className="flex items-center justify-center h-full bg-gradient-to-br from-gray-100 to-gray-200">
+                        <div className="text-gray-400 text-center">
+                            <div
+                                className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mb-3 mx-auto">
+                                <FontAwesomeIcon icon={faBoxOpen} className="text-2xl"/>
+                            </div>
+                            <div className="text-sm font-medium">No image available</div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Status Badge */}
+                <div className="absolute top-3 right-3 z-20">
+                    <span
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md shadow-lg transition-all duration-300 ${
+                            product.status === 'ACTIVE'
+                                ? "bg-emerald-500/90 text-white border border-emerald-400/50"
+                                : "bg-red-500/90 text-white border border-red-400/50"
+                        }`}>
+                        {product.status === 'ACTIVE' ? "Available" : product.status}
+                    </span>
                 </div>
-                <div className="flex items-end justify-between mt-3">
-                    <p className="md:text-xl text-base font-medium text-[#dc2626]">
-                       
-                        ${product.offerPrice} 
-                        
-                        <span className="relative text-gray-500/60 md:text-sm text-xs ml-2"> 
-                            <span className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-red-600"></span>
-                            ${product.price}
+
+                {/* Provider Badge */}
+                <div className="absolute top-3 left-3 z-20">
+                    <span
+                        className="px-3 py-1.5 rounded-full text-xs font-semibold bg-teal-600/90 text-white backdrop-blur-md shadow-lg">
+                        {product.providerName}
+                    </span>
+                </div>
+            </div>
+            <div className="p-6">
+                <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                        <span
+                            className="px-2 py-1 bg-teal-100 text-teal-700 text-xs font-semibold rounded-lg uppercase tracking-wide">
+                            {product.category.replace('_', ' ')}
                         </span>
-                        
-                       
-                        <span className='text-sm text-black/20'>/ day</span>
-                    </p>
-                    <div className="text-indigo-500">
-                        {count === 0 ? (
-                            <button className="flex items-center justify-center gap-1 bg-emerald-50 border border-emerald-300 md:w-[80px] w-[64px] h-[34px] rounded text-[#217964] font-medium" onClick={() => setCount(1)} >
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0" stroke="#217964" stroke-linecap="round" stroke-linejoin="round" />
+                        <div className="flex items-center space-x-1">
+                            {Array(5).fill('').map((_, i) => (
+                                <svg key={i} className={`w-4 h-4 ${i < 4 ? 'text-yellow-400' : 'text-gray-300'}`}
+                                     fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                 </svg>
-                                Book
+                            ))}
+                            <span className="text-sm text-gray-500 ml-1">(4.0)</span>
+                        </div>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-teal-700 transition-colors duration-300">
+                        {product.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed mb-4">
+                        {product.description || 'Premium quality item available for rent'}
+                    </p>
+                </div>
+
+                <div className="flex items-center justify-between">
+                    <div>
+                        <div className="flex items-baseline space-x-1">
+                            <span className="text-2xl font-bold text-teal-600">
+                                {product.currency} {product.pricePerDay}
+                            </span>
+                            <span className="text-sm text-gray-500 font-medium">/ day</span>
+                        </div>
+                        <div className="text-xs text-gray-400 mt-1">
+                            Contact: {product.contact}
+                        </div>
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        {count === 0 ? (
+                            <button
+                                className="flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setCount(1)
+                                }}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 14 14" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0"
+                                        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
+                                        strokeLinejoin="round"/>
+                                </svg>
+                                Book Now
                             </button>
                         ) : (
-                            <div className="flex items-center justify-center gap-2 md:w-20 w-16 h-[34px] bg-indigo-500/25 rounded select-none">
-                                <button onClick={() => setCount((prev) => Math.max(prev - 1, 0))} className="cursor-pointer text-md px-2 h-full" >
-                                    -
+                            <div
+                                className="flex items-center justify-center bg-teal-50 border-2 border-teal-200 rounded-xl p-1">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        setCount((prev) => Math.max(prev - 1, 0))
+                                    }}
+                                    className="w-8 h-8 flex items-center justify-center text-teal-600 hover:bg-teal-100 rounded-lg transition-colors font-bold"
+                                >
+                                    −
                                 </button>
-                                <span className="w-5 text-center">{count}</span>
-                                <button onClick={() => setCount((prev) => prev + 1)} className="cursor-pointer text-md px-2 h-full" >
+                                <span className="w-12 text-center font-bold text-teal-700">{count}</span>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        setCount((prev) => prev + 1)
+                                    }}
+                                    className="w-8 h-8 flex items-center justify-center text-teal-600 hover:bg-teal-100 rounded-lg transition-colors font-bold"
+                                >
                                     +
                                 </button>
                             </div>
