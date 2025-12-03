@@ -55,9 +55,14 @@ export default function Login() {
 
       console.log("LOGIN RESPONSE:", response.data);
 
-      const { accessToken, refreshToken, tokenType, userId, email,type, name, tenantId, country } = response.data;
+      const { accessToken, refreshToken, tokenType, userId, email, type, name, tenantId, country } = response.data;
       
-      // Save to localStorage
+      // Validate required fields before proceeding
+      if (!accessToken || !type || !email) {
+        throw new Error('Invalid login response - missing required data');
+      }
+      
+      // Save to localStorage only after validation
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('tokenType', tokenType);
@@ -82,12 +87,11 @@ export default function Login() {
       setUser("");
       setPassword("");
 
-      // Navigate based on user type
+      // Navigate based on user type - only after all validation passes
       if (type === 'TRAVELLER') {
         navigate('/provider', { replace: true });
       } else if (type === 'SERVICE_PROVIDER') {
         console.log('provider login')
-        // Pass auth data via URL params as backup
         const authData = {
           accessToken,
           refreshToken,
@@ -120,12 +124,16 @@ export default function Login() {
         errorMessage = "User Not Found";
       }
 
+      setErrMsg(errorMessage);
+
       Swal.fire({
         icon: 'error',
         title: 'Login Failed',
         text: errorMessage,
         confirmButtonColor: '#0f766e'
       });
+      
+      return;
     }
   };
 

@@ -21,6 +21,9 @@ export default function ItemDetails() {
   const [activeImage, setActiveImage] = useState(null)
   const [imageMapper, setImageMapper] = useState({})
   const [loading, setLoading] = useState(true)
+  const [pickupDate, setPickupDate] = useState('')
+  const [returnDate, setReturnDate] = useState('')
+  const [booking, setBooking] = useState(false)
 
   const fetchImages = async (imageUuids) => {
     const mapper = {}
@@ -89,6 +92,42 @@ export default function ItemDetails() {
     : fallbackThumbnails.slice(0, 4)
 
   const displayPrice = item.pricePerDay
+
+  const calculateRentalDays = () => {
+    if (!pickupDate || !returnDate) return 0
+    const pickup = new Date(pickupDate)
+    const returnD = new Date(returnDate)
+    const diffTime = Math.abs(returnD - pickup)
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  }
+
+  const handleBooking = async (e) => {
+    e.preventDefault()
+    if (!pickupDate || !returnDate) return
+    
+    setBooking(true)
+    try {
+      const rentalDays = calculateRentalDays()
+      const totalPrice = rentalDays * item.pricePerDay
+      
+      await axios.post(`${API_CONFIG.BASE_URL}core/api/v1/order/create`, {
+        customerName: localStorage.getItem('name'),
+        item: parseInt(id),
+        totalPrice: totalPrice,
+        rentalDays: rentalDays,
+        clientTenant: localStorage.getItem('tenantId'),
+        providerTenant: tenant
+      })
+      
+      alert('Booking successful!')
+      navigate(-1)
+    } catch (error) {
+      console.error('Booking failed:', error)
+      alert('Booking failed. Please try again.')
+    } finally {
+      setBooking(false)
+    }
+  }
 
   return (
     <div className="px-6 md:px-16 lg:px-24 xl:px-32 mt-16">
@@ -193,7 +232,7 @@ export default function ItemDetails() {
         </div>
 
         {/* RIGHT: Booking / Actions panel */}
-        <form className="shadow-lg h-max sticky top-18 rounded-xl p-6 space-y-6 text-gray-500">
+        <form onSubmit={handleBooking} className="shadow-lg h-max sticky top-18 rounded-xl p-6 space-y-6 text-gray-500">
           <div className="space-y-1">
             <p className="flex items-center justify-between text-2xl text-gray-800 font-semibold">
               {item.currency} {displayPrice}
@@ -212,6 +251,8 @@ export default function ItemDetails() {
               className="border border-gray-300 px-3 py-2 rounded-lg"
               required
               id="pickup-date"
+              value={pickupDate}
+              onChange={(e) => setPickupDate(e.target.value)}
               min={new Date().toISOString().split('T')[0]}
             />
           </div>
@@ -223,19 +264,22 @@ export default function ItemDetails() {
               className="border border-gray-300 px-3 py-2 rounded-lg"
               required
               id="return-date"
+              value={returnDate}
+              onChange={(e) => setReturnDate(e.target.value)}
+              min={pickupDate || new Date().toISOString().split('T')[0]}
             />
           </div>
 
           <button
             type="submit"
-            disabled={item.status !== 'ACTIVE'}
+            disabled={item.status !== 'ACTIVE' || booking}
             className={`w-full transition-all py-3 font-medium text-white rounded-xl cursor-pointer ${
-              item.status === 'ACTIVE'
+              item.status === 'ACTIVE' && !booking
                 ? 'bg-[#217964] hover:bg-[#399e8a]'
                 : 'bg-gray-400 cursor-not-allowed'
             }`}
           >
-            {item.status === 'ACTIVE' ? 'Book Now' : 'Currently Unavailable'}
+            {booking ? 'Booking...' : item.status === 'ACTIVE' ? 'Book Now' : 'Currently Unavailable'}
           </button>
 
           <p className="text-center text-sm">

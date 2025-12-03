@@ -23,10 +23,10 @@ export default function App() {
         <Route path="/item-details/:id/:tenant" element={<ItemDetails />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/my-bookings" element={<Booking />} />
 
         {/* protected routes */}
         <Route element={<RequireAuth />}>
-          <Route path="/my-bookings" element={<Booking />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/provider" element={<ProviderDashboard />} />
         </Route>

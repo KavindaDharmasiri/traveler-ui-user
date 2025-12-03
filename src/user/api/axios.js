@@ -31,14 +31,27 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const currentPath = window.location.pathname;
     
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Handle 401 (Unauthorized) and 403 (Forbidden)
+    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       originalRequest._retry = true;
       
       const refreshToken = localStorage.getItem('refreshToken');
+      const accessToken = localStorage.getItem('accessToken');
       const tenantId = localStorage.getItem('tenantId');
       
-      if (refreshToken) {
+      // If no tokens exist or 403 error, redirect to login (unless already there)
+      if (!accessToken || !refreshToken || error.response?.status === 403) {
+        localStorage.clear();
+        if (currentPath !== '/login' && currentPath !== '/signup') {
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+      
+      // Try to refresh token for 401 errors
+      if (error.response?.status === 401 && refreshToken) {
         try {
           const response = await axios.post(`${API_CONFIG.BASE_URL}auth/refresh?refreshToken=${refreshToken}`, null, {
             headers: {
@@ -57,12 +70,11 @@ axiosInstance.interceptors.response.use(
           return axiosInstance(originalRequest);
         } catch (refreshError) {
           localStorage.clear();
-          window.location.href = '/login';
+          if (currentPath !== '/login' && currentPath !== '/signup') {
+            window.location.href = '/login';
+          }
           return Promise.reject(refreshError);
         }
-      } else {
-        localStorage.clear();
-        window.location.href = '/login';
       }
     }
     

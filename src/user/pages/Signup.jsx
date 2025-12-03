@@ -492,6 +492,10 @@ export default function Signup() {
         showError("Address required", "Please fill all address fields.");
         return false;
       }
+      if (userType === "SERVICE_PROVIDER" && !googleMapsUrl) {
+        showError("Google Maps Link required", "Please provide a Google Maps location link.");
+        return false;
+      }
       if (!validateContact(contactNumber)) {
         showError("Invalid contact", "Please enter a valid phone number.");
         return false;
@@ -557,6 +561,7 @@ export default function Signup() {
           postalCode
         },
         country: selectedCountry,
+        googleMapsUrl: googleMapsUrl,
         bankDetails: {
           accountNumber,
           holderName: accountName,
@@ -1109,7 +1114,7 @@ export default function Signup() {
                   htmlFor="googleMapsUrl"
                   className="block text-sm font-medium text-slate-700"
                 >
-                  Google Maps Location Link
+                  Google Maps Location Link {userType === "SERVICE_PROVIDER" && <span className="text-red-500">*</span>}
                 </label>
                 <input
                   type="url"
@@ -1117,6 +1122,7 @@ export default function Signup() {
                   placeholder="https://maps.google.com/..."
                   onChange={(e) => setGoogleMapsUrl(e.target.value)}
                   value={googleMapsUrl}
+                  required={userType === "SERVICE_PROVIDER"}
                   className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                 />
               </div>
