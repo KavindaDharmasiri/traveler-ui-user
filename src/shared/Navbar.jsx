@@ -2,15 +2,24 @@ import React from 'react'
 import {Link} from 'react-router-dom'
 import { menulinks } from '../assets/assets' 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShop } from '@fortawesome/free-solid-svg-icons'
+import { faShop,faBagShopping,faBell,faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import TravelerLogo from './TravelerLogo';
 import axios from '../user/api/axios';
+import { useCart } from '../user/component/cart/CartContext';
+import { useNotifications } from '../user/component/notification/NotificationContext';
+
 
 export default function Navbar() {
     
     // isScrolled will be TRUE when scrolled down > 10px
  const [isScrolled, setIsScrolled] = React.useState(false); 
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+    const { setIsOpen, cartItems } = useCart();
+    const itemCount = cartItems.length;
+
+    
+    const { setIsOpen: openNotif, newCount } = useNotifications();
 
     React.useEffect(() => {
         const handleScroll = () => {
@@ -78,10 +87,30 @@ export default function Navbar() {
                     {/* Desktop Right */}
                     <div className="hidden md:flex items-center gap-4">
                         {/* Search Icon - Color Swaps */}
-                        <svg className={`h-6 w-6 transition-all duration-500 ${!isScrolled ? "text-white" : "text-gray-700"}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <circle cx="11" cy="11" r="8" />
-                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                        </svg>
+                        <div className={` cursor-pointer ${!isScrolled ? "text-white hover:opacity-50 transition-opacity" : "text-gray-700 hover:text-[#217964]"}`} >
+                            <FontAwesomeIcon icon={faMagnifyingGlass} />
+                        </div>
+                        <div
+                            onClick={() => setIsOpen(true)}
+                            className={`relative cursor-pointer ${
+                                !isScrolled
+                                ? "text-white hover:opacity-50 transition-opacity"
+                                : "text-gray-700 hover:text-[#217964]"
+                            }`}
+                            >
+                            <FontAwesomeIcon icon={faBagShopping} />
+                            <span className="absolute -bottom-2 -right-1 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
+                                {itemCount}
+                            </span>
+                        </div>
+                        <div className={`relative cursor-pointer ${!isScrolled ? "text-white hover:opacity-50 transition-opacity" : "text-gray-700 hover:text-[#217964]"}`} onClick={() => openNotif(true)}>
+                            <FontAwesomeIcon icon={faBell} />
+                           {newCount > 0 && (
+                            <span className="absolute -bottom-2 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+                                {newCount}
+                            </span>
+                            )}
+                        </div>
                         
                         {/* Login Link */}
                         {localStorage.getItem('accessToken') ? (

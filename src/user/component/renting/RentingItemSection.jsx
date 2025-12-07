@@ -18,18 +18,14 @@ export default function RentingItemSection() {
         </div>
 
 
-        <div className='flex flex-wrap flex-col items-center sm:flex-row sm:items-start mt-8 pl-20  '>
-            {
-                dummyItemData.slice(0, 6).map((product) => (
-                   <div className='m-6'>
-                    <RentalItemCard 
-                        key={product.id} 
-                        product={product}
-                    />
-                    </div>
-                ))
-            }
+        <div className='flex flex-wrap flex-col items-center sm:flex-row sm:items-start mt-8 pl-20'>
+        {dummyItemData.slice(0, 6).map((product) => (
+            <div className='m-6' key={product.id}>   
+            <RentalItemCard product={product} />
+            </div>
+        ))}
         </div>
+
         <button onClick={()=>{
             navigate('/rentItems');scrollTo(0,0)
         }}
