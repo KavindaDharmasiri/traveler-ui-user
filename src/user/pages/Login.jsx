@@ -105,6 +105,7 @@ export default function Login() {
         };
         const params = new URLSearchParams(authData).toString();
         window.location.href = `${NAVIGATION_CONFIG.TRAVELLER_APP_PROVIDER_URL}?${params}`;
+        localStorage.clear();
       } else {
         navigate(from, { replace: true });
       }

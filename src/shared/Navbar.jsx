@@ -7,6 +7,7 @@ import TravelerLogo from './TravelerLogo';
 import axios from '../user/api/axios';
 import { useCart } from '../user/component/cart/CartContext';
 import { useNotifications } from '../user/component/notification/NotificationContext';
+import Swal from 'sweetalert2';
 
 
 export default function Navbar() {
@@ -141,15 +142,28 @@ export default function Navbar() {
                                 >
                                     <button 
                                         onClick={() => {
-                                            const refreshToken = localStorage.getItem('refreshToken');
-                                            localStorage.clear();
-                                            window.location.href = '/login';
-                                            
-                                            if (refreshToken) {
-                                                axios.post(`auth/logout?refreshToken=${refreshToken}`).catch(error => {
-                                                    console.error('Logout error:', error);
-                                                });
-                                            }
+                                            Swal.fire({
+                                                icon: 'question',
+                                                title: 'Logout',
+                                                text: 'Are you sure you want to logout?',
+                                                showCancelButton: true,
+                                                confirmButtonText: 'Yes, logout',
+                                                cancelButtonText: 'Cancel',
+                                                confirmButtonColor: '#0f766e',
+                                                cancelButtonColor: '#6b7280'
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    const refreshToken = localStorage.getItem('refreshToken');
+                                                    localStorage.clear();
+                                                    window.location.href = '/login';
+                                                    
+                                                    if (refreshToken) {
+                                                        axios.post(`auth/logout?refreshToken=${refreshToken}`).catch(error => {
+                                                            console.error('Logout error:', error);
+                                                        });
+                                                    }
+                                                }
+                                            });
                                         }}
                                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                                     >
