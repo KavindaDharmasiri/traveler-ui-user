@@ -2,17 +2,21 @@
 import React, { useMemo, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBagShopping } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 import { cartService } from "../../api/cartService";
 import axios from "../../api/axios";
 
 import CartHeader from "./CartHeader";
 import CartItem from "./CartItem";
 import CartSummary from "./CartSummary";
+import PaymentModal from "./PaymentModal";
 
 const RentalCart = ({ isOpen, setIsOpen, cartItems }) => {
+  const navigate = useNavigate();
   const [taxRate, setTaxRate] = useState(0.08);
   const [backendCartItems, setBackendCartItems] = useState([]);
   const [imageMapper, setImageMapper] = useState({});
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   const fetchImages = async (imageUuids) => {
     const mapper = {};
@@ -110,9 +114,20 @@ const RentalCart = ({ isOpen, setIsOpen, cartItems }) => {
           subtotal={subtotal}
           taxes={taxes}
           total={total}
-          onContinueShopping={() => setIsOpen(false)}
+          onContinueShopping={() => {
+            setIsOpen(false);
+            navigate('/rentItems');
+          }}
+          onProceedToCheckout={() => setIsPaymentModalOpen(true)}
         />
       </div>
+
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        total={total}
+        orderCodes={backendCartItems.map(cart => cart.order?.orderCode).filter(Boolean)}
+      />
     </div>
   );
 };

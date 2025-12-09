@@ -1,7 +1,7 @@
 // src/components/cart/CartSummary.jsx
 import React from "react";
 
-const CartSummary = ({ subtotal, taxes, total, onContinueShopping }) => {
+const CartSummary = ({ subtotal, taxes, total, onContinueShopping, onProceedToCheckout }) => {
   return (
     <div className="p-5 border-t border-gray-200 bg-gray-50">
       <div className="space-y-1 mb-4 text-sm">
@@ -22,7 +22,10 @@ const CartSummary = ({ subtotal, taxes, total, onContinueShopping }) => {
       </div>
 
       <div className="space-y-3">
-        <button className="w-full bg-emerald-700 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-emerald-800">
+        <button
+          onClick={onProceedToCheckout}
+          className="w-full bg-emerald-700 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-emerald-800"
+        >
           Proceed to Checkout
         </button>
 
