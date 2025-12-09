@@ -19,8 +19,7 @@ export default function Navbar() {
     const { setIsOpen, cartItems } = useCart();
     const itemCount = cartItems.length;
 
-    
-    const { setIsOpen: openNotif, newCount } = useNotifications();
+    const { setIsOpen: openNotif, unreadCount } = useNotifications();
 
     React.useEffect(() => {
         const handleScroll = () => {
@@ -106,9 +105,9 @@ export default function Navbar() {
                         </div>
                         <div className={`relative cursor-pointer ${!isScrolled ? "text-white hover:opacity-50 transition-opacity" : "text-gray-700 hover:text-[#217964]"}`} onClick={() => openNotif(true)}>
                             <FontAwesomeIcon icon={faBell} />
-                           {newCount > 0 && (
-                            <span className="absolute -bottom-2 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
-                                {newCount}
+                           {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+                                {unreadCount}
                             </span>
                             )}
                         </div>
