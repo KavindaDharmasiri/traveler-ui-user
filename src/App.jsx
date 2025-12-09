@@ -11,6 +11,7 @@ import AdminDashboard from "./admin/pages/AdminDashboard";
 import ProviderDashboard from "./provider/pages/ProviderDashboard";
 import RequireAuth from "./user/pages/RequireAuth";
 import RentalCart from "./user/component/cart/RentalCart";
+import Profile from "./user/pages/Profile";
 import { useState } from "react";
 import {initialCartItems} from "./user/cartData";
 
@@ -36,9 +37,11 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/my-bookings" element={<Booking />} />
+            <Route path="/profile" element={<Profile />} />
             <Route element={<RequireAuth />}>
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/provider" element={<ProviderDashboard />} />
+              
             </Route>
           </Route>
         </Routes>
