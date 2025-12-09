@@ -5,6 +5,7 @@ import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import ProductDescription from './ProductDescription'
 import axios from '../../api/axios'
 import { API_CONFIG } from '../../../config/environment'
+import Swal from 'sweetalert2'
 
 // Fallback thumbnails if no extra images are provided
 const fallbackThumbnails = [
@@ -119,11 +120,21 @@ export default function ItemDetails() {
         providerTenant: tenant
       })
       
-      alert('Booking successful!')
-      navigate(-1)
+      Swal.fire({
+        icon: 'success',
+        title: 'Booking successful!',
+        confirmButtonColor: '#0f766e'
+      }).then(() => {
+        navigate(-1)
+      })
     } catch (error) {
       console.error('Booking failed:', error)
-      alert('Booking failed. Please try again.')
+      Swal.fire({
+        icon: 'error',
+        title: 'Booking failed',
+        text: 'Please try again.',
+        confirmButtonColor: '#0f766e'
+      })
     } finally {
       setBooking(false)
     }

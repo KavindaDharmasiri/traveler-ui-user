@@ -13,6 +13,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { useNotifications } from "./NotificationContext";
+import { useCart } from "../cart/CartContext";
 
 const icons = {
   success: (
@@ -46,6 +47,7 @@ const icons = {
 
 const NotificationModal = () => {
   const { isOpen, setIsOpen, notifications, markAsRead } = useNotifications();
+  const { setIsOpen: setCartOpen } = useCart();
   const navigate = useNavigate();
 
   if (!isOpen) return null;
@@ -57,34 +59,42 @@ const NotificationModal = () => {
     return acc;
   }, {});
 
-  // Handle button / CTA click per notification
-  const handleNotificationAction = (notif) => {
-    // mark as read
-    markAsRead(notif.id);
+  const sortedCategories = Object.entries(grouped).sort(([catA], [catB]) => 
+    catA === "New Notifications" ? -1 : catB === "New Notifications" ? 1 : 0
+  );
 
-    // Navigate based on type or actionType
-    switch (notif.actionType) {
-      case "booking":
+  // Handle button / CTA click per notification
+  const handleNotificationAction = async (notif) => {
+    // mark as read
+    await markAsRead(notif.id);
+    setIsOpen(false);
+
+    // Navigate based on notification type
+    const type = notif.type?.toUpperCase();
+    if (type === "ORDER_ACCEPTED") {
+      setCartOpen(true);
+      return;
+    }
+
+    switch (type) {
+      case "ORDER_REQUEST":
+      case "ORDER_REJECTED":
+      case "ORDER_CONFIRMED":
+      case "ORDER_PLACED":
+      case "ORDER_REMINDER":
+      case "PENDING_PAYMENT":
+      case "PAYMENT_RECEIVED":
+      case "PAYMENT_SUCCESS":
+      case "PAYMENT_FAILED":
+      case "ORDER":
+      case "PAYMENT":
         navigate("/my-bookings");
         break;
-      case "schedule":
-        navigate("/schedule-return"); // <- create/adjust this route as you like
-        break;
-      case "map":
-        navigate("/pickup-location"); // placeholder route
-        break;
-      case "review":
-        navigate("/reviews"); // placeholder route
-        break;
-      case "invoice":
-        navigate("/invoices"); // placeholder route
-        break;
-      case "policy":
-        navigate("/account/policy"); // placeholder route
+      case "REVIEW":
+        navigate("/my-bookings");
         break;
       default:
-        // fallback behaviour
-        console.log("Notification clicked:", notif);
+        navigate("/");
     }
   };
 
@@ -105,14 +115,14 @@ const NotificationModal = () => {
 
         {/* Notification List */}
         <div className="max-h-[80vh] overflow-y-auto divide-y divide-gray-100">
-          {Object.entries(grouped).map(([category, list]) => (
+          {sortedCategories.map(([category, list]) => (
             <div key={category} className="mb-4">
               <h3 className="text-base font-bold text-gray-700 px-4 py-2 bg-gray-100 border-t border-b border-gray-200">
                 {category}
               </h3>
 
               {list.map((n) => {
-                const isUnread = !n.isRead && n.category === "New Notifications";
+                const isUnread = !n.isRead;
 
                 return (
                   <div
@@ -122,7 +132,7 @@ const NotificationModal = () => {
                       ${
                         isUnread
                           ? "bg-[#217964] text-white hover:bg-[#1b6354]"
-                          : "hover:bg-gray-50"
+                          : "bg-white hover:bg-gray-50"
                       }`}
                   >
                     {/* Left side: icon + text */}

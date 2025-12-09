@@ -5,11 +5,11 @@ import { faCalendarAlt, faDollarSign, faBox, faClock } from '@fortawesome/free-s
 import { getOrderStatusStyles} from '../../../assets/assets';
 
 
-export function OrderCard({ order, onViewDetails }) {
+export function OrderCard({ order}) {
     return (
         <div 
             className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-gray-200 hover:border-l-4 hover:border-[#217964] transition duration-300 grid grid-cols-1 md:grid-cols-5 gap-4 items-center cursor-pointer"
-            onClick={() => onViewDetails(order.orderId)} // Clickable Card
+            // onClick={() => onViewDetails(order.orderId)} // Clickable Card
         >
             
             {/* Order ID & Status */}
@@ -41,11 +41,11 @@ export function OrderCard({ order, onViewDetails }) {
                 <p className="text-xs font-medium text-gray-500">Total Items</p>
                 <p className="text-lg font-bold text-gray-800 flex items-center justify-center md:justify-start gap-1">
                     <FontAwesomeIcon icon={faBox} className='text-orange-500' size='sm'/>
-                    {order.totalItems}
+                    {order.item || order.totalItems || 0}
                 </p>
                 <span className="text-sm font-semibold text-[#217964] flex items-center justify-center md:justify-start gap-1">
                     <FontAwesomeIcon icon={faDollarSign} size='sm'/>
-                    {order.totalTripPrice.toFixed(2)}
+                    {((order.totalPrice || order.totalTripPrice || 0).toFixed(2))}
                 </span>
             </div>
 

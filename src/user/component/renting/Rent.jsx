@@ -83,7 +83,7 @@ export default function Rent() {
         console.log(filtered)
     }
 
-    const categories = ['ALL', 'ELECTRONICS', 'VEHICLES', 'CAMPING', 'HOTELS']
+    const categories = ['ALL', 'ELECTRONICS', 'VEHICLES', 'CAMPING', 'HOTELS', 'OUTDO0OR', 'WATERSPORTS', 'LUGGAGE']
 
     if (loading) {
         return (

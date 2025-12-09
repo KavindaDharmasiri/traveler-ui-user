@@ -7,6 +7,7 @@ import TravelerLogo from './TravelerLogo';
 import axios from '../user/api/axios';
 import { useCart } from '../user/component/cart/CartContext';
 import { useNotifications } from '../user/component/notification/NotificationContext';
+import Swal from 'sweetalert2';
 
 
 export default function Navbar() {
@@ -18,8 +19,7 @@ export default function Navbar() {
     const { setIsOpen, cartItems } = useCart();
     const itemCount = cartItems.length;
 
-    
-    const { setIsOpen: openNotif, newCount } = useNotifications();
+    const { setIsOpen: openNotif, unreadCount } = useNotifications();
 
     React.useEffect(() => {
         const handleScroll = () => {
@@ -105,9 +105,9 @@ export default function Navbar() {
                         </div>
                         <div className={`relative cursor-pointer ${!isScrolled ? "text-white hover:opacity-50 transition-opacity" : "text-gray-700 hover:text-[#217964]"}`} onClick={() => openNotif(true)}>
                             <FontAwesomeIcon icon={faBell} />
-                           {newCount > 0 && (
-                            <span className="absolute -bottom-2 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
-                                {newCount}
+                           {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+                                {unreadCount}
                             </span>
                             )}
                         </div>
@@ -139,17 +139,34 @@ export default function Navbar() {
                                     className="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
                                     onClick={(e) => e.stopPropagation()}
                                 >
+
+                                    <Link to='/profile' className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                        Profile
+                                    </Link>
                                     <button 
                                         onClick={() => {
-                                            const refreshToken = localStorage.getItem('refreshToken');
-                                            localStorage.clear();
-                                            window.location.href = '/login';
-                                            
-                                            if (refreshToken) {
-                                                axios.post(`auth/logout?refreshToken=${refreshToken}`).catch(error => {
-                                                    console.error('Logout error:', error);
-                                                });
-                                            }
+                                            Swal.fire({
+                                                icon: 'question',
+                                                title: 'Logout',
+                                                text: 'Are you sure you want to logout?',
+                                                showCancelButton: true,
+                                                confirmButtonText: 'Yes, logout',
+                                                cancelButtonText: 'Cancel',
+                                                confirmButtonColor: '#0f766e',
+                                                cancelButtonColor: '#6b7280'
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    const refreshToken = localStorage.getItem('refreshToken');
+                                                    localStorage.clear();
+                                                    window.location.href = '/login';
+                                                    
+                                                    if (refreshToken) {
+                                                        axios.post(`auth/logout?refreshToken=${refreshToken}`).catch(error => {
+                                                            console.error('Logout error:', error);
+                                                        });
+                                                    }
+                                                }
+                                            });
                                         }}
                                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                                     >

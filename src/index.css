@@ -64,3 +64,42 @@
   -webkit-line-clamp: 2;
 }
 
+/* Make sure SweetAlert2 buttons are always visible */
+.swal2-actions button,
+.swal2-styled,
+.swal2-confirm,
+.swal2-cancel {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #fff !important;           /* adjust if needed */
+}
+
+/* Optional: your custom colors for the buttons */
+.swal2-confirm {
+  background-color: #0f766e !important;
+  
+}
+
+.swal2-cancel {
+  background-color: #6b7280 !important;
+}
+
+/* SweetAlert Confirm Button Hover Effect */
+.swal2-confirm:hover {
+  background-color: #0d645c !important; /* darker version */
+  transform: scale(1.05);
+}
+
+/* SweetAlert Cancel Button Hover Effect */
+.swal2-cancel:hover {
+  background-color: #5a6268 !important; /* darker gray */
+  transform: scale(1.05);
+}
+
+/* Smooth transition */
+.swal2-styled {
+  transition: all 0.2s ease-in-out !important;
+}
+
+
+
