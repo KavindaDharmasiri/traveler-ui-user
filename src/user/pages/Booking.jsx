@@ -1,30 +1,71 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo,useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClipboardList, faFilter, faTimes, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 // Import OrderCard and ViewOrderDetails (or define them below MyOrders)
 import { OrderCard } from '../component/MyBookings/OrderCard'; // Assuming separate files
 import { ViewOrderDetails } from '../component/MyBookings/ViewOrderDetails'; // Assuming separate files
 import { mockOrdersList,findOrderDetails } from '../../assets/assets';
+import axios from '../api/axios';
+import { API_CONFIG } from '../../config/environment';
 
-
-
-export default function MyOrders() {
+export default function Booking() {
     const [selectedOrderId, setSelectedOrderId] = useState(null);
+     const[bookingData, setBookingData]= useState([]);
+    const [loading, setLoading] = useState(true);
     // State to hold the active filter status (e.g., 'Upcoming', 'Completed', or null for all)
     const [filterStatus, setFilterStatus] = useState(null); 
+    useEffect(() => {
+        const fetchBookingData = async () => {
+            setLoading(true);
+            try{
+                const token= localStorage.getItem('accessToken');
+                const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/order`, {
+               
+            })
+                
+                let orderdata = [];
+                
+                // API returns: { [tenantId]: { [groupName]: [...orders] } }
+                // We need to flatten all orders from all groups
+                const responseData = response.data || {};
+                
+                // Iterate through each tenant
+                Object.values(responseData).forEach(tenantGroups => {
+                    if (tenantGroups && typeof tenantGroups === 'object') {
+                        // Iterate through each group in that tenant
+                        Object.values(tenantGroups).forEach(groupOrders => {
+                            if (Array.isArray(groupOrders)) {
+                                orderdata = orderdata.concat(groupOrders);
+                            }
+                        });
+                    }
+                });
+                
+                console.log("Flattened Orders:", response.data);
+                
+                setBookingData(orderdata);
 
-    const selectedOrderDetails = findOrderDetails(selectedOrderId);
+            }catch (error){
+                console.error("Error fetching booking data:", error);
+                setBookingData([]);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchBookingData();
+    }, [filterStatus]);
     
     // --- FILTER LOGIC ---
     const filteredOrders = useMemo(() => {
         if (!filterStatus) {
-            return mockOrdersList; // Show all if no filter is set
+            return bookingData; // Show all if no filter is set
         }
-        return mockOrdersList.filter(order => order.status === filterStatus);
-    }, [filterStatus]); // Recalculate only when filterStatus changes
+        return bookingData.filter(order => order.status.toLowerCase() === filterStatus.toLowerCase());
+    }, [filterStatus, bookingData]); // Recalculate only when filterStatus or bookingData changes
 
     // List of available statuses for the filter buttons
-    const statuses = ['Upcoming', 'Completed', 'Cancelled'];
+    const statuses = ['Pending', 'Completed', 'Cancelled'];
+    const selectedOrderDetails = findOrderDetails(selectedOrderId);
 
     if (selectedOrderId && selectedOrderDetails) {
         return <ViewOrderDetails order={selectedOrderDetails} onBack={() => setSelectedOrderId(null)} />;
@@ -78,15 +119,20 @@ export default function MyOrders() {
 
 
             <main className="max-w-4xl mx-auto space-y-6">
-                {filteredOrders.length === 0 ? (
+                {loading ? (
+                    <div className="text-center p-12 bg-white rounded-lg shadow-sm">
+                        <h2 className="text-2xl font-semibold text-gray-700">Loading your orders...</h2>
+                    </div>
+                ) : filteredOrders.length === 0 ? (
                     <div className="text-center p-12 bg-white rounded-lg shadow-sm">
                         <h2 className="text-2xl font-semibold text-gray-700">No {filterStatus} Orders Found</h2>
                         <p className="mt-2 text-gray-500">Try clearing the filter to see all trips.</p>
+                        <p className="mt-2 text-gray-400 text-sm">Total orders loaded: {bookingData.length}</p>
                     </div>
                 ) : (
-                    filteredOrders.map((order) => (
+                    filteredOrders.map((order, idx) => (
                         <OrderCard 
-                            key={order.orderId} 
+                            key={order.id || order.orderId || `order-${idx}`} 
                             order={order} 
                             onViewDetails={setSelectedOrderId} 
                         />
