@@ -143,6 +143,8 @@ export default function RentalItemCard({product, imageMapper}) {
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     setCount(1)
+                                    navigate(`/item-details/${product.id}/${product.tenant}`)
+                                    scrollTo(0, 0)
                                 }}
                             >
                                 <svg width="16" height="16" viewBox="0 0 14 14" fill="none"

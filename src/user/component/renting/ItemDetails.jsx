@@ -141,162 +141,244 @@ export default function ItemDetails() {
   }
 
   return (
-    <div className="px-6 md:px-16 lg:px-24 xl:px-32 mt-16">
-      {/* Back button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 mb-6 text-gray-500 hover:text-gray-700 cursor-pointer"
-        type="button"
-      >
-        <FontAwesomeIcon icon={faArrowLeft} className="text-sm" />
-        <span className="underline-offset-2 hover:underline">
-          Back to all items
-        </span>
-      </button>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-        {/* LEFT: Image + Details + Tabs */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Image gallery */}
-          <div className="flex flex-col items-center space-y-4">
-            <div className="w-full max-w-3xl">
-              <img
-                src={activeImage && imageMapper[activeImage] ? imageMapper[activeImage] : fallbackThumbnails[0]}
-                alt={item.name || 'Item image'}
-                className="w-full rounded-lg object-cover"
-              />
-            </div>
-
-            <div className="grid grid-cols-4 max-w-3xl gap-4">
-              {item.images && item.images.length > 0 ? (
-                item.images.map((uuid, index) => (
-                  <button
-                    key={uuid}
-                    type="button"
-                    onClick={() => setActiveImage(uuid)}
-                    className={`rounded-lg overflow-hidden border ${
-                      activeImage === uuid
-                        ? 'border-blue-500'
-                        : 'border-transparent'
-                    }`}
-                  >
-                    <img
-                      src={imageMapper[uuid] || fallbackThumbnails[0]}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full md:h-24 h-14 object-cover cursor-pointer hover:opacity-80"
-                    />
-                  </button>
-                ))
-              ) : (
-                fallbackThumbnails.slice(0, 4).map((src, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => setActiveImage(src)}
-                    className={`rounded-lg overflow-hidden border ${
-                      activeImage === src
-                        ? 'border-blue-500'
-                        : 'border-transparent'
-                    }`}
-                  >
-                    <img
-                      src={src}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full md:h-24 h-14 object-cover cursor-pointer hover:opacity-80"
-                    />
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Top text details */}
-          <div className="space-y-4">
-            <div>
-              <h1 className="text-3xl font-bold">
-                {item.name}
-              </h1>
-              <p className="text-gray-500 text-lg">
-                {item.category.replace('_', ' ')}
-              </p>
-              <p className="mt-2 text-sm">
-                <span
-                  className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                    item.status === 'ACTIVE'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700'
-                  }`}
-                >
-                  {item.status === 'ACTIVE' ? 'Available' : item.status}
-                </span>
-              </p>
-              <p className="text-sm text-gray-600 mt-2">
-                Contact: {item.contact}
-              </p>
-            </div>
-
-            <hr className="border-borderColor my-4" />
-
-            {/* ⬇️ Full tabbed description + reviews + vendor */}
-            <ProductDescription product={item} />
-          </div>
-        </div>
-
-        {/* RIGHT: Booking / Actions panel */}
-        <form onSubmit={handleBooking} className="shadow-lg h-max sticky top-18 rounded-xl p-6 space-y-6 text-gray-500">
-          <div className="space-y-1">
-            <p className="flex items-center justify-between text-2xl text-gray-800 font-semibold">
-              {item.currency} {displayPrice}
-              <span className="text-base text-gray-400 font-normal">
-                per day
-              </span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50">
+      {/* Hero Section */}
+      <div className='relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-slate-800 py-12'>
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-teal-600/90 to-transparent"></div>
+        
+        <div className="relative px-6 md:px-16 lg:px-24 xl:px-32">
+          {/* Back button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-3 mb-6 px-4 py-2 bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 rounded-xl transition-all duration-300 transform hover:scale-105"
+            type="button"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} className="text-sm" />
+            <span className="font-medium">
+              Back to all items
+            </span>
+          </button>
+          
+          {/* Page Title */}
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Item Details
+            </h1>
+            <p className="text-xl text-teal-100">
+              Explore premium rental options
             </p>
           </div>
+        </div>
+      </div>
+      
+      <div className="px-6 md:px-16 lg:px-24 xl:px-32 py-16">
 
-          <hr className="border-borderColor my-6" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+          {/* LEFT: Image + Details + Tabs */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Image gallery */}
+            <div className="bg-white rounded-3xl p-8 shadow-2xl border border-teal-100/50">
+              <div className="flex flex-col items-center space-y-6">
+                <div className="w-full max-w-3xl relative overflow-hidden rounded-2xl shadow-xl">
+                  <img
+                    src={activeImage && imageMapper[activeImage] ? imageMapper[activeImage] : fallbackThumbnails[0]}
+                    alt={item.name || 'Item image'}
+                    className="w-full h-96 object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                </div>
 
-          <div className="flex flex-col gap-2">
-            <label htmlFor="pickup-date">Pickup date</label>
-            <input
-              type="date"
-              className="border border-gray-300 px-3 py-2 rounded-lg"
-              required
-              id="pickup-date"
-              value={pickupDate}
-              onChange={(e) => setPickupDate(e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
-            />
+                <div className="grid grid-cols-4 max-w-3xl gap-4">
+                  {item.images && item.images.length > 0 ? (
+                    item.images.map((uuid, index) => (
+                      <button
+                        key={uuid}
+                        type="button"
+                        onClick={() => setActiveImage(uuid)}
+                        className={`rounded-xl overflow-hidden border-2 transition-all duration-300 transform hover:scale-105 ${
+                          activeImage === uuid
+                            ? 'border-teal-500 shadow-lg'
+                            : 'border-teal-100 hover:border-teal-300'
+                        }`}
+                      >
+                        <img
+                          src={imageMapper[uuid] || fallbackThumbnails[0]}
+                          alt={`Thumbnail ${index + 1}`}
+                          className="w-full md:h-24 h-14 object-cover cursor-pointer"
+                        />
+                      </button>
+                    ))
+                  ) : (
+                    fallbackThumbnails.slice(0, 4).map((src, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => setActiveImage(src)}
+                        className={`rounded-xl overflow-hidden border-2 transition-all duration-300 transform hover:scale-105 ${
+                          activeImage === src
+                            ? 'border-teal-500 shadow-lg'
+                            : 'border-teal-100 hover:border-teal-300'
+                        }`}
+                      >
+                        <img
+                          src={src}
+                          alt={`Thumbnail ${index + 1}`}
+                          className="w-full md:h-24 h-14 object-cover cursor-pointer"
+                        />
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Top text details */}
+            <div className="bg-white rounded-3xl p-8 shadow-2xl border border-teal-100/50">
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h2 className="text-4xl font-bold bg-gradient-to-r from-teal-700 to-slate-700 bg-clip-text text-transparent mb-2">
+                        {item.name}
+                      </h2>
+                      <div className="flex items-center space-x-3 mb-4">
+                        <span className="px-4 py-2 bg-teal-100 text-teal-700 text-sm font-semibold rounded-xl uppercase tracking-wide">
+                          {item.category.replace('_', ' ')}
+                        </span>
+                        <span
+                          className={`px-4 py-2 rounded-xl text-sm font-semibold ${
+                            item.status === 'ACTIVE'
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : 'bg-red-100 text-red-700'
+                          }`}
+                        >
+                          {item.status === 'ACTIVE' ? 'Available' : item.status}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Rating Display */}
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
+                        {Array(5).fill('').map((_, i) => (
+                          <svg key={i} className={`w-5 h-5 ${i < Math.floor(item.overallRating || 0) ? 'text-yellow-400' : 'text-gray-300'}`}
+                               fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                          </svg>
+                        ))}
+                        <span className="text-sm text-gray-600 ml-2">({(item.overallRating || 0).toFixed(1)})</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-teal-50 to-slate-50 rounded-2xl p-4">
+                    <p className="text-slate-700 font-medium flex items-center space-x-2">
+                      <span className="w-2 h-2 bg-teal-500 rounded-full"></span>
+                      <span>Contact: {item.contact}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="h-px bg-gradient-to-r from-transparent via-teal-200 to-transparent"></div>
+
+                {/* ⬇️ Full tabbed description + reviews + vendor */}
+                <ProductDescription product={item} />
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label htmlFor="return-date">Return date</label>
-            <input
-              type="date"
-              className="border border-gray-300 px-3 py-2 rounded-lg"
-              required
-              id="return-date"
-              value={returnDate}
-              onChange={(e) => setReturnDate(e.target.value)}
-              min={pickupDate || new Date().toISOString().split('T')[0]}
-            />
-          </div>
+          {/* RIGHT: Booking / Actions panel */}
+          <form onSubmit={handleBooking} className="bg-gradient-to-br from-white via-white to-teal-50/30 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-teal-100/50 h-max sticky top-24 space-y-6">
+            <div className="text-center space-y-2">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-2 h-8 bg-gradient-to-b from-teal-500 to-teal-600 rounded-full"></div>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-teal-700 to-slate-700 bg-clip-text text-transparent">Book Now</h3>
+              </div>
+              <p className="flex items-center justify-center text-3xl font-bold text-slate-800">
+                <span className="text-lg text-teal-600 mr-1">{item.currency}</span>
+                {displayPrice}
+                <span className="text-base text-slate-500 font-normal ml-2">
+                  / day
+                </span>
+              </p>
+            </div>
 
-          <button
-            type="submit"
-            disabled={item.status !== 'ACTIVE' || booking}
-            className={`w-full transition-all py-3 font-medium text-white rounded-xl cursor-pointer ${
-              item.status === 'ACTIVE' && !booking
-                ? 'bg-[#217964] hover:bg-[#399e8a]'
-                : 'bg-gray-400 cursor-not-allowed'
-            }`}
-          >
-            {booking ? 'Booking...' : item.status === 'ACTIVE' ? 'Book Now' : 'Currently Unavailable'}
-          </button>
+            <div className="h-px bg-gradient-to-r from-transparent via-teal-200 to-transparent"></div>
 
-          <p className="text-center text-sm">
-            No credit card required to reserve
-          </p>
-        </form>
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <label htmlFor="pickup-date" className="flex items-center space-x-2 text-sm font-semibold text-slate-700">
+                  <div className="w-1.5 h-1.5 bg-teal-500 rounded-full"></div>
+                  <span>Pickup Date</span>
+                </label>
+                <input
+                  type="date"
+                  className="w-full p-4 bg-white border-2 border-teal-100 rounded-2xl focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md"
+                  required
+                  id="pickup-date"
+                  value={pickupDate}
+                  onChange={(e) => setPickupDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <label htmlFor="return-date" className="flex items-center space-x-2 text-sm font-semibold text-slate-700">
+                  <div className="w-1.5 h-1.5 bg-teal-500 rounded-full"></div>
+                  <span>Return Date</span>
+                </label>
+                <input
+                  type="date"
+                  className="w-full p-4 bg-white border-2 border-teal-100 rounded-2xl focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md"
+                  required
+                  id="return-date"
+                  value={returnDate}
+                  onChange={(e) => setReturnDate(e.target.value)}
+                  min={pickupDate || new Date().toISOString().split('T')[0]}
+                />
+              </div>
+            </div>
+
+            {pickupDate && returnDate && (
+              <div className="bg-teal-50 rounded-2xl p-4 border border-teal-200">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-600">Rental Days:</span>
+                  <span className="font-semibold text-teal-700">{calculateRentalDays()} days</span>
+                </div>
+                <div className="flex justify-between items-center text-sm mt-1">
+                  <span className="text-slate-600">Total Cost:</span>
+                  <span className="font-bold text-teal-700">{item.currency} {(calculateRentalDays() * displayPrice).toFixed(2)}</span>
+                </div>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={item.status !== 'ACTIVE' || booking}
+              className={`w-full transition-all duration-300 py-4 font-semibold text-white rounded-2xl transform hover:scale-105 shadow-lg ${
+                item.status === 'ACTIVE' && !booking
+                  ? 'bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 hover:shadow-xl'
+                  : 'bg-gray-400 cursor-not-allowed'
+              }`}
+            >
+              {booking ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Processing...</span>
+                </div>
+              ) : item.status === 'ACTIVE' ? 'Confirm Booking' : 'Currently Unavailable'}
+            </button>
+
+            <div className="text-center space-y-2">
+              <p className="text-sm text-slate-600 flex items-center justify-center space-x-2">
+                <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                <span>No credit card required to reserve</span>
+              </p>
+              <p className="text-xs text-slate-500">Secure booking • Instant confirmation</p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   )

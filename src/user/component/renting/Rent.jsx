@@ -17,6 +17,7 @@ export default function Rent() {
     const [currentPage, setCurrentPage] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
     const [totalItems, setTotalItems] = useState(0)
+    const [pageSize, setPageSize] = useState(8)
     const [filters, setFilters] = useState({
         category: '',
         provider: '',
@@ -38,7 +39,7 @@ export default function Rent() {
     useEffect(() => {
         setCurrentPage(0)
         fetchItems()
-    }, [filters, selectedCategory])
+    }, [filters, selectedCategory, pageSize])
 
     useEffect(() => {
         filterItems()
@@ -79,7 +80,7 @@ export default function Rent() {
         try {
             const params = new URLSearchParams({
                 page: currentPage.toString(),
-                size: '36'
+                size: pageSize.toString()
             })
             
             if (selectedCategory !== 'ALL') params.append('category', selectedCategory)
@@ -326,10 +327,23 @@ export default function Rent() {
                         <p className="text-sm text-gray-500">Page {currentPage + 1} of {totalPages} ({totalItems} total items)</p>
                     </div>
                     
-                    <div className="hidden md:flex items-center space-x-4 text-sm text-gray-500 animate-fade-in">
-                        <div className="flex items-center">
-                            <div className="w-3 h-3 bg-teal-500 rounded-full mr-2 animate-pulse"></div>
-                            Live Results
+                    <div className="flex items-center space-x-6 animate-fade-in">
+                        <div className="flex items-center space-x-3">
+                            <label className="text-sm font-medium text-gray-700">Items per page:</label>
+                            <select 
+                                value={pageSize} 
+                                onChange={(e) => setPageSize(parseInt(e.target.value))}
+                                className="px-3 py-2 bg-white border-2 border-teal-100 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300 text-sm font-medium text-gray-700 cursor-pointer"
+                            >
+                                <option value={8}>8</option>
+                                <option value={16}>16</option>
+                                <option value={24}>24</option>
+                                <option value={36}>36</option>
+                            </select>
+                        </div>
+                        <div className="hidden md:flex items-center space-x-2 text-sm text-gray-500">
+                            <div className="w-3 h-3 bg-teal-500 rounded-full animate-pulse"></div>
+                            <span>Live Results</span>
                         </div>
                     </div>
                 </div>
