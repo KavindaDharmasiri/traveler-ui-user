@@ -18,6 +18,7 @@ export default function Rent() {
     const [totalPages, setTotalPages] = useState(0)
     const [totalItems, setTotalItems] = useState(0)
     const [pageSize, setPageSize] = useState(8)
+    const [userVerification, setUserVerification] = useState({ isEmailVerified: true, isNumberVerified: true })
     const [filters, setFilters] = useState({
         category: '',
         provider: '',
@@ -32,9 +33,22 @@ export default function Rent() {
     const [showFilters, setShowFilters] = useState(false)
 
     useEffect(() => {
+        checkVerificationStatus()
         fetchFilters()
         fetchItems()
     }, [])
+
+    const checkVerificationStatus = async () => {
+        try {
+            const response = await axios.get('auth/me')
+            setUserVerification({
+                isEmailVerified: response.data.isEmailVerified === true,
+                isNumberVerified: response.data.isNumberVerified === true
+            })
+        } catch (error) {
+            console.error('Error checking verification status:', error)
+        }
+    }
     
     useEffect(() => {
         setCurrentPage(0)
@@ -134,10 +148,50 @@ export default function Rent() {
         )
     }
 
+    const isVerified = userVerification.isEmailVerified && userVerification.isNumberVerified
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50 relative">
+            {/* Verification Overlay */}
+            {!isVerified && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+                    <div className="bg-white rounded-3xl p-8 max-w-md mx-4 shadow-2xl text-center">
+                        <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <FontAwesomeIcon icon={faSearch} className="text-3xl text-red-500" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-4">Verification Required</h2>
+                        <p className="text-gray-600 mb-6 leading-relaxed">
+                            Please verify your email and phone number to browse and rent items.
+                        </p>
+                        <div className="space-y-3 mb-6">
+                            <div className={`flex items-center justify-between p-3 rounded-lg ${
+                                userVerification.isEmailVerified ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                            }`}>
+                                <span className="text-sm font-medium">Email Verification</span>
+                                <span className="text-xs">
+                                    {userVerification.isEmailVerified ? '✓ Verified' : '✗ Not Verified'}
+                                </span>
+                            </div>
+                            <div className={`flex items-center justify-between p-3 rounded-lg ${
+                                userVerification.isNumberVerified ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                            }`}>
+                                <span className="text-sm font-medium">Phone Verification</span>
+                                <span className="text-xs">
+                                    {userVerification.isNumberVerified ? '✓ Verified' : '✗ Not Verified'}
+                                </span>
+                            </div>
+                        </div>
+                        <a
+                            href="/profile"
+                            className="block w-full py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 transition-colors text-center"
+                        >
+                            Go to Profile to Verify
+                        </a>
+                    </div>
+                </div>
+            )}
             {/* Hero Section */}
-            <div className='relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-slate-800'>
+            <div className={`relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-slate-800 ${!isVerified ? 'pointer-events-none' : ''}`}>
                 <div className="absolute inset-0 bg-black/20"></div>
                 <div className="absolute inset-0 bg-gradient-to-r from-teal-600/90 to-transparent"></div>
                 
