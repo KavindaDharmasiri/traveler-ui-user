@@ -10,17 +10,21 @@ export default function Rent() {
     const [input, setInput] = useState('')
     const [providers, setProviders] = useState([])
     const [filteredItems, setFilteredItems] = useState([])
+    const [allItems, setAllItems] = useState([])
     const [loading, setLoading] = useState(true)
     const [selectedCategory, setSelectedCategory] = useState('ALL')
     const [imageMapper, setImageMapper] = useState({})
+    const [currentPage, setCurrentPage] = useState(0)
+    const [totalPages, setTotalPages] = useState(0)
+    const [totalItems, setTotalItems] = useState(0)
 
     useEffect(() => {
         fetchItems()
-    }, [])
+    }, [currentPage])
 
     useEffect(() => {
         filterItems()
-    }, [input, selectedCategory, providers])
+    }, [input, selectedCategory, allItems])
 
     const fetchImages = async (imageUuids) => {
         const mapper = {}
@@ -39,14 +43,16 @@ export default function Rent() {
 
     const fetchItems = async () => {
         try {
-            const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/provider/item/getAllForTraveller`)
-            const providersData = Array.isArray(response.data) ? response.data : []
-            setProviders(providersData)
+            const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/provider/item/getAllForTraveller?page=${currentPage}&size=36`)
+            const data = response.data || {}
             
-            // Collect all image UUIDs
-            const allImageUuids = providersData.flatMap(provider => 
-                provider.items ? provider.items.flatMap(item => item.images || []) : []
-            )
+            setProviders(data.providers || [])
+            setAllItems(data.items || [])
+            setTotalPages(data.totalPages || 0)
+            setTotalItems(data.totalItems || 0)
+            
+            // Collect all image UUIDs from current page items
+            const allImageUuids = (data.items || []).flatMap(item => item.images || [])
             if (allImageUuids.length > 0) {
                 await fetchImages(allImageUuids)
             }
@@ -55,22 +61,14 @@ export default function Rent() {
         } catch (error) {
             console.error('Error fetching items:', error)
             setProviders([])
+            setAllItems([])
             setLoading(false)
         }
     }
 
     const filterItems = () => {
-        if (!Array.isArray(providers)) return
+        if (!Array.isArray(allItems)) return
         
-        let allItems = []
-        providers.forEach(provider => {
-            if (provider.items && Array.isArray(provider.items)) {
-                provider.items.forEach(item => {
-                    allItems.push({ ...item, providerName: provider.providerName, tenant: provider.tenant || 'default' })
-                })
-            }
-        })
-
         let filtered = allItems.filter(item => {
             const matchesSearch = item.name.toLowerCase().includes(input.toLowerCase()) ||
                                 item.providerName.toLowerCase().includes(input.toLowerCase()) ||
@@ -80,7 +78,6 @@ export default function Rent() {
         })
 
         setFilteredItems(filtered)
-        console.log(filtered)
     }
 
     const categories = ['ALL', 'ELECTRONICS', 'VEHICLES', 'CAMPING', 'HOTELS', 'OUTDO0OR', 'WATERSPORTS', 'LUGGAGE']
@@ -154,6 +151,7 @@ export default function Rent() {
                     <div className="animate-fade-in">
                         <h2 className="text-3xl font-bold text-gray-900 mb-2">Available Items</h2>
                         <p className="text-gray-600">Showing {filteredItems.length} items from {providers.length} providers</p>
+                        <p className="text-sm text-gray-500">Page {currentPage + 1} of {totalPages} ({totalItems} total items)</p>
                     </div>
                     
                     <div className="hidden md:flex items-center space-x-4 text-sm text-gray-500 animate-fade-in">
@@ -164,7 +162,57 @@ export default function Rent() {
                     </div>
                 </div>
 
-                {providers.length === 0 ? (
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center space-x-2 mb-8">
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                            disabled={currentPage === 0}
+                            className="px-4 py-2 bg-teal-600 text-white rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-teal-700 transition-colors"
+                        >
+                            Previous
+                        </button>
+                        
+                        <div className="flex space-x-1">
+                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                let pageNum;
+                                if (totalPages <= 5) {
+                                    pageNum = i;
+                                } else if (currentPage < 3) {
+                                    pageNum = i;
+                                } else if (currentPage >= totalPages - 3) {
+                                    pageNum = totalPages - 5 + i;
+                                } else {
+                                    pageNum = currentPage - 2 + i;
+                                }
+                                
+                                return (
+                                    <button
+                                        key={pageNum}
+                                        onClick={() => setCurrentPage(pageNum)}
+                                        className={`px-3 py-2 rounded-lg transition-colors ${
+                                            currentPage === pageNum
+                                                ? 'bg-teal-600 text-white'
+                                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                        }`}
+                                    >
+                                        {pageNum + 1}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                            disabled={currentPage === totalPages - 1}
+                            className="px-4 py-2 bg-teal-600 text-white rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-teal-700 transition-colors"
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
+
+                {allItems.length === 0 ? (
                     <div className="text-center py-32 animate-fade-in">
                         <div className="max-w-md mx-auto">
                             <div className="w-32 h-32 bg-gradient-to-br from-teal-100 to-teal-200 rounded-full flex items-center justify-center mx-auto mb-8">
