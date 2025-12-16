@@ -17,14 +17,32 @@ export default function Rent() {
     const [currentPage, setCurrentPage] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
     const [totalItems, setTotalItems] = useState(0)
+    const [filters, setFilters] = useState({
+        category: '',
+        provider: '',
+        minPrice: '',
+        maxPrice: '',
+        minRating: ''
+    })
+    const [availableFilters, setAvailableFilters] = useState({
+        categories: [],
+        providers: []
+    })
+    const [showFilters, setShowFilters] = useState(false)
 
     useEffect(() => {
+        fetchFilters()
         fetchItems()
-    }, [currentPage])
+    }, [])
+    
+    useEffect(() => {
+        setCurrentPage(0)
+        fetchItems()
+    }, [filters, selectedCategory])
 
     useEffect(() => {
         filterItems()
-    }, [input, selectedCategory, allItems])
+    }, [input, allItems])
 
     const fetchImages = async (imageUuids) => {
         const mapper = {}
@@ -41,9 +59,36 @@ export default function Rent() {
         setImageMapper(mapper)
     }
 
+    const fetchFilters = async () => {
+        try {
+            const [filtersResponse, providersResponse] = await Promise.all([
+                axios.get(`${API_CONFIG.BASE_URL}core/api/v1/provider/item/filters`),
+                axios.get(`${API_CONFIG.BASE_URL}auth/providers`)
+            ])
+            
+            setAvailableFilters({
+                categories: filtersResponse.data?.categories || [],
+                providers: providersResponse.data || []
+            })
+        } catch (error) {
+            console.error('Error fetching filters:', error)
+        }
+    }
+
     const fetchItems = async () => {
         try {
-            const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/provider/item/getAllForTraveller?page=${currentPage}&size=36`)
+            const params = new URLSearchParams({
+                page: currentPage.toString(),
+                size: '36'
+            })
+            
+            if (selectedCategory !== 'ALL') params.append('category', selectedCategory)
+            if (filters.provider) params.append('provider', filters.provider)
+            if (filters.minPrice) params.append('minPrice', filters.minPrice)
+            if (filters.maxPrice) params.append('maxPrice', filters.maxPrice)
+            if (filters.minRating) params.append('minRating', filters.minRating)
+            
+            const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/provider/item/getAllForTraveller?${params}`)
             const data = response.data || {}
             
             setProviders(data.providers || [])
@@ -51,7 +96,6 @@ export default function Rent() {
             setTotalPages(data.totalPages || 0)
             setTotalItems(data.totalItems || 0)
             
-            // Collect all image UUIDs from current page items
             const allImageUuids = (data.items || []).flatMap(item => item.images || [])
             if (allImageUuids.length > 0) {
                 await fetchImages(allImageUuids)
@@ -73,8 +117,7 @@ export default function Rent() {
             const matchesSearch = item.name.toLowerCase().includes(input.toLowerCase()) ||
                                 item.providerName.toLowerCase().includes(input.toLowerCase()) ||
                                 item.category.toLowerCase().includes(input.toLowerCase())
-            const matchesCategory = selectedCategory === 'ALL' || item.category === selectedCategory
-            return matchesSearch && matchesCategory
+            return matchesSearch
         })
 
         setFilteredItems(filtered)
@@ -121,9 +164,119 @@ export default function Rent() {
                                 placeholder='Search by name, provider, or category...' 
                                 className='w-full outline-none text-gray-700 placeholder-gray-500 text-lg bg-transparent'
                             />
-                            <FontAwesomeIcon icon={faFilter} className='w-5 h-5 ml-4 text-teal-600 cursor-pointer hover:text-teal-700 transition-colors' />
+                            <FontAwesomeIcon 
+                                icon={faFilter} 
+                                className='w-5 h-5 ml-4 text-teal-600 cursor-pointer hover:text-teal-700 transition-colors' 
+                                onClick={() => setShowFilters(!showFilters)}
+                            />
                         </div>
                     </div>
+
+                    {/* Advanced Filters Panel */}
+                    {showFilters && (
+                        <div className='w-full max-w-4xl bg-white/95 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-2xl border border-white/20 animate-slide-down'>
+                            <h3 className='text-lg font-semibold text-gray-800 mb-4'>Advanced Filters</h3>
+                            <style jsx>{`
+                                @keyframes slide-down {
+                                    from {
+                                        opacity: 0;
+                                        transform: translateY(-20px);
+                                    }
+                                    to {
+                                        opacity: 1;
+                                        transform: translateY(0);
+                                    }
+                                }
+                                .animate-slide-down {
+                                    animation: slide-down 0.3s ease-out;
+                                }
+                            `}</style>
+                            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                                {/* Provider Filter */}
+                                <div>
+                                    <label className='block text-sm font-medium text-gray-700 mb-2'>Provider</label>
+                                    <select 
+                                        value={filters.provider} 
+                                        onChange={(e) => setFilters({...filters, provider: e.target.value})}
+                                        className='w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent'
+                                    >
+                                        <option value=''>All Providers</option>
+                                        {availableFilters.providers.map(provider => (
+                                            <option key={provider} value={provider}>{provider}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                
+                                {/* Price Range */}
+                                <div>
+                                    <label className='block text-sm font-medium text-gray-700 mb-2'>Price Range</label>
+                                    <div className='flex space-x-2'>
+                                        <input 
+                                            type='number' 
+                                            placeholder='Min' 
+                                            value={filters.minPrice} 
+                                            onChange={(e) => setFilters({...filters, minPrice: e.target.value})}
+                                            className='w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent'
+                                        />
+                                        <input 
+                                            type='number' 
+                                            placeholder='Max' 
+                                            value={filters.maxPrice} 
+                                            onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
+                                            className='w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent'
+                                        />
+                                    </div>
+                                </div>
+                                
+                                {/* Rating Filter */}
+                                <div>
+                                    <label className='block text-sm font-medium text-gray-700 mb-2'>Min Rating</label>
+                                    <div className='flex items-center space-x-1'>
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <button
+                                                key={star}
+                                                type='button'
+                                                onClick={() => setFilters({...filters, minRating: star.toString()})}
+                                                className={`w-8 h-8 transition-colors ${
+                                                    star <= (parseInt(filters.minRating) || 0)
+                                                        ? 'text-yellow-400 hover:text-yellow-500'
+                                                        : 'text-gray-300 hover:text-yellow-300'
+                                                }`}
+                                            >
+                                                <svg fill='currentColor' viewBox='0 0 20 20' className='w-full h-full'>
+                                                    <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z'/>
+                                                </svg>
+                                            </button>
+                                        ))}
+                                        {filters.minRating && (
+                                            <button
+                                                type='button'
+                                                onClick={() => setFilters({...filters, minRating: ''})}
+                                                className='ml-2 text-xs text-gray-500 hover:text-gray-700 underline'
+                                            >
+                                                Clear
+                                            </button>
+                                        )}
+                                    </div>
+                                    {filters.minRating && (
+                                        <p className='text-xs text-gray-600 mt-1'>
+                                            {filters.minRating}+ stars minimum
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            {/* Clear Filters Button */}
+                            <div className='mt-4 flex justify-end'>
+                                <button 
+                                    onClick={() => setFilters({...filters, provider: '', minPrice: '', maxPrice: '', minRating: ''})}
+                                    className='px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors'
+                                >
+                                    Clear Filters
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Category Filter */}
                     <div className='flex gap-3 flex-wrap justify-center animate-slide-up' style={{animationDelay: '0.2s'}}>
