@@ -33,7 +33,7 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
     const currentPath = window.location.pathname;
     
-    // Handle 401 (Unauthorized) and 403 (Forbidden)
+    // Handle 401 (Unauthorized) and 403 (Forbidden) - but not 404
     if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       originalRequest._retry = true;
       
