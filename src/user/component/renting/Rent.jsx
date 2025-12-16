@@ -166,7 +166,9 @@ export default function Rent() {
                             />
                             <FontAwesomeIcon 
                                 icon={faFilter} 
-                                className='w-5 h-5 ml-4 text-teal-600 cursor-pointer hover:text-teal-700 transition-colors' 
+                                className={`w-5 h-5 ml-4 cursor-pointer transition-all duration-300 transform hover:scale-110 ${
+                                    showFilters ? 'text-teal-700 rotate-180' : 'text-teal-600 hover:text-teal-700'
+                                }`}
                                 onClick={() => setShowFilters(!showFilters)}
                             />
                         </div>
@@ -174,106 +176,123 @@ export default function Rent() {
 
                     {/* Advanced Filters Panel */}
                     {showFilters && (
-                        <div className='w-full max-w-4xl bg-white/95 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-2xl border border-white/20 animate-slide-down'>
-                            <h3 className='text-lg font-semibold text-gray-800 mb-4'>Advanced Filters</h3>
-                            <style jsx>{`
-                                @keyframes slide-down {
-                                    from {
-                                        opacity: 0;
-                                        transform: translateY(-20px);
-                                    }
-                                    to {
-                                        opacity: 1;
-                                        transform: translateY(0);
-                                    }
-                                }
-                                .animate-slide-down {
-                                    animation: slide-down 0.3s ease-out;
-                                }
-                            `}</style>
-                            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                        <div className='w-full max-w-6xl bg-gradient-to-br from-white via-white to-teal-50/30 backdrop-blur-xl rounded-3xl p-8 mb-8 shadow-2xl border border-teal-100/50'>
+                            <div className='flex items-center justify-between mb-6'>
+                                <div className='flex items-center space-x-3'>
+                                    <div className='w-2 h-8 bg-gradient-to-b from-teal-500 to-teal-600 rounded-full'></div>
+                                    <h3 className='text-2xl font-bold bg-gradient-to-r from-teal-700 to-slate-700 bg-clip-text text-transparent'>Advanced Filters</h3>
+                                </div>
+                                <button 
+                                    onClick={() => setFilters({...filters, provider: '', minPrice: '', maxPrice: '', minRating: ''})}
+                                    className='px-6 py-2.5 bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-700 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium'
+                                >
+                                    Clear All
+                                </button>
+                            </div>
+                            
+                            <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
                                 {/* Provider Filter */}
-                                <div>
-                                    <label className='block text-sm font-medium text-gray-700 mb-2'>Provider</label>
-                                    <select 
-                                        value={filters.provider} 
-                                        onChange={(e) => setFilters({...filters, provider: e.target.value})}
-                                        className='w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent'
-                                    >
-                                        <option value=''>All Providers</option>
-                                        {availableFilters.providers.map(provider => (
-                                            <option key={provider} value={provider}>{provider}</option>
-                                        ))}
-                                    </select>
+                                <div className='space-y-3'>
+                                    <label className='flex items-center space-x-2 text-sm font-semibold text-slate-700'>
+                                        <div className='w-1.5 h-1.5 bg-teal-500 rounded-full'></div>
+                                        <span>Provider</span>
+                                    </label>
+                                    <div className='relative'>
+                                        <select 
+                                            value={filters.provider} 
+                                            onChange={(e) => setFilters({...filters, provider: e.target.value})}
+                                            className='w-full p-4 bg-white border-2 border-teal-100 rounded-2xl focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md appearance-none cursor-pointer'
+                                        >
+                                            <option value=''>All Providers</option>
+                                            {availableFilters.providers.map(provider => (
+                                                <option key={provider} value={provider}>{provider}</option>
+                                            ))}
+                                        </select>
+                                        <div className='absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none'>
+                                            <svg className='w-5 h-5 text-teal-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+                                            </svg>
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 {/* Price Range */}
-                                <div>
-                                    <label className='block text-sm font-medium text-gray-700 mb-2'>Price Range</label>
-                                    <div className='flex space-x-2'>
-                                        <input 
-                                            type='number' 
-                                            placeholder='Min' 
-                                            value={filters.minPrice} 
-                                            onChange={(e) => setFilters({...filters, minPrice: e.target.value})}
-                                            className='w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent'
-                                        />
-                                        <input 
-                                            type='number' 
-                                            placeholder='Max' 
-                                            value={filters.maxPrice} 
-                                            onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
-                                            className='w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent'
-                                        />
+                                <div className='space-y-3'>
+                                    <label className='flex items-center space-x-2 text-sm font-semibold text-slate-700'>
+                                        <div className='w-1.5 h-1.5 bg-teal-500 rounded-full'></div>
+                                        <span>Price Range</span>
+                                    </label>
+                                    <div className='flex space-x-3'>
+                                        <div className='relative flex-1'>
+                                            <input 
+                                                type='number' 
+                                                placeholder='Min Price' 
+                                                value={filters.minPrice} 
+                                                onChange={(e) => setFilters({...filters, minPrice: e.target.value})}
+                                                className='w-full p-4 bg-white border-2 border-teal-100 rounded-2xl focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md placeholder-slate-400'
+                                            />
+                                        </div>
+                                        <div className='flex items-center'>
+                                            <div className='w-3 h-0.5 bg-teal-300 rounded-full'></div>
+                                        </div>
+                                        <div className='relative flex-1'>
+                                            <input 
+                                                type='number' 
+                                                placeholder='Max Price' 
+                                                value={filters.maxPrice} 
+                                                onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
+                                                className='w-full p-4 bg-white border-2 border-teal-100 rounded-2xl focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md placeholder-slate-400'
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                                 
                                 {/* Rating Filter */}
-                                <div>
-                                    <label className='block text-sm font-medium text-gray-700 mb-2'>Min Rating</label>
-                                    <div className='flex items-center space-x-1'>
-                                        {[1, 2, 3, 4, 5].map((star) => (
-                                            <button
-                                                key={star}
-                                                type='button'
-                                                onClick={() => setFilters({...filters, minRating: star.toString()})}
-                                                className={`w-8 h-8 transition-colors ${
-                                                    star <= (parseInt(filters.minRating) || 0)
-                                                        ? 'text-yellow-400 hover:text-yellow-500'
-                                                        : 'text-gray-300 hover:text-yellow-300'
-                                                }`}
-                                            >
-                                                <svg fill='currentColor' viewBox='0 0 20 20' className='w-full h-full'>
-                                                    <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z'/>
-                                                </svg>
-                                            </button>
-                                        ))}
+                                <div className='space-y-3'>
+                                    <label className='flex items-center space-x-2 text-sm font-semibold text-slate-700'>
+                                        <div className='w-1.5 h-1.5 bg-teal-500 rounded-full'></div>
+                                        <span>Minimum Rating</span>
+                                    </label>
+                                    <div className='bg-white border-2 border-teal-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-300'>
+                                        <div className='flex items-center justify-between'>
+                                            <div className='flex items-center space-x-2'>
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <button
+                                                        key={star}
+                                                        type='button'
+                                                        onClick={() => setFilters({...filters, minRating: star.toString()})}
+                                                        className={`w-9 h-9 rounded-xl transition-all duration-300 transform hover:scale-110 ${
+                                                            star <= (parseInt(filters.minRating) || 0)
+                                                                ? 'text-yellow-400 bg-yellow-50 shadow-md'
+                                                                : 'text-slate-300 hover:text-yellow-300 hover:bg-yellow-50/50'
+                                                        }`}
+                                                    >
+                                                        <svg fill='currentColor' viewBox='0 0 20 20' className='w-full h-full p-1'>
+                                                            <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z'/>
+                                                        </svg>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {filters.minRating && (
+                                                <button
+                                                    type='button'
+                                                    onClick={() => setFilters({...filters, minRating: ''})}
+                                                    className='px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors'
+                                                >
+                                                    Clear
+                                                </button>
+                                            )}
+                                        </div>
                                         {filters.minRating && (
-                                            <button
-                                                type='button'
-                                                onClick={() => setFilters({...filters, minRating: ''})}
-                                                className='ml-2 text-xs text-gray-500 hover:text-gray-700 underline'
-                                            >
-                                                Clear
-                                            </button>
+                                            <div className='mt-3 pt-3 border-t border-teal-100'>
+                                                <p className='text-sm font-medium text-teal-600 flex items-center space-x-2'>
+                                                    <span className='w-2 h-2 bg-teal-500 rounded-full'></span>
+                                                    <span>{filters.minRating}+ stars minimum</span>
+                                                </p>
+                                            </div>
                                         )}
                                     </div>
-                                    {filters.minRating && (
-                                        <p className='text-xs text-gray-600 mt-1'>
-                                            {filters.minRating}+ stars minimum
-                                        </p>
-                                    )}
                                 </div>
-                            </div>
-                            
-                            {/* Clear Filters Button */}
-                            <div className='mt-4 flex justify-end'>
-                                <button 
-                                    onClick={() => setFilters({...filters, provider: '', minPrice: '', maxPrice: '', minRating: ''})}
-                                    className='px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors'
-                                >
-                                    Clear Filters
-                                </button>
                             </div>
                         </div>
                     )}
