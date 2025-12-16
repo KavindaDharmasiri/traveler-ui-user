@@ -16,6 +16,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       },
+      "/payment": {
+        target: "http://localhost:5555",
+        changeOrigin: true,
+        secure: false
+      },
       "/auth-service": {
         target: "http://localhost:5555",
         changeOrigin: true,

@@ -1,26 +1,41 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faCreditCard, faLock } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faCreditCard, faLock, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { paymentService } from "../../api/paymentService";
+import { useAuth } from "../../hooks/useAuth";
 
-const PaymentModal = ({ isOpen, onClose, total, orderCodes }) => {
-  const [cardType, setCardType] = useState("visa");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardName, setCardName] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [cvv, setCvv] = useState("");
+const PaymentModal = ({ isOpen, onClose, total, orderCodes, customerEmail }) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { user } = useAuth();
 
-  const handleSubmit = async (e) => {
+  const handlePayHerePayment = async (e) => {
     e.preventDefault();
+    setIsProcessing(true);
+    
     try {
-      const axios = (await import("../../api/axios")).default;
-      await axios.put('core/api/v1/order/updateStatus', {
-        orderCodes,
-        status: "PAYED"
-      });
-      console.log("Payment successful");
-      onClose();
+      // Create payment request
+      const paymentRequest = {
+        userId: user?.id || 'guest',
+        orderId: orderCodes[0] || `ORDER_${Date.now()}`,
+        amount: parseFloat(total),
+        currency: 'LKR',
+        customerEmail: customerEmail || user?.email || 'customer@example.com',
+        description: `Travel booking payment for ${orderCodes.length} item(s)`
+      };
+
+      // Initiate payment
+      const response = await paymentService.initiatePayment(paymentRequest);
+      
+      if (response.checkoutUrl) {
+        // Redirect to PayHere checkout
+        window.location.href = `/payment${response.checkoutUrl}`;
+      } else {
+        throw new Error('No checkout URL received');
+      }
     } catch (error) {
-      console.error("Payment failed:", error);
+      console.error('Payment initiation failed:', error);
+      alert('Payment initiation failed. Please try again.');
+      setIsProcessing(false);
     }
   };
 
@@ -47,120 +62,42 @@ const PaymentModal = ({ isOpen, onClose, total, orderCodes }) => {
               <FontAwesomeIcon icon={faLock} className="text-emerald-700" size="lg" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">Secure Payment</h2>
-              <p className="text-sm text-gray-500">Your payment is protected</p>
+              <h2 className="text-2xl font-bold text-gray-800">PayHere Payment</h2>
+              <p className="text-sm text-gray-500">Secure Sri Lankan payment gateway</p>
             </div>
           </div>
           <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mt-4">
             <p className="text-sm text-gray-600">Total Amount</p>
-            <p className="text-3xl font-bold text-emerald-700">${total}</p>
+            <p className="text-3xl font-bold text-emerald-700">LKR {total}</p>
           </div>
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">Select Card Type</label>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setCardType("visa")}
-              className={`flex items-center justify-center gap-3 px-4 py-4 rounded-xl border-2 transition-all ${
-                cardType === "visa"
-                  ? "border-blue-500 bg-blue-50 shadow-md"
-                  : "border-gray-200 bg-white hover:border-blue-300"
-              }`}
-            >
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <FontAwesomeIcon icon={faCreditCard} className="text-white" />
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                <FontAwesomeIcon icon={faCreditCard} className="text-white" size="lg" />
               </div>
-              <span className="font-semibold text-gray-700">Visa</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCardType("mastercard")}
-              className={`flex items-center justify-center gap-3 px-4 py-4 rounded-xl border-2 transition-all ${
-                cardType === "mastercard"
-                  ? "border-orange-500 bg-orange-50 shadow-md"
-                  : "border-gray-200 bg-white hover:border-orange-300"
-              }`}
-            >
-              <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg flex items-center justify-center">
-                <FontAwesomeIcon icon={faCreditCard} className="text-white" />
+              <div>
+                <h3 className="font-semibold text-blue-900">PayHere Payment Gateway</h3>
+                <p className="text-sm text-blue-700">Secure payment processing for Sri Lanka</p>
               </div>
-              <span className="font-semibold text-gray-700">Mastercard</span>
-            </button>
+            </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Card Number
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(e.target.value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim())}
-                placeholder="1234 5678 9012 3456"
-                maxLength="19"
-                required
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-              />
-              <FontAwesomeIcon icon={faCreditCard} className="absolute right-4 top-4 text-gray-400" />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Cardholder Name
-            </label>
-            <input
-              type="text"
-              value={cardName}
-              onChange={(e) => setCardName(e.target.value.toUpperCase())}
-              placeholder="JOHN DOE"
-              required
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all uppercase"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Expiry Date
-              </label>
-              <input
-                type="text"
-                value={expiryDate}
-                onChange={(e) => setExpiryDate(e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2').substr(0, 5))}
-                placeholder="MM/YY"
-                maxLength="5"
-                required
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                CVV
-              </label>
-              <input
-                type="password"
-                value={cvv}
-                onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').substr(0, 3))}
-                placeholder="•••"
-                maxLength="3"
-                required
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-              />
-            </div>
-          </div>
-
+        <form onSubmit={handlePayHerePayment} className="space-y-5">
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-4 rounded-xl font-bold text-lg hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-lg hover:shadow-xl mt-6 flex items-center justify-center gap-2"
+            disabled={isProcessing}
+            className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-4 rounded-xl font-bold text-lg hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-lg hover:shadow-xl mt-6 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <FontAwesomeIcon icon={faLock} />
-            Pay ${total}
+            {isProcessing ? (
+              <FontAwesomeIcon icon={faSpinner} spin />
+            ) : (
+              <FontAwesomeIcon icon={faLock} />
+            )}
+            {isProcessing ? 'Processing...' : `Pay LKR ${total}`}
           </button>
         </form>
       </div>

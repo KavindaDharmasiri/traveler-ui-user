@@ -1,7 +1,11 @@
 // src/components/cart/CartSummary.jsx
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFlask } from "@fortawesome/free-solid-svg-icons";
 
 const CartSummary = ({ subtotal, taxes, total, onContinueShopping, onProceedToCheckout }) => {
+  const navigate = useNavigate();
   return (
     <div className="p-5 border-t border-gray-200 bg-gray-50">
       <div className="space-y-1 mb-4 text-sm">
@@ -28,6 +32,17 @@ const CartSummary = ({ subtotal, taxes, total, onContinueShopping, onProceedToCh
         >
           Proceed to Checkout
         </button>
+
+        {/* Payment Test Button - Development Only */}
+        {import.meta.env.DEV && (
+          <button
+            onClick={() => navigate('/payment/test')}
+            className="w-full bg-purple-600 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-purple-700 flex items-center justify-center gap-2"
+          >
+            <FontAwesomeIcon icon={faFlask} />
+            Test Payment System
+          </button>
+        )}
 
         <button
           onClick={onContinueShopping}

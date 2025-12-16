@@ -12,6 +12,10 @@ import ProviderDashboard from "./provider/pages/ProviderDashboard";
 import RequireAuth from "./user/pages/RequireAuth";
 import RentalCart from "./user/component/cart/RentalCart";
 import Profile from "./user/pages/Profile";
+import PaymentSuccess from "./user/pages/PaymentSuccess";
+import PaymentFailed from "./user/pages/PaymentFailed";
+import PaymentTest from "./user/pages/PaymentTest";
+import PaymentTestButton from "./user/component/cart/PaymentTestButton";
 import { useState } from "react";
 import {initialCartItems} from "./user/cartData";
 
@@ -38,12 +42,14 @@ export default function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/my-bookings" element={<Booking />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/payment/success" element={<PaymentSuccess />} />
+            <Route path="/payment/failed" element={<PaymentFailed />} />
             <Route element={<RequireAuth />}>
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/provider" element={<ProviderDashboard />} />
-              
             </Route>
           </Route>
+          <Route path="/payment/test" element={<PaymentTest />} />
         </Routes>
 
         {/* Floating cart overlay on all pages */}
@@ -53,6 +59,11 @@ export default function App() {
           cartItems={cartItems}
         />
         <NotificationModal />
+        
+        {/* Payment Test Button - Only in development */}
+        {import.meta.env.DEV && (
+          <PaymentTestButton />
+        )}
       </>
     </NotificationProvider>
     </CartContext.Provider>
