@@ -29,7 +29,7 @@ export function ViewOrderDetails({ order, onBack }) {
 
                     {/* ✅ Prevent crash if totalTripPrice is undefined */}
                     <p className="text-2xl font-extrabold text-[#217964]">
-                        Total: ${Number(order?.totalTripPrice || 0).toFixed(2)}
+                        Total: ${Number(order?.totalPrice || 0).toFixed(2)}
                     </p>
                 </header>
 

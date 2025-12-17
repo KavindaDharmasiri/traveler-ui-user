@@ -83,6 +83,7 @@ export default function Booking() {
 
         
         setSelectedOrderDetails(res.data);
+        console.log("Selected Order Details:", res.data);
       } catch (err) {
         console.error("Error fetching selected order details:", err);
         setSelectedOrderDetails(null);
