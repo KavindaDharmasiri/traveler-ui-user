@@ -1,3 +1,5 @@
+import axios from '../user/api/axios';
+import { API_CONFIG } from '../config/environment';
 import hero_mp4 from './3015510-hd_1920_1080_24fps.mp4'
 
 export const menulinks=[
@@ -143,10 +145,6 @@ export const getOrderStatusStyles = (status) => {
     }
 }
 
-export const findOrderDetails = (orderId) => {
-    if (!orderId) return null;
-    return mockOrderDetail;
-}
 
 export const getDetailStatusStyles = (status) => {
     switch (status) {
@@ -158,12 +156,16 @@ export const getDetailStatusStyles = (status) => {
 }
 
 export const groupBookingsByVendor = (items) => {
-    return items.reduce((groups, item) => {
-        const vendor = item.vendorName;
-        if (!groups[vendor]) {
-            groups[vendor] = [];
-        }
-        groups[vendor].push(item);
-        return groups;
-    }, {});
-}
+  if (!Array.isArray(items)) return {};
+
+  return items.reduce((groups, item) => {
+    const vendor = item?.vendorName || "Unknown Vendor";
+
+    if (!groups[vendor]) {
+      groups[vendor] = [];
+    }
+
+    groups[vendor].push(item);
+    return groups;
+  }, {});
+};

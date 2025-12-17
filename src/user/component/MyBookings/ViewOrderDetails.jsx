@@ -1,11 +1,12 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTag, faClipboardList, faStore, faMapMarkerAlt, faDollarSign, faArrowLeft, faPhone, faMapPin } from '@fortawesome/free-solid-svg-icons';
-import { getDetailStatusStyles,groupBookingsByVendor} from '../../../assets/assets';
+import { getDetailStatusStyles, groupBookingsByVendor } from '../../../assets/assets';
 
-export function ViewOrderDetails({ order = mockOrderDetail, onBack }) { 
-    
-    const groupedItems = groupBookingsByVendor(order.items);
+export function ViewOrderDetails({ order, onBack }) { 
+
+    // ✅ Prevent crash if order/items is undefined
+    const groupedItems = groupBookingsByVendor(order?.items || []);
     const vendorNames = Object.keys(groupedItems);
 
     return (
@@ -20,17 +21,24 @@ export function ViewOrderDetails({ order = mockOrderDetail, onBack }) {
                     <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
                     Back to Orders List
                 </button>
+
                 <header className="border-b pb-4 mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900">Order Details: {order.orderId}</h1>
-                    <p className="text-2xl font-extrabold text-[#217964]">Total: ${order.totalTripPrice.toFixed(2)}</p>
+                    <h1 className="text-3xl font-bold text-gray-900">
+                        Order Details: {order?.orderId}
+                    </h1>
+
+                    {/* ✅ Prevent crash if totalTripPrice is undefined */}
+                    <p className="text-2xl font-extrabold text-[#217964]">
+                        Total: ${Number(order?.totalTripPrice || 0).toFixed(2)}
+                    </p>
                 </header>
 
                 <h2 className="text-xl font-semibold mb-4 text-gray-700">Items Grouped by Vendor</h2>
 
                 <div className="space-y-8">
                     {vendorNames.map((vendorName) => {
-                        // Get the first item in the group to extract shared vendor details (contact, map)
-                        const vendorDetails = groupedItems[vendorName][0]; 
+                        // ✅ Prevent crash if group is empty
+                        const vendorDetails = (groupedItems[vendorName] && groupedItems[vendorName][0]) ? groupedItems[vendorName][0] : {};
 
                         return (
                             <div key={vendorName} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
@@ -46,7 +54,7 @@ export function ViewOrderDetails({ order = mockOrderDetail, onBack }) {
                                         {/* Contact Number */}
                                         {vendorDetails.vendorContact && (
                                             <a 
-                                                href={`tel:${vendorDetails.vendorContact.replace(/\D/g,'')}`} 
+                                                href={`tel:${String(vendorDetails.vendorContact).replace(/\D/g,'')}`} 
                                                 className="text-gray-700 hover:text-gray-900 font-semibold flex items-center"
                                             >
                                                 <FontAwesomeIcon icon={faPhone} className="text-[#217964] mr-1" size="sm" />
@@ -96,8 +104,9 @@ export function ViewOrderDetails({ order = mockOrderDetail, onBack }) {
 
                                             {/* Price and Status (Col 4) */}
                                             <div className="flex flex-col items-start md:items-end">
+                                                {/* ✅ Prevent crash if itemPrice undefined */}
                                                 <span className="text-xl font-bold text-green-700">
-                                                    ${item.itemPrice.toFixed(2)}
+                                                    ${Number(item.itemPrice || 0).toFixed(2)}
                                                 </span>
                                                 <span className={`px-3 py-1 text-xs font-semibold rounded-full mt-1 ${getDetailStatusStyles(item.status)}`}>
                                                     {item.status}
@@ -110,6 +119,7 @@ export function ViewOrderDetails({ order = mockOrderDetail, onBack }) {
                         );
                     })}
                 </div>
+
             </div>
         </div>
     );
