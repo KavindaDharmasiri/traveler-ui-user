@@ -29,12 +29,11 @@ export function OrderCard({ order, onViewDetails }) {
         <p className="text-xs font-medium text-gray-500">Trip Duration</p>
         <p className="text-sm font-medium text-gray-700 flex items-center gap-1">
           <FontAwesomeIcon icon={faCalendarAlt} className="text-gray-400" size="sm" />
-          <span className="font-semibold">{order.startDate}</span> to{" "}
-          <span className="font-semibold">{order.endDate}</span>
+          <span className="font-semibold">{order.returnDate || order.endDate || 'N/A'}</span>
         </p>
         <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
           <FontAwesomeIcon icon={faClock} className="text-gray-400" size="sm" />
-          Booked on: {order.orderDate}
+          Booked on: {order.pickupDate || order.orderDate || 'N/A'}
         </p>
       </div>
 

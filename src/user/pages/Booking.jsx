@@ -29,20 +29,31 @@ export default function Booking() {
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
 
-        // Flatten list response
+        console.log('API Response:', response.data);
+
+        // Flatten list response - API returns grouped data by customer name
         let orderdata = [];
         const responseData = response.data || {};
 
-        Object.values(responseData).forEach((tenantGroups) => {
-          if (tenantGroups && typeof tenantGroups === "object") {
-            Object.values(tenantGroups).forEach((groupOrders) => {
-              if (Array.isArray(groupOrders)) {
-                orderdata = orderdata.concat(groupOrders);
+        console.log('Response Data Keys:', Object.keys(responseData));
+
+        // responseData structure: { "TENANT_ID": { "customer_name": [order1, order2, ...] } }
+        Object.keys(responseData).forEach((tenantId) => {
+          const tenantData = responseData[tenantId];
+          console.log(`Tenant: ${tenantId}, Data:`, tenantData);
+          
+          if (tenantData && typeof tenantData === 'object') {
+            Object.keys(tenantData).forEach((customerName) => {
+              const orders = tenantData[customerName];
+              console.log(`Customer: ${customerName}, Orders:`, orders);
+              if (Array.isArray(orders)) {
+                orderdata = orderdata.concat(orders);
               }
             });
           }
         });
 
+        console.log('Final orderdata:', orderdata);
         setBookingData(orderdata);
       } catch (error) {
         console.error("Error fetching booking data:", error);
@@ -65,35 +76,17 @@ export default function Booking() {
 
   const statuses = ["Pending", "Completed", "Cancelled"];
 
-  // 3) Fetch details when user selects an orderId
+  // 3) Find order details from existing data instead of API call
   useEffect(() => {
-    const fetchDetails = async () => {
-      if (selectedOrderId === null || selectedOrderId === undefined) return;
-
-      setLoadingDetails(true);
+    if (selectedOrderId === null || selectedOrderId === undefined) {
       setSelectedOrderDetails(null);
+      return;
+    }
 
-      try {
-        const token = localStorage.getItem("accessToken");
-
-        const res = await axios.get(
-          `${API_CONFIG.BASE_URL}core/api/v1/order/${selectedOrderId}`,
-          { headers: token ? { Authorization: `Bearer ${token}` } : undefined }
-        );
-
-        
-        setSelectedOrderDetails(res.data);
-        console.log("Selected Order Details:", res.data);
-      } catch (err) {
-        console.error("Error fetching selected order details:", err);
-        setSelectedOrderDetails(null);
-      } finally {
-        setLoadingDetails(false);
-      }
-    };
-
-    fetchDetails();
-  }, [selectedOrderId]);
+    const foundOrder = bookingData.find(order => order.id === selectedOrderId);
+    setSelectedOrderDetails(foundOrder || null);
+    setLoadingDetails(false);
+  }, [selectedOrderId, bookingData]);
 
   // 4) Render details view
   if (selectedOrderId !== null) {

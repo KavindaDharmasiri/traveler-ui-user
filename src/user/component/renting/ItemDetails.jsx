@@ -117,7 +117,9 @@ export default function ItemDetails() {
         totalPrice: totalPrice,
         rentalDays: rentalDays,
         clientTenant: localStorage.getItem('tenantId'),
-        providerTenant: tenant
+        providerTenant: tenant,
+        pickupDate: pickupDate,
+        returnDate: returnDate
       })
       
       Swal.fire({

@@ -1,12 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTag, faClipboardList, faStore, faMapMarkerAlt, faDollarSign, faArrowLeft, faPhone, faMapPin } from '@fortawesome/free-solid-svg-icons';
 import { getDetailStatusStyles, groupBookingsByVendor } from '../../../assets/assets';
+import axios from '../../api/axios';
 
 export function ViewOrderDetails({ order, onBack }) { 
+    const [imageMapper, setImageMapper] = useState({});
 
-    // ✅ Prevent crash if order/items is undefined
-    const groupedItems = groupBookingsByVendor(order?.items || []);
+    const fetchImages = async (imageUuids) => {
+        const mapper = {};
+        for (const uuid of imageUuids) {
+            try {
+                const response = await axios.get(`storage/files/download/${uuid}`, {
+                    responseType: 'blob'
+                });
+                mapper[uuid] = URL.createObjectURL(response.data);
+            } catch (error) {
+                console.error(`Error fetching image ${uuid}:`, error);
+            }
+        }
+        setImageMapper(mapper);
+    };
+
+    useEffect(() => {
+        if (order?.itemObj?.images && order.itemObj.images.length > 0) {
+            fetchImages(order.itemObj.images);
+        }
+    }, [order]);
+
+    // Convert single itemObj to items array format for grouping
+    const items = order?.itemObj ? [{
+        id: order.itemObj.id,
+        itemName: order.itemObj.name,
+        vendorName: order.groupName || 'Unknown Vendor',
+        itemPrice: order.totalPrice,
+        status: order.status,
+        vendorContact: order.itemObj.contact,
+        category: order.itemObj.category,
+        description: order.itemObj.description,
+        pricePerDay: order.itemObj.pricePerDay,
+        rentalDays: order.rentalDays,
+        images: order.itemObj.images,
+        pickupDate: order.pickupDate,
+        returnDate: order.returnDate
+    }] : [];
+    
+    const groupedItems = groupBookingsByVendor(items);
     const vendorNames = Object.keys(groupedItems);
 
     return (
@@ -24,16 +63,52 @@ export function ViewOrderDetails({ order, onBack }) {
 
                 <header className="border-b pb-4 mb-6">
                     <h1 className="text-3xl font-bold text-gray-900">
-                        Order Details: {order?.orderId}
+                        Order Details: {order?.orderCode || order?.orderId}
                     </h1>
 
-                    {/* ✅ Prevent crash if totalTripPrice is undefined */}
                     <p className="text-2xl font-extrabold text-[#217964]">
                         Total: ${Number(order?.totalPrice || 0).toFixed(2)}
                     </p>
                 </header>
 
                 <h2 className="text-xl font-semibold mb-4 text-gray-700">Items Grouped by Vendor</h2>
+
+                {/* Show order summary when items are not available */}
+                {vendorNames.length === 0 && (
+                    <div className="p-6 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h3 className="text-lg font-semibold text-blue-800 mb-4">Order Summary</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p className="text-sm font-medium text-gray-600">Customer Name</p>
+                                <p className="text-lg font-semibold text-gray-900">{order?.customerName || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-gray-600">Order Code</p>
+                                <p className="text-lg font-semibold text-gray-900">{order?.orderCode || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-gray-600">Number of Items</p>
+                                <p className="text-lg font-semibold text-gray-900">{order?.item || 0}</p>
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-gray-600">Rental Days</p>
+                                <p className="text-lg font-semibold text-gray-900">{order?.rentalDays || 0} days</p>
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-gray-600">Status</p>
+                                <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getDetailStatusStyles(order?.status)}`}>
+                                    {order?.status || 'Unknown'}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="mt-4 p-3 bg-yellow-100 border border-yellow-300 rounded">
+                            <p className="text-sm text-yellow-800">
+                                <strong>Note:</strong> Detailed item information is not available from the API. 
+                                Contact support for specific item details.
+                            </p>
+                        </div>
+                    </div>
+                )}
 
                 <div className="space-y-8">
                     {vendorNames.map((vendorName) => {
@@ -79,26 +154,46 @@ export function ViewOrderDetails({ order, onBack }) {
 
                                 <div className="space-y-4">
                                     {groupedItems[vendorName].map((item) => (
-                                        <div key={item.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-white rounded shadow-sm border-l-4 border-gray-300">
+                                        <div key={item.id} className="p-4 bg-white rounded shadow-sm border-l-4 border-gray-300">
                                             
-                                            {/* Item Name (Col 1) */}
-                                            <div className="md:col-span-1">
-                                                <p className="text-sm font-medium text-gray-500">Item Name</p>
-                                                <p className="text-lg font-semibold text-gray-900 flex items-center gap-1">
-                                                    <FontAwesomeIcon icon={faTag} size="xs" />
-                                                    {item.itemName}
-                                                </p>
-                                            </div>
+                                            {/* Images Section */}
+                                            {item.images && item.images.length > 0 && (
+                                                <div className="mb-4">
+                                                    <p className="text-sm font-medium text-gray-500 mb-2">Item Images</p>
+                                                    <div className="flex gap-2 overflow-x-auto">
+                                                        {item.images.map((uuid, index) => (
+                                                            <img
+                                                                key={uuid}
+                                                                src={imageMapper[uuid] || 'https://via.placeholder.com/100'}
+                                                                alt={`${item.itemName} ${index + 1}`}
+                                                                className="w-20 h-20 object-cover rounded border border-gray-200 flex-shrink-0"
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                                {/* Item Name (Col 1) */}
+                                                <div className="md:col-span-1">
+                                                    <p className="text-sm font-medium text-gray-500">Item Name</p>
+                                                    <p className="text-lg font-semibold text-gray-900 flex items-center gap-1">
+                                                        <FontAwesomeIcon icon={faTag} size="xs" />
+                                                        {item.itemName}
+                                                    </p>
+                                                </div>
                                             
-                                            {/* Dates & Pickup Location (Col 2 & 3) */}
+                                            {/* Trip Duration & Booking Details (Col 2 & 3) */}
                                             <div className="md:col-span-2">
-                                                <p className="text-sm font-medium text-gray-500">Rental Period & Pickup</p>
+                                                <p className="text-sm font-medium text-gray-500">Trip Duration</p>
                                                 <p className="text-base font-medium text-gray-700">
-                                                    **{item.pickupDate}** to **{item.returnDate}**
+                                                    {item.pickupDate || 'N/A'} to {item.returnDate || 'N/A'}
                                                 </p>
-                                                <p className="text-sm text-gray-500 flex items-center mt-1">
-                                                    <FontAwesomeIcon icon={faMapMarkerAlt} className="text-red-400 mr-1" size="xs" />
-                                                    {item.pickupLocation}
+                                                <p className="text-sm text-gray-500 mt-1">
+                                                    {item.rentalDays} days • ${item.pricePerDay}/day
+                                                </p>
+                                                <p className="text-xs text-gray-600 mt-1">
+                                                    <strong>Booked on:</strong> {item.category}
                                                 </p>
                                             </div>
 
@@ -111,6 +206,7 @@ export function ViewOrderDetails({ order, onBack }) {
                                                 <span className={`px-3 py-1 text-xs font-semibold rounded-full mt-1 ${getDetailStatusStyles(item.status)}`}>
                                                     {item.status}
                                                 </span>
+                                            </div>
                                             </div>
                                         </div>
                                     ))}
