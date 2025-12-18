@@ -7,6 +7,7 @@ import ItemDetails from "./user/component/renting/ItemDetails";
 import Login from "./user/pages/Login";
 import Signup from "./user/pages/Signup";
 import Booking from "./user/pages/Booking";
+import Backpack from "./user/pages/Backpack";
 import AdminDashboard from "./admin/pages/AdminDashboard";
 import ProviderDashboard from "./provider/pages/ProviderDashboard";
 import RequireAuth from "./user/pages/RequireAuth";
@@ -41,6 +42,7 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/my-bookings" element={<Booking />} />
+            <Route path="/backpack" element={<Backpack />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/payment/success" element={<PaymentSuccess />} />
             <Route path="/payment/failed" element={<PaymentFailed />} />
