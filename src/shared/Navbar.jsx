@@ -2,7 +2,8 @@ import React from 'react'
 import {Link} from 'react-router-dom'
 import { menulinks } from '../assets/assets' 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShop,faBagShopping,faBell,faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { faShop,faBagShopping,faBell,faMagnifyingGlass} from '@fortawesome/free-solid-svg-icons'
+import { Backpack } from 'lucide-react';
 import TravelerLogo from './TravelerLogo';
 import axios from '../user/api/axios';
 import { useCart } from '../user/component/cart/CartContext';
@@ -158,6 +159,11 @@ export default function Navbar() {
                                             {unreadCount}
                                         </span>
                                     )}
+                                </div>
+                                <div className={`relative cursor-pointer ${!isScrolled ? "text-white hover:opacity-50 transition-opacity" : "text-gray-700 hover:text-[#217964]"}`}>
+                                    <Link to="/backpack">
+                                        <Backpack /> 
+                                    </Link>
                                 </div>
                             </>
                         )}

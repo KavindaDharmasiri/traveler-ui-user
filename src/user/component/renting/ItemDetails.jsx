@@ -274,12 +274,12 @@ export default function ItemDetails() {
                     </div>
                   </div>
                   
-                  <div className="bg-gradient-to-r from-teal-50 to-slate-50 rounded-2xl p-4">
-                    <p className="text-slate-700 font-medium flex items-center space-x-2">
-                      <span className="w-2 h-2 bg-teal-500 rounded-full"></span>
-                      <span>Contact: {item.contact}</span>
-                    </p>
-                  </div>
+                  {/*<div className="bg-gradient-to-r from-teal-50 to-slate-50 rounded-2xl p-4">*/}
+                  {/*  <p className="text-slate-700 font-medium flex items-center space-x-2">*/}
+                  {/*    <span className="w-2 h-2 bg-teal-500 rounded-full"></span>*/}
+                  {/*    <span>Contact: {item.contact}</span>*/}
+                  {/*  </p>*/}
+                  {/*</div>*/}
                 </div>
 
                 <div className="h-px bg-gradient-to-r from-transparent via-teal-200 to-transparent"></div>
@@ -369,7 +369,7 @@ export default function ItemDetails() {
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>Processing...</span>
                 </div>
-              ) : item.status === 'ACTIVE' ? 'Confirm Booking' : 'Currently Unavailable'}
+              ) : item.status === 'ACTIVE' ? 'Add To Bag' : 'Currently Unavailable'}
             </button>
 
             <div className="text-center space-y-2">
