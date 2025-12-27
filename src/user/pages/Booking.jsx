@@ -1,98 +1,213 @@
-import React, { useState, useMemo } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClipboardList, faFilter, faTimes, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-// Import OrderCard and ViewOrderDetails (or define them below MyOrders)
-import { OrderCard } from '../component/MyBookings/OrderCard'; // Assuming separate files
-import { ViewOrderDetails } from '../component/MyBookings/ViewOrderDetails'; // Assuming separate files
-import { mockOrdersList,findOrderDetails } from '../../assets/assets';
+import React, { useState, useMemo, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClipboardList, faFilter, faTimes } from "@fortawesome/free-solid-svg-icons";
 
+import { OrderCard } from "../component/MyBookings/OrderCard";
+import { ViewOrderDetails } from "../component/MyBookings/ViewOrderDetails";
 
+import axios from "../api/axios";
+import { API_CONFIG } from "../../config/environment";
 
-export default function MyOrders() {
-    const [selectedOrderId, setSelectedOrderId] = useState(null);
-    // State to hold the active filter status (e.g., 'Upcoming', 'Completed', or null for all)
-    const [filterStatus, setFilterStatus] = useState(null); 
+export default function Booking() {
+  const [bookingData, setBookingData] = useState([]);
+  const [loadingList, setLoadingList] = useState(true);
 
-    const selectedOrderDetails = findOrderDetails(selectedOrderId);
-    
-    // --- FILTER LOGIC ---
-    const filteredOrders = useMemo(() => {
-        if (!filterStatus) {
-            return mockOrdersList; // Show all if no filter is set
-        }
-        return mockOrdersList.filter(order => order.status === filterStatus);
-    }, [filterStatus]); // Recalculate only when filterStatus changes
+  const [filterStatus, setFilterStatus] = useState(null);
 
-    // List of available statuses for the filter buttons
-    const statuses = ['Upcoming', 'Completed', 'Cancelled'];
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
-    if (selectedOrderId && selectedOrderDetails) {
-        return <ViewOrderDetails order={selectedOrderDetails} onBack={() => setSelectedOrderId(null)} />;
+  // 1) Load all bookings
+  useEffect(() => {
+    const fetchBookingData = async () => {
+      setLoadingList(true);
+      try {
+        const token = localStorage.getItem("accessToken");
+
+        const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/order`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+
+        console.log('API Response:', response.data);
+
+        // Group items by order code
+        let orderdata = [];
+        const responseData = response.data || {};
+        const orderMap = new Map();
+
+        // responseData structure: { "TENANT_ID": { "customer_name": [item1, item2, ...] } }
+        Object.keys(responseData).forEach((tenantId) => {
+          const tenantData = responseData[tenantId];
+          
+          if (tenantData && typeof tenantData === 'object') {
+            Object.keys(tenantData).forEach((customerName) => {
+              const items = tenantData[customerName];
+              if (Array.isArray(items)) {
+                items.forEach(item => {
+                  const orderCode = item.orderCode;
+                  if (!orderMap.has(orderCode)) {
+                    orderMap.set(orderCode, {
+                      id: orderCode,
+                      orderCode: orderCode,
+                      customerName: item.customerName,
+                      status: item.status,
+                      clientTenant: item.clientTenant,
+                      groupTenant: item.groupTenant,
+                      groupName: item.groupName,
+                      items: []
+                    });
+                  }
+                  orderMap.get(orderCode).items.push(item);
+                });
+              }
+            });
+          }
+        });
+
+        orderdata = Array.from(orderMap.values());
+        console.log('Grouped orderdata:', orderdata);
+        setBookingData(orderdata);
+      } catch (error) {
+        console.error("Error fetching booking data:", error);
+        setBookingData([]);
+      } finally {
+        setLoadingList(false);
+      }
+    };
+
+    fetchBookingData();
+  }, []);
+
+  // 2) Filter list locally
+  const filteredOrders = useMemo(() => {
+    if (!filterStatus) return bookingData;
+    return bookingData.filter((order) => {
+      // Check if any item in the order matches the filter status
+      return order.items && order.items.some(item => 
+        (item.status || "").toLowerCase() === filterStatus.toLowerCase()
+      );
+    });
+  }, [filterStatus, bookingData]);
+
+  const statuses = ["Pending", "Cancelled"];
+
+  // 3) Find order details using order code API call
+  useEffect(() => {
+    if (selectedOrderId === null || selectedOrderId === undefined) {
+      setSelectedOrderDetails(null);
+      return;
     }
 
-    return (
-        <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
-            <header className="max-w-4xl mx-auto mb-6">
-                <h1 className="text-4xl font-extrabold text-gray-900 flex items-center gap-3">
-                    <FontAwesomeIcon icon={faClipboardList} className="text-[#217964]" />
-                    My Rental Trips (Orders)
-                </h1>
-                <p className="mt-2 text-lg text-gray-500">
-                    A consolidated view of all your rental trips.
-                </p>
-            </header>
+    const fetchOrderDetails = async () => {
+      setLoadingDetails(true);
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/order/code/${selectedOrderId}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        setSelectedOrderDetails(response.data);
+      } catch (error) {
+        console.error("Error fetching order details:", error);
+        setSelectedOrderDetails(null);
+      } finally {
+        setLoadingDetails(false);
+      }
+    };
 
-            {/* --- FILTER BAR --- */}
-            <div className="max-w-4xl mx-auto mb-8 p-4 bg-white rounded-lg shadow-md flex flex-col md:flex-row items-start md:items-center gap-3">
-                <div className="flex items-center text-gray-600 font-semibold text-lg">
-                    <FontAwesomeIcon icon={faFilter} className="mr-2 text-blue-500" />
-                    Filter by Status:
-                </div>
-                
-                <div className="flex flex-wrap gap-2">
-                    {statuses.map(status => (
-                        <button
-                            key={status}
-                            onClick={() => setFilterStatus(status)}
-                            className={`px-4 py-2 text-sm font-medium rounded-full transition-colors duration-200 
-                                ${filterStatus === status 
-                                    ? 'bg-[#217964] text-white shadow-lg' 
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`
-                            }
-                        >
-                            {status}
-                        </button>
-                    ))}
-                    
-                    {filterStatus && (
-                        <button
-                            onClick={() => setFilterStatus(null)}
-                            className="px-3 py-2 text-sm font-medium rounded-full bg-red-100 text-red-600 hover:bg-red-200 flex items-center"
-                        >
-                            <FontAwesomeIcon icon={faTimes} className="mr-1" size='sm' />Clear Filter
-                        </button>
-                    )}
-                </div>
-            </div>
-            {/* -------------------- */}
+    fetchOrderDetails();
+  }, [selectedOrderId]);
 
-
-            <main className="max-w-4xl mx-auto space-y-6">
-                {filteredOrders.length === 0 ? (
-                    <div className="text-center p-12 bg-white rounded-lg shadow-sm">
-                        <h2 className="text-2xl font-semibold text-gray-700">No {filterStatus} Orders Found</h2>
-                        <p className="mt-2 text-gray-500">Try clearing the filter to see all trips.</p>
-                    </div>
-                ) : (
-                    filteredOrders.map((order) => (
-                        <OrderCard 
-                            key={order.orderId} 
-                            order={order} 
-                            onViewDetails={setSelectedOrderId} 
-                        />
-                    ))
-                )}
-            </main>
+  // 4) Render details view
+  if (selectedOrderId !== null) {
+    if (loadingDetails) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow">Loading order details...</div>
         </div>
-    );
+      );
+    }
+
+    if (selectedOrderDetails) {
+      return (
+        <ViewOrderDetails
+          order={selectedOrderDetails}
+          onBack={() => {
+            setSelectedOrderId(null);
+            setSelectedOrderDetails(null);
+          }}
+        />
+      );
+    }
+  }
+
+  // 5) Render list view
+  return (
+    <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
+      <header className="max-w-4xl mx-auto mb-6">
+        <h1 className="text-4xl font-extrabold text-gray-900 flex items-center gap-3">
+          <FontAwesomeIcon icon={faClipboardList} className="text-[#217964]" />
+          My Rental Trips (Orders)
+        </h1>
+        <p className="mt-2 text-lg text-gray-500">A consolidated view of all your rental trips.</p>
+      </header>
+
+      <div className="max-w-4xl mx-auto mb-8 p-4 bg-white rounded-lg shadow-md flex flex-col md:flex-row items-start md:items-center gap-3">
+        <div className="flex items-center text-gray-600 font-semibold text-lg">
+          <FontAwesomeIcon icon={faFilter} className="mr-2 text-blue-500" />
+          Filter by Status:
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {statuses.map((status) => (
+            <button
+              key={status}
+              onClick={() => setFilterStatus(status)}
+              className={`px-4 py-2 text-sm font-medium rounded-full transition-colors duration-200 
+                ${
+                  filterStatus === status
+                    ? "bg-[#217964] text-white shadow-lg"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+            >
+              {status}
+            </button>
+          ))}
+
+          {filterStatus && (
+            <button
+              onClick={() => setFilterStatus(null)}
+              className="px-3 py-2 text-sm font-medium rounded-full bg-red-100 text-red-600 hover:bg-red-200 flex items-center"
+            >
+              <FontAwesomeIcon icon={faTimes} className="mr-1" size="sm" />
+              Clear Filter
+            </button>
+          )}
+        </div>
+      </div>
+
+      <main className="max-w-4xl mx-auto space-y-6">
+        {loadingList ? (
+          <div className="text-center p-12 bg-white rounded-lg shadow-sm">
+            <h2 className="text-2xl font-semibold text-gray-700">Loading your orders...</h2>
+          </div>
+        ) : filteredOrders.length === 0 ? (
+          <div className="text-center p-12 bg-white rounded-lg shadow-sm">
+            <h2 className="text-2xl font-semibold text-gray-700">
+              No {filterStatus} Orders Found
+            </h2>
+            <p className="mt-2 text-gray-500">Try clearing the filter to see all trips.</p>
+          </div>
+        ) : (
+          filteredOrders.map((order, idx) => (
+            <OrderCard
+              key={order.orderId || order.id || `order-${idx}`}
+              order={order}
+              onViewDetails={(id) => setSelectedOrderId(id)}
+            />
+          ))
+        )}
+      </main>
+    </div>
+  );
 }
