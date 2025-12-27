@@ -111,15 +111,13 @@ export default function ItemDetails() {
       const rentalDays = calculateRentalDays()
       const totalPrice = rentalDays * item.pricePerDay
       
-      await axios.post(`${API_CONFIG.BASE_URL}core/api/v1/order/create`, {
-        customerName: localStorage.getItem('name'),
-        item: parseInt(id),
-        totalPrice: totalPrice,
-        rentalDays: rentalDays,
-        clientTenant: localStorage.getItem('tenantId'),
+      await axios.post(`${API_CONFIG.BASE_URL}core/api/v1/backpack/add`, {
+        itemId: id,
         providerTenant: tenant,
+        rentalDays: rentalDays,
         pickupDate: pickupDate,
-        returnDate: returnDate
+        returnDate: returnDate,
+        totalPrice: totalPrice
       })
       
       Swal.fire({

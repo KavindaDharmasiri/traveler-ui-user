@@ -23,30 +23,41 @@ export function ViewOrderDetails({ order, onBack }) {
     };
 
     useEffect(() => {
-        if (order?.itemObj?.images && order.itemObj.images.length > 0) {
-            fetchImages(order.itemObj.images);
+        // Fetch images for all items
+        const allImageUuids = [];
+        if (order?.items) {
+            order.items.forEach(item => {
+                if (item.itemObj?.images) {
+                    allImageUuids.push(...item.itemObj.images);
+                }
+            });
+        }
+        if (allImageUuids.length > 0) {
+            fetchImages([...new Set(allImageUuids)]);
         }
     }, [order]);
 
-    // Convert single itemObj to items array format for grouping
-    const items = order?.itemObj ? [{
-        id: order.itemObj.id,
-        itemName: order.itemObj.name,
-        vendorName: order.groupName || 'Unknown Vendor',
-        itemPrice: order.totalPrice,
-        status: order.status,
-        vendorContact: order.itemObj.contact,
-        category: order.itemObj.category,
-        description: order.itemObj.description,
-        pricePerDay: order.itemObj.pricePerDay,
-        rentalDays: order.rentalDays,
-        images: order.itemObj.images,
-        pickupDate: order.pickupDate,
-        returnDate: order.returnDate
-    }] : [];
+    // Convert items array to grouped format
+    const items = order?.items ? order.items.map(item => ({
+        id: item.id,
+        itemName: item.itemObj?.name || `Item ${item.item}`,
+        vendorName: item.providerName || item.providerTenant || 'Unknown Vendor',
+        itemPrice: item.totalPrice,
+        status: item.status,
+        vendorContact: item.itemObj?.contact,
+        category: item.itemObj?.category,
+        description: item.itemObj?.description,
+        pricePerDay: item.itemObj?.pricePerDay,
+        rentalDays: item.rentalDays,
+        images: item.itemObj?.images,
+        pickupDate: item.pickupDate,
+        returnDate: item.returnDate,
+        mapUrl: item.map
+    })) : [];
     
     const groupedItems = groupBookingsByVendor(items);
     const vendorNames = Object.keys(groupedItems);
+    const totalPrice = items.reduce((sum, item) => sum + (item.itemPrice || 0), 0);
 
     return (
         <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
@@ -67,11 +78,11 @@ export function ViewOrderDetails({ order, onBack }) {
                     </h1>
 
                     <p className="text-2xl font-extrabold text-[#217964]">
-                        Total: ${Number(order?.totalPrice || 0).toFixed(2)}
+                        Total: Rs. {totalPrice.toFixed(2)}
                     </p>
                 </header>
 
-                <h2 className="text-xl font-semibold mb-4 text-gray-700">Items Grouped by Vendor</h2>
+                <h2 className="text-xl font-semibold mb-4 text-gray-700">Items You Listed</h2>
 
                 {/* Show order summary when items are not available */}
                 {vendorNames.length === 0 && (
@@ -126,20 +137,10 @@ export function ViewOrderDetails({ order, onBack }) {
                                     </h3>
 
                                     <div className="flex flex-wrap gap-4 text-sm">
-                                        {/* Contact Number */}
-                                        {vendorDetails.vendorContact && (
-                                            <a 
-                                                href={`tel:${String(vendorDetails.vendorContact).replace(/\D/g,'')}`} 
-                                                className="text-gray-700 hover:text-gray-900 font-semibold flex items-center"
-                                            >
-                                                <FontAwesomeIcon icon={faPhone} className="text-[#217964] mr-1" size="sm" />
-                                                {vendorDetails.vendorContact}
-                                            </a>
-                                        )}
                                         {/* Map Link */}
                                         {vendorDetails.mapUrl && (
                                             <a 
-                                                href={vendorDetails.mapUrl} 
+                                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(vendorDetails.mapUrl)}`}
                                                 target="_blank" 
                                                 rel="noopener noreferrer" 
                                                 className="text-blue-600 hover:text-blue-800 font-semibold flex items-center"
@@ -201,7 +202,7 @@ export function ViewOrderDetails({ order, onBack }) {
                                             <div className="flex flex-col items-start md:items-end">
                                                 {/* ✅ Prevent crash if itemPrice undefined */}
                                                 <span className="text-xl font-bold text-green-700">
-                                                    ${Number(item.itemPrice || 0).toFixed(2)}
+                                                    Rs. {Number(item.itemPrice || 0).toFixed(2)}
                                                 </span>
                                                 <span className={`px-3 py-1 text-xs font-semibold rounded-full mt-1 ${getDetailStatusStyles(item.status)}`}>
                                                     {item.status}

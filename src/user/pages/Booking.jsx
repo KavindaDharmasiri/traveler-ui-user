@@ -31,29 +31,42 @@ export default function Booking() {
 
         console.log('API Response:', response.data);
 
-        // Flatten list response - API returns grouped data by customer name
+        // Group items by order code
         let orderdata = [];
         const responseData = response.data || {};
+        const orderMap = new Map();
 
-        console.log('Response Data Keys:', Object.keys(responseData));
-
-        // responseData structure: { "TENANT_ID": { "customer_name": [order1, order2, ...] } }
+        // responseData structure: { "TENANT_ID": { "customer_name": [item1, item2, ...] } }
         Object.keys(responseData).forEach((tenantId) => {
           const tenantData = responseData[tenantId];
-          console.log(`Tenant: ${tenantId}, Data:`, tenantData);
           
           if (tenantData && typeof tenantData === 'object') {
             Object.keys(tenantData).forEach((customerName) => {
-              const orders = tenantData[customerName];
-              console.log(`Customer: ${customerName}, Orders:`, orders);
-              if (Array.isArray(orders)) {
-                orderdata = orderdata.concat(orders);
+              const items = tenantData[customerName];
+              if (Array.isArray(items)) {
+                items.forEach(item => {
+                  const orderCode = item.orderCode;
+                  if (!orderMap.has(orderCode)) {
+                    orderMap.set(orderCode, {
+                      id: orderCode,
+                      orderCode: orderCode,
+                      customerName: item.customerName,
+                      status: item.status,
+                      clientTenant: item.clientTenant,
+                      groupTenant: item.groupTenant,
+                      groupName: item.groupName,
+                      items: []
+                    });
+                  }
+                  orderMap.get(orderCode).items.push(item);
+                });
               }
             });
           }
         });
 
-        console.log('Final orderdata:', orderdata);
+        orderdata = Array.from(orderMap.values());
+        console.log('Grouped orderdata:', orderdata);
         setBookingData(orderdata);
       } catch (error) {
         console.error("Error fetching booking data:", error);
@@ -69,24 +82,41 @@ export default function Booking() {
   // 2) Filter list locally
   const filteredOrders = useMemo(() => {
     if (!filterStatus) return bookingData;
-    return bookingData.filter(
-      (order) => (order.status || "").toLowerCase() === filterStatus.toLowerCase()
-    );
+    return bookingData.filter((order) => {
+      // Check if any item in the order matches the filter status
+      return order.items && order.items.some(item => 
+        (item.status || "").toLowerCase() === filterStatus.toLowerCase()
+      );
+    });
   }, [filterStatus, bookingData]);
 
-  const statuses = ["Pending", "Completed", "Cancelled"];
+  const statuses = ["Pending", "Cancelled"];
 
-  // 3) Find order details from existing data instead of API call
+  // 3) Find order details using order code API call
   useEffect(() => {
     if (selectedOrderId === null || selectedOrderId === undefined) {
       setSelectedOrderDetails(null);
       return;
     }
 
-    const foundOrder = bookingData.find(order => order.id === selectedOrderId);
-    setSelectedOrderDetails(foundOrder || null);
-    setLoadingDetails(false);
-  }, [selectedOrderId, bookingData]);
+    const fetchOrderDetails = async () => {
+      setLoadingDetails(true);
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/order/code/${selectedOrderId}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        setSelectedOrderDetails(response.data);
+      } catch (error) {
+        console.error("Error fetching order details:", error);
+        setSelectedOrderDetails(null);
+      } finally {
+        setLoadingDetails(false);
+      }
+    };
+
+    fetchOrderDetails();
+  }, [selectedOrderId]);
 
   // 4) Render details view
   if (selectedOrderId !== null) {
