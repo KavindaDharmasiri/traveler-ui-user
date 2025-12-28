@@ -123,6 +123,7 @@ export default function Navbar() {
                                     {link.name}
                                     <div className={`${!isScrolled ? "bg-white" : "bg-[#217964]"} h-0.5 w-0 group-hover:w-full transition-all duration-300`} />
                                 </Link>
+                                
                             );
                         })}
                         

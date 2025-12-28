@@ -17,6 +17,7 @@ import PaymentSuccess from "./user/pages/PaymentSuccess";
 import PaymentFailed from "./user/pages/PaymentFailed";
 import PaymentTest from "./user/pages/PaymentTest";
 import PaymentTestButton from "./user/component/cart/PaymentTestButton";
+import OrderPast from "./user/pages/OrderPast";
 import { useState } from "react";
 import {initialCartItems} from "./user/cartData";
 
@@ -24,6 +25,7 @@ import {initialCartItems} from "./user/cartData";
 import { CartContext } from "./user//component/cart/CartContext";
 import { NotificationProvider } from "./user/component/notification/NotificationContext";
 import NotificationModal from "./user/component/notification/NotificationModal";
+
 
 
 export default function App() {
@@ -41,8 +43,9 @@ export default function App() {
             <Route path="/item-details/:id/:tenant" element={<ItemDetails />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/my-bookings" element={<Booking />} />
+            <Route path="/my-bookings" element={<OrderPast />} />
             <Route path="/backpack" element={<Backpack />} />
+            <Route path="/my-orders" element={<Booking />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/payment/success" element={<PaymentSuccess />} />
             <Route path="/payment/failed" element={<PaymentFailed />} />

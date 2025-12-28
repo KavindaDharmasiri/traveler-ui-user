@@ -6,6 +6,7 @@ export const menulinks=[
     {name:"Home",path:"/"},
     {name:"RentItems",path:"/rentItems"},
     {name:"My Bookings",path:"/my-bookings"},
+    {name:"My Orders",path:"/my-orders"},
 ]
 
 export const cityList=['New York','Sri Lanka','India']
