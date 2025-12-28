@@ -55,7 +55,75 @@ export default function ItemCard({ item, imageMapper, onDelete }) {
                     <span className="text-xs text-[#64748b] dark:text-gray-500 uppercase font-semibold tracking-wider">Duration</span>
                     <span className="font-medium">{item.rentalDays} Days</span>
                 </div>
+                <div className="flex flex-col">
+                    <span className="text-xs text-[#64748b] dark:text-gray-500 uppercase font-semibold tracking-wider">Quantity</span>
+                    <span className="font-medium">{item.qty}</span>
+                </div>
             </div>
+
+            {/* Hotel Details Section */}
+            {item.item?.category === "HOTELS" && item.item?.hotelDetails && (
+                <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-xs font-semibold text-blue-800 mb-2 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                        Hotel Details
+                    </p>
+                    <div className="space-y-2 text-xs">
+                        <div>
+                            <span className="text-gray-600">Address:</span>
+                            <p className="font-semibold text-gray-800">{item.item.hotelDetails.address}</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <div>
+                                <span className="text-gray-600">Max Guests:</span>
+                                <p className="font-semibold text-gray-800">{item.item.hotelDetails.maxGuests}</p>
+                            </div>
+                            {item.item.hotelDetails.roomNumber && (
+                                <div>
+                                    <span className="text-gray-600">Room:</span>
+                                    <p className="font-semibold text-gray-800">{item.item.hotelDetails.roomNumber}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Vehicle Details Section */}
+            {item.item?.category === "VEHICLES" && item.item?.vehicleDetails && (
+                <div className="mt-3 p-3 bg-teal-50 rounded-lg border border-teal-200">
+                    <p className="text-xs font-semibold text-teal-800 mb-2 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-teal-500 rounded-full"></span>
+                        Vehicle Details
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <span className="text-gray-600">Vehicle:</span>
+                            <p className="font-semibold text-gray-800">{item.item.vehicleDetails.vehicleNumber}</p>
+                        </div>
+                        <div>
+                            <span className="text-gray-600">Passengers:</span>
+                            <p className="font-semibold text-gray-800">{item.item.vehicleDetails.passengerCount}</p>
+                        </div>
+                        <div>
+                            <span className="text-gray-600">Condition:</span>
+                            <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                                item.item.vehicleDetails.condition === 'AC' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
+                            }`}>
+                                {item.item.vehicleDetails.condition}
+                            </span>
+                        </div>
+                        <div>
+                            <span className="text-gray-600">Driver:</span>
+                            <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                                item.item.vehicleDetails.driverStatus === 'WITH_DRIVER' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                            }`}>
+                                {item.item.vehicleDetails.driverStatus === 'WITH_DRIVER' ? 'With Driver' : 'Self Drive'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-white/10 mt-auto">
                 <div className="flex items-center gap-2">

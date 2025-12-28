@@ -24,6 +24,7 @@ export default function ItemDetails() {
   const [loading, setLoading] = useState(true)
   const [pickupDate, setPickupDate] = useState('')
   const [returnDate, setReturnDate] = useState('')
+  const [quantity, setQuantity] = useState(1)
   const [booking, setBooking] = useState(false)
 
   const fetchImages = async (imageUuids) => {
@@ -104,7 +105,7 @@ export default function ItemDetails() {
 
   const handleBooking = async (e) => {
     e.preventDefault()
-    if (!pickupDate || !returnDate) return
+    if (!pickupDate || !returnDate || quantity <= 0 || quantity > (item.qty || 0)) return
     
     setBooking(true)
     try {
@@ -117,7 +118,8 @@ export default function ItemDetails() {
         rentalDays: rentalDays,
         pickupDate: pickupDate,
         returnDate: returnDate,
-        totalPrice: totalPrice
+        totalPrice: totalPrice,
+        quantity: quantity
       })
       
       Swal.fire({
@@ -308,6 +310,33 @@ export default function ItemDetails() {
 
             <div className="space-y-4">
               <div className="space-y-3">
+                <label htmlFor="quantity" className="flex items-center space-x-2 text-sm font-semibold text-slate-700">
+                  <div className="w-1.5 h-1.5 bg-teal-500 rounded-full"></div>
+                  <span>Quantity</span>
+                </label>
+                <input
+                  type="number"
+                  className="w-full p-4 bg-white border-2 border-teal-100 rounded-2xl focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-300 text-slate-700 font-medium shadow-sm hover:shadow-md"
+                  required
+                  id="quantity"
+                  min="1"
+                  max={item.qty || 1}
+                  value={quantity}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    if (value === '') {
+                      setQuantity('')
+                    } else {
+                      const numValue = parseInt(value) || 1
+                      const maxQty = item.qty || 1
+                      setQuantity(Math.min(numValue, maxQty))
+                    }
+                  }}
+                />
+                <p className="text-xs text-slate-500">{item.qty || 1} available</p>
+              </div>
+
+              <div className="space-y-3">
                 <label htmlFor="pickup-date" className="flex items-center space-x-2 text-sm font-semibold text-slate-700">
                   <div className="w-1.5 h-1.5 bg-teal-500 rounded-full"></div>
                   <span>Pickup Date</span>
@@ -355,9 +384,9 @@ export default function ItemDetails() {
 
             <button
               type="submit"
-              disabled={item.status !== 'ACTIVE' || booking}
+              disabled={item.status !== 'ACTIVE' || booking || quantity <= 0 || quantity === '' || !item.qty || item.qty <= 0}
               className={`w-full transition-all duration-300 py-4 font-semibold text-white rounded-2xl transform hover:scale-105 shadow-lg ${
-                item.status === 'ACTIVE' && !booking
+                item.status === 'ACTIVE' && !booking && quantity > 0 && item.qty > 0
                   ? 'bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 hover:shadow-xl'
                   : 'bg-gray-400 cursor-not-allowed'
               }`}
@@ -367,7 +396,7 @@ export default function ItemDetails() {
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>Processing...</span>
                 </div>
-              ) : item.status === 'ACTIVE' ? 'Add To Bag' : 'Currently Unavailable'}
+              ) : item.status === 'ACTIVE' && quantity > 0 && item.qty > 0 ? 'Add To Bag' : 'Currently Unavailable'}
             </button>
 
             <div className="text-center space-y-2">

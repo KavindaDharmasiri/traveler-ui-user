@@ -135,16 +135,28 @@ export default function RentalItemCard({product, imageMapper}) {
                         <div className="text-xs text-gray-400 mt-1">
                             Contact: {product.contact}
                         </div>
+                        {product.qty > 0 && (
+                            <div className="text-xs text-gray-500 mt-1">
+                                {product.qty} available
+                            </div>
+                        )}
                     </div>
                     <div className="flex flex-col space-y-2">
                         {count === 0 ? (
                             <button
-                                className="flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                                className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 transform shadow-lg ${
+                                    product.status === 'ACTIVE' && (product.qty > 0)
+                                        ? 'bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white hover:scale-105 hover:shadow-xl'
+                                        : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                }`}
+                                disabled={product.status !== 'ACTIVE' || (product.qty <= 0)}
                                 onClick={(e) => {
                                     e.stopPropagation()
-                                    setCount(1)
-                                    navigate(`/item-details/${product.id}/${product.tenant}`)
-                                    scrollTo(0, 0)
+                                    if (product.status === 'ACTIVE' && product.qty > 0) {
+                                        setCount(1)
+                                        navigate(`/item-details/${product.id}/${product.tenant}`)
+                                        scrollTo(0, 0)
+                                    }
                                 }}
                             >
                                 <svg width="16" height="16" viewBox="0 0 14 14" fill="none"

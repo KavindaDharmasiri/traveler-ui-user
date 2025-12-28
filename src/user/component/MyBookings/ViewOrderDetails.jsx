@@ -49,6 +49,7 @@ export function ViewOrderDetails({ order, onBack }) {
         description: item.itemObj?.description,
         pricePerDay: item.itemObj?.pricePerDay,
         rentalDays: item.rentalDays,
+        quantity: item.qty,
         images: item.itemObj?.images,
         pickupDate: item.pickupDate,
         returnDate: item.returnDate,
@@ -154,9 +155,8 @@ export function ViewOrderDetails({ order, onBack }) {
                                 {/* --------------------------------------------- */}
 
                                 <div className="space-y-4">
-                                    {groupedItems[vendorName].map((item) => (
+                                    {groupedItems[vendorName].map(( item) => (
                                         <div key={item.id} className="p-4 bg-white rounded shadow-sm border-l-4 border-gray-300">
-                                            
                                             {/* Images Section */}
                                             {item.images && item.images.length > 0 && (
                                                 <div className="mb-4">
@@ -171,6 +171,93 @@ export function ViewOrderDetails({ order, onBack }) {
                                                             />
                                                         ))}
                                                     </div>
+                                                </div>
+                                            )}
+
+                                            {/* Hotel Details Section */}
+                                            {item.category === "HOTELS" && order.items.find(orderItem => orderItem.id === item.id)?.itemObj?.hotelDetails && (
+                                                <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                                    <p className="text-sm font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                                                        <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                                        Hotel Details
+                                                    </p>
+                                                    {(() => {
+                                                        const hotelDetails = order.items.find(orderItem => orderItem.id === item.id)?.itemObj?.hotelDetails;
+                                                        return (
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                                                                <div className="md:col-span-2">
+                                                                    <span className="text-gray-600">Address:</span>
+                                                                    <p className="font-semibold text-gray-800">{hotelDetails.address}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-gray-600">Max Guests:</span>
+                                                                    <p className="font-semibold text-gray-800">{hotelDetails.maxGuests} guests</p>
+                                                                </div>
+                                                                {hotelDetails.roomNumber && (
+                                                                    <div>
+                                                                        <span className="text-gray-600">Room Number:</span>
+                                                                        <p className="font-semibold text-gray-800">{hotelDetails.roomNumber}</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })()
+                                                    }
+                                                </div>
+                                            )}
+
+                                            {/* Vehicle Details Section */}
+                                            {item.category === "VEHICLES" && order.items.find(orderItem => orderItem.id === item.id)?.itemObj?.vehicleDetails && (
+                                                <div className="mb-4 p-4 bg-teal-50 rounded-lg border border-teal-200">
+                                                    <p className="text-sm font-semibold text-teal-800 mb-3 flex items-center gap-2">
+                                                        <span className="w-2 h-2 bg-teal-500 rounded-full"></span>
+                                                        Vehicle Details
+                                                    </p>
+                                                    {(() => {
+                                                        const vehicleDetails = order.items.find(orderItem => orderItem.id === item.id)?.itemObj?.vehicleDetails;
+                                                        const currency = order.items.find(orderItem => orderItem.id === item.id)?.itemObj?.currency || 'USD';
+                                                        return (
+                                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                                                                <div>
+                                                                    <span className="text-gray-600">Vehicle No:</span>
+                                                                    <p className="font-semibold text-gray-800">{vehicleDetails.vehicleNumber}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-gray-600">Passengers:</span>
+                                                                    <p className="font-semibold text-gray-800">{vehicleDetails.passengerCount}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-gray-600">Condition:</span>
+                                                                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                                                        vehicleDetails.condition === 'AC' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
+                                                                    }`}>
+                                                                        {vehicleDetails.condition}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-gray-600">Driver:</span>
+                                                                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                                                        vehicleDetails.driverStatus === 'WITH_DRIVER' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                                                    }`}>
+                                                                        {vehicleDetails.driverStatus === 'WITH_DRIVER' ? 'With Driver' : 'Self Drive'}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-gray-600">KM/Day:</span>
+                                                                    <p className="font-semibold text-gray-800">{vehicleDetails.kmPerDay} km</p>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-gray-600">Extra KM:</span>
+                                                                    <p className="font-semibold text-gray-800">{currency} {vehicleDetails.pricePerExtraKm}/km</p>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-gray-600">Waiting:</span>
+                                                                    <p className="font-semibold text-gray-800">{currency} {vehicleDetails.waitingChargePerNight}/night</p>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })()
+                                                    }
                                                 </div>
                                             )}
 
@@ -191,7 +278,7 @@ export function ViewOrderDetails({ order, onBack }) {
                                                     {item.pickupDate || 'N/A'} to {item.returnDate || 'N/A'}
                                                 </p>
                                                 <p className="text-sm text-gray-500 mt-1">
-                                                    {item.rentalDays} days • ${item.pricePerDay}/day
+                                                    {item.rentalDays} days • ${item.pricePerDay}/day • Qty: {item.quantity}
                                                 </p>
                                                 <p className="text-xs text-gray-600 mt-1">
                                                     <strong>Booked on:</strong> {item.category}
