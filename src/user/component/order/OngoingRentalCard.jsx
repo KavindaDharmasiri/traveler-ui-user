@@ -1,15 +1,29 @@
 import React from 'react'
 import RentalMetaGrid from './RentalMetaGrid';
 
-export default function OngoingRentalCard({imageUrl,
-  imageAlt,
-  tagText,
-  brandIcon,
-  brandName,
-  title,
-  orderInfo,
-  statusType, // "picked" | "confirmed"
-  metaItems,}) {
+export default function OngoingRentalCard({ order, onClick }) {
+  if (!order) return null;
+
+  const handleCardClick = () => {
+    if (onClick) onClick();
+  };
+
+  // Transform order data to component props
+  const imageUrl = order.items?.[0]?.itemObj?.images?.[0] ? 
+    `https://via.placeholder.com/300x200?text=${order.items[0].itemObj.name}` : 
+    "https://via.placeholder.com/300x200?text=Order";
+  const imageAlt = order.items?.[0]?.itemObj?.name || "Order item";
+  const title = order.orderCode;
+  const orderInfo = `Customer: ${order.customerName} • Status: ${order.status}`;
+  const statusType = order.status === 'PAYED' ? 'picked' : 'confirmed';
+  
+  // Create meta items from order data
+  const metaItems = [
+    { label: "Order Code", icon: "receipt", iconColor: "text-primary", value: order.orderCode },
+    { label: "Customer", icon: "person", iconColor: "text-primary", value: order.customerName },
+    { label: "Status", icon: "info", iconColor: "text-primary", value: order.status },
+    { label: "Items", icon: "inventory", iconColor: "text-primary", value: `${order.items?.length || 0} items` },
+  ];
 
      const status =
     statusType === "picked" ? (
@@ -27,18 +41,48 @@ export default function OngoingRentalCard({imageUrl,
     );
 
   return (
-    <div className="group flex flex-col md:flex-row bg-white dark:bg-[#23220f] border border-[#e6e6db] dark:border-[#38382f] rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-300">
+    <div 
+      onClick={handleCardClick}
+      className="group flex flex-col md:flex-row bg-white dark:bg-[#23220f] border border-[#e6e6db] dark:border-[#38382f] rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-300 cursor-pointer"
+    >
       <div className="w-full md:w-48 h-48 md:h-auto bg-[#f0f0f0] dark:bg-[#2C2C20] relative flex-shrink-0">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          data-alt={imageAlt}
-          style={{ backgroundImage: `url("${imageUrl}")` }}
-        />
-        {tagText ? (
-          <div className="absolute top-3 left-3 bg-white dark:bg-black/80 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold shadow-sm">
-            {tagText}
+        {imageUrl.includes('placeholder') ? (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#217964] to-[#1a5f4e] flex items-center justify-center">
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-white/70 text-[24px]">
+                  luggage
+                </span>
+                <span className="material-symbols-outlined text-white text-[36px]">
+                  flight
+                </span>
+                <span className="material-symbols-outlined text-white/70 text-[24px]">
+                  map
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-white/60 text-[18px]">
+                  hotel
+                </span>
+                <span className="material-symbols-outlined text-white/60 text-[18px]">
+                  directions_car
+                </span>
+              </div>
+              <span className="text-white/70 text-sm font-medium">Travel Order</span>
+            </div>
           </div>
-        ) : null}
+        ) : (
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            data-alt={imageAlt}
+            style={{ backgroundImage: `url("${imageUrl}")` }}
+          />
+        )}
+        {order.status === 'PAYED' && (
+          <div className="absolute top-3 left-3 bg-emerald-500 text-white backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold shadow-sm">
+            PAID
+          </div>
+        )}
       </div>
 
       <div className="flex-1 p-5 flex flex-col justify-between">
@@ -46,10 +90,10 @@ export default function OngoingRentalCard({imageUrl,
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="material-symbols-outlined text-[#8c8b5f] text-[16px]">
-                {brandIcon}
+                business
               </span>
               <span className="text-xs font-bold text-[#8c8b5f] uppercase tracking-wider">
-                {brandName}
+                Traveler
               </span>
             </div>
             <h3 className="text-xl font-bold text-[#181811] dark:text-white mb-1">
@@ -62,32 +106,6 @@ export default function OngoingRentalCard({imageUrl,
         </div>
 
         <RentalMetaGrid items={metaItems} />
-
-        <div className="flex flex-wrap justify-end gap-3 mt-2">
-          {statusType === "picked" ? (
-            <>
-              <button className="flex-1 md:flex-none justify-center bg-[#f5f5f0] dark:bg-[#38382f] hover:bg-[#e6e6db] dark:hover:bg-[#48483f] text-[#181811] dark:text-white text-sm font-bold py-2.5 px-5 rounded-full transition-colors flex items-center gap-2">
-                <span className="material-symbols-outlined text-[18px]">
-                  support_agent
-                </span>
-                Contact Support
-              </button>
-              <button className="flex-1 md:flex-none justify-center bg-[#181811] dark:bg-white hover:bg-[#181811]/80 dark:hover:bg-gray-200 text-white dark:text-black text-sm font-bold py-2.5 px-6 rounded-full transition-colors flex items-center gap-2 shadow-lg shadow-primary/10">
-                Extend Rental
-                <span className="material-symbols-outlined text-[18px]">
-                  arrow_forward
-                </span>
-              </button>
-            </>
-          ) : (
-            <button className="flex-1 md:flex-none justify-center bg-[#217964] hover:bg-[#1a5f4e] text-white text-sm font-bold py-2.5 px-6 rounded-full transition-colors flex items-center gap-2 shadow-lg shadow-primary/20">
-              Track Order
-              <span className="material-symbols-outlined text-[18px]">
-                local_shipping
-              </span>
-            </button>
-          )}
-        </div>
       </div>
     </div>
   )

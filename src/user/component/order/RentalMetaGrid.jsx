@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function RentalMetaGrid({ items }) {
+export default function RentalMetaGrid({ items = [] }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 py-4 border-t border-dashed border-[#e6e6db] dark:border-[#38382f]">
       {items.map((it) => (
