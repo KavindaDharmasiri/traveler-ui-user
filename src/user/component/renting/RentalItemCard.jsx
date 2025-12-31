@@ -128,7 +128,7 @@ export default function RentalItemCard({product, imageMapper}) {
                     <div>
                         <div className="flex items-baseline space-x-1">
                             <span className="text-2xl font-bold text-teal-600">
-                                {product.currency} {product.pricePerDay}
+                                Rs. {product.pricePerDay}
                             </span>
                             <span className="text-sm text-gray-500 font-medium">/ day</span>
                         </div>

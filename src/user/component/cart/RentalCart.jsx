@@ -42,7 +42,9 @@ const RentalCart = ({ isOpen, setIsOpen, cartItems }) => {
       cartService.getCartItems()
         .then(async (data) => {
           setBackendCartItems(data);
-          const imageUuids = data.flatMap(cart => cart.itemDetails?.images || []);
+          const imageUuids = data.flatMap(cart => 
+            cart.cartItems?.flatMap(item => item.itemObj?.images || []) || []
+          );
           if (imageUuids.length > 0) {
             await fetchImages(imageUuids);
           }
@@ -53,7 +55,7 @@ const RentalCart = ({ isOpen, setIsOpen, cartItems }) => {
 
   const { subtotal, taxes, total } = useMemo(() => {
     const sub = backendCartItems.reduce(
-      (sum, cart) => sum + (cart.order?.totalPrice || 0),
+      (sum, cart) => sum + (cart.cartItems?.reduce((itemSum, item) => itemSum + item.totalPrice, 0) || 0),
       0
     );
     const tax = sub * taxRate;
@@ -87,22 +89,33 @@ const RentalCart = ({ isOpen, setIsOpen, cartItems }) => {
           {backendCartItems.length > 0 ? (
             backendCartItems.map((cart) => (
               <div key={cart.id} className="p-4 border-b">
-                {cart.itemDetails && (
-                  <div className="flex gap-3 mb-3">
-                    {cart.itemDetails.images && cart.itemDetails.images[0] && imageMapper[cart.itemDetails.images[0]] && (
-                      <img src={imageMapper[cart.itemDetails.images[0]]} alt={cart.itemDetails.name} className="w-20 h-20 object-cover rounded" />
-                    )}
-                    <div>
-                      <p className="font-semibold">{cart.itemDetails.name}</p>
-                      <p className="text-xs text-gray-500">{cart.itemDetails.category}</p>
+                <div className="mb-3">
+                  <p className="font-semibold text-lg">Cart: {cart.orderCode}</p>
+                  <p className="text-sm text-gray-600">Items: {cart.cartItems?.length || 0}</p>
+                </div>
+                
+                {cart.cartItems?.map((item, index) => (
+                  <div key={item.id} className="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex gap-3 mb-3">
+                      {item.itemObj?.images?.[0] && imageMapper[item.itemObj.images[0]] && (
+                        <img 
+                          src={imageMapper[item.itemObj.images[0]]} 
+                          alt={item.itemObj.name} 
+                          className="w-16 h-16 object-cover rounded" 
+                        />
+                      )}
+                      <div className="flex-1">
+                        <p className="font-medium">{item.itemObj?.name || `Item #${item.item}`}</p>
+                        <p className="text-xs text-gray-500">Vendor: {item.providerName}</p>
+                        <p className="text-sm text-gray-600">Qty: {item.qty} | Days: {item.rentalDays}</p>
+                        <p className="text-xs text-gray-500">
+                          {item.pickupDate} to {item.returnDate}
+                        </p>
+                      </div>
+                      <p className="font-bold text-lg">Rs. {item.totalPrice.toFixed(2)}</p>
                     </div>
                   </div>
-                )}
-                <p className="font-semibold text-lg">Order: {cart.order?.orderCode}</p>
-                <p className="text-sm text-gray-600">Customer: {cart.order?.customerName}</p>
-                <p className="text-sm text-gray-600">Status: {cart.order?.status}</p>
-                <p className="text-sm text-gray-600">Days: {cart.order?.rentalDays}</p>
-                <p className="text-lg font-bold mt-2">${cart.order?.totalPrice?.toFixed(2)}</p>
+                ))}
               </div>
             ))
           ) : (
@@ -114,11 +127,8 @@ const RentalCart = ({ isOpen, setIsOpen, cartItems }) => {
           subtotal={subtotal}
           taxes={taxes}
           total={total}
-          onContinueShopping={() => {
-            setIsOpen(false);
-            navigate('/rentItems');
-          }}
-          onProceedToCheckout={() => setIsPaymentModalOpen(true)}
+          onProceedToCheckout={() => setIsOpen(false)}
+          orderCodes={backendCartItems.map(cart => cart.orderCode).filter(Boolean)}
         />
       </div>
 
@@ -126,7 +136,7 @@ const RentalCart = ({ isOpen, setIsOpen, cartItems }) => {
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
         total={total}
-        orderCodes={backendCartItems.map(cart => cart.order?.orderCode).filter(Boolean)}
+        orderCodes={backendCartItems.map(cart => cart.orderCode).filter(Boolean)}
       />
     </div>
   );
