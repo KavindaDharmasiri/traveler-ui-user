@@ -4,15 +4,13 @@ import axios from '../../api/axios'
 import {API_CONFIG} from "../../../config/environment.js"
 
 export default function Summary({ items = [] }) {
-  const { subtotal, serviceFee, bundleSavings, total, itemCount } = useMemo(() => {
+  const { subtotal, bundleSavings, total, itemCount } = useMemo(() => {
     const sub = items.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
-    const fee = sub * 0.08; // 8% service fee
     const savings = items.length >= 3 ? sub * 0.1 : 0; // 10% bundle savings for 3+ items
-    const finalTotal = sub + fee - savings;
+    const finalTotal = sub - savings;
 
     return {
       subtotal: sub.toFixed(2),
-      serviceFee: fee.toFixed(2),
       bundleSavings: savings.toFixed(2),
       total: finalTotal.toFixed(2),
       itemCount: items.length
@@ -53,10 +51,6 @@ export default function Summary({ items = [] }) {
             <div className="flex justify-between text-sm">
                 <span className="text-[#64748b] dark:text-gray-400">Subtotal ({itemCount} items)</span>
                 <span className="font-medium">Rs. {subtotal}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-                <span className="text-[#64748b] dark:text-gray-400">Service Fee</span>
-                <span className="font-medium">Rs. {serviceFee}</span>
             </div>
             {bundleSavings > 0 && (
                 <div className="flex justify-between text-sm text-[#7E57C2]">

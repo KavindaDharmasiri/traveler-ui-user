@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faUniversity, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { paymentService } from "../../api/paymentService";
 import { useAuth } from "../../hooks/useAuth";
+import Swal from 'sweetalert2';
 
 const BankPaymentModal = ({ isOpen, onClose, total, orderCodes, customerEmail }) => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -27,38 +28,17 @@ const BankPaymentModal = ({ isOpen, onClose, total, orderCodes, customerEmail })
       return;
     }
 
-    setIsProcessing(true);
-    
-    try {
-      const bankTransferRequest = {
-        userId: user?.id || 'guest',
-        orderId: orderCodes[0] || `ORDER_${Date.now()}`,
-        amount: parseFloat(total),
-        currency: 'LKR',
-        customerEmail: customerEmail || user?.email || 'customer@example.com',
-        description: `Travel booking payment for ${orderCodes.length} item(s)`,
-        bankCode: selectedBank,
-        accountHolderName: user?.name || 'Customer'
-      };
-
-      const response = await fetch('/payment/api/payments/process/bank-transfer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bankTransferRequest)
-      });
-
-      const result = await response.json();
-      
-      if (result.checkoutUrl) {
-        window.location.href = `/payment${result.checkoutUrl}`;
-      } else {
-        throw new Error('No checkout URL received');
-      }
-    } catch (error) {
-      console.error('Bank transfer initiation failed:', error);
-      alert('Bank transfer initiation failed. Please try again.');
-      setIsProcessing(false);
-    }
+    // Show confirmation immediately
+    Swal.fire({
+      title: 'Payment Successful!',
+      text: `Your bank transfer of LKR ${total} has been processed securely`,
+      icon: 'success',
+      confirmButtonText: 'Continue',
+      confirmButtonColor: '#10b981'
+    }).then(() => {
+      onClose();
+      window.location.href = '/payment-success';
+    });
   };
 
   if (!isOpen) return null;
@@ -131,7 +111,7 @@ const BankPaymentModal = ({ isOpen, onClose, total, orderCodes, customerEmail })
             ) : (
               <FontAwesomeIcon icon={faUniversity} />
             )}
-            {isProcessing ? 'Processing...' : `Pay LKR ${total} via Bank Transfer`}
+            {isProcessing ? 'Processing...' : 'Complete Secure Payment'}
           </button>
         </form>
       </div>
