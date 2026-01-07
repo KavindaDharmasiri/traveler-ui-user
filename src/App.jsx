@@ -24,8 +24,10 @@ import {initialCartItems} from "./user/cartData";
 import { CartContext } from "./user//component/cart/CartContext";
 import { NotificationProvider } from "./user/component/notification/NotificationContext";
 import NotificationModal from "./user/component/notification/NotificationModal";
+import PendingRequests from "./user/pages/PendingRequests";
+import BackpackDetails from "./user/pages/BackpackDetails";
 
-
+ 
 
 export default function App() {
   const [isOpen, setIsOpen] = useState(false); // start closed
@@ -45,7 +47,8 @@ export default function App() {
             <Route path="/my-bookings" element={<OrderPast />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/backpack" element={<Backpack />} />
-            <Route path="/my-orders" element={<Booking />} />
+            <Route path="/my-orders" element={<PendingRequests />} />
+            <Route path="/backpack/:id" element={<BackpackDetails />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/payment/success" element={<PaymentSuccess />} />
             <Route path="/payment/failed" element={<PaymentFailed />} />
