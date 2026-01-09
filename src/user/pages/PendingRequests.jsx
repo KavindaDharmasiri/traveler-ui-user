@@ -16,7 +16,7 @@ export default function PendingRequests() {
       try{
         const backpacksResponse=await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/order`);
         setBackpacks(backpacksResponse.data);
-        console.log("Fetched backpacks:", backpacksResponse.data);
+        
         
       }catch(error){
         console.error("Error fetching pending backpacks:", error);
@@ -30,7 +30,7 @@ export default function PendingRequests() {
             .flatMap(tenantGroup =>Object.values(tenantGroup))
             .flat();
 
-            console.log("Processed bags:", bags);  
+             
             
             const mockData = [
     { title: "Hiking Adventure Set", timeLeft: "2h 15m", status: "Pending", variant: "pending", progressCurrent: 1, progressTotal: 3, image: "https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=400" },
