@@ -1349,69 +1349,94 @@ const handleDocumentChange = (index, field, value) => {
             </>
           )}
 
-           {/* STEP 5: Document Upload (providers only) */}
+          {/* STEP 5: Document Upload (providers only) */}
 {step === 5 && userType === "SERVICE_PROVIDER" && (
   <div className="space-y-4">
-    <div className="flex items-center justify-between mb-2">
-      <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wider">
-        Required Documents
-      </h3>
+    <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wider mb-2">
+      Required Documents
+    </h3>
+
+    {/* Scroll container: vertical only, no horizontal scroll */}
+    <div className="overflow-y-auto overflow-x-hidden max-h-[400px] space-y-3 pr-1 custom-scrollbar">
+      {documents.map((doc, index) => {
+        // Check if the document is "complete" (has name and file)
+        const isComplete = doc.name.trim() !== "" && doc.file;
+
+        return (
+          <div key={index} className="relative transition-all duration-300">
+            {isComplete ? (
+              /* COMPLETED STATE: Show summary with tick */
+              <div className="flex items-center justify-between p-3 rounded-xl border border-teal-200 bg-teal-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-teal-100 text-teal-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-700">{doc.name}</p>
+                    <p className="text-xs text-teal-600 font-medium">Document attached</p>
+                  </div>
+                </div>
+                
+                <button
+                  type="button"
+                  onClick={() => removeDocument(index)}
+                  className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              /* ACTIVE EDITING STATE: Show full form */
+              <div className="relative p-4 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-sm">
+                {documents.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeDocument(index)}
+                    className="absolute -top-2 -right-2 flex items-center justify-center w-7 h-7 rounded-full bg-white text-slate-400 hover:text-red-500 border border-slate-200 shadow-sm transition-all"
+                  >
+                    －
+                  </button>
+                )}
+
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-slate-700">Document Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Business License"
+                    value={doc.name}
+                    onChange={(e) => handleDocumentChange(index, "name", e.target.value)}
+                    required
+                    className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-slate-700">Upload Document</label>
+                  <input
+                    type="file"
+                    onChange={(e) => handleDocumentChange(index, "file", e.target.files[0])}
+                    required
+                    className="w-full rounded-xl border px-3 py-2 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Add Button Inside the Scroll Area */}
       <button
         type="button"
         onClick={addDocument}
-        className="flex items-center gap-1.5 text-xs font-bold py-1.5 px-3 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors"
+        className="w-full py-3 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center gap-2 text-slate-500 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50/30 transition-all text-sm font-medium"
       >
-        <span>＋</span> Add More
+        <span>＋</span> Add Another Document
       </button>
-    </div>
-
-    <div className="space-y-4">
-      {documents.map((doc, index) => (
-        <div 
-          key={index} 
-          className="relative p-4 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-sm"
-        >
-          {/* Remove Button (Minus) */}
-          {documents.length > 1 && (
-            <button
-              type="button"
-              onClick={() => removeDocument(index)}
-              className="absolute -top-2 -right-2 flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-600 border border-slate-200 transition-all"
-              title="Remove document"
-            >
-              －
-            </button>
-          )}
-
-          {/* Document Name */}
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-slate-700">
-              Document Name
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. Business License"
-              value={doc.name}
-              onChange={(e) => handleDocumentChange(index, "name", e.target.value)}
-              required
-              className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
-            />
-          </div>
-
-          {/* Document File */}
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-slate-700">
-              Upload Document
-            </label>
-            <input
-              type="file"
-              onChange={(e) => handleDocumentChange(index, "file", e.target.files[0])}
-              required
-              className="w-full rounded-xl border px-3 py-2 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
-            />
-          </div>
-        </div>
-      ))}
     </div>
   </div>
 )}
