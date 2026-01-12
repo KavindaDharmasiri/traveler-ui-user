@@ -60,8 +60,8 @@ export default function Signup() {
   const [countrySearch, setCountrySearch] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
 
-  // travellers: 3 steps, providers: 4 steps
-  const totalSteps = userType === "SERVICE_PROVIDER" ? 4 : 3;
+  // travellers: 3 steps, providers: 5 steps
+  const totalSteps = userType === "SERVICE_PROVIDER" ? 5 : 3;
 
   useEffect(() => {
     nameRef.current?.focus();
@@ -634,6 +634,23 @@ export default function Signup() {
       });
     }
   };
+  const [documents, setDocuments] = useState([{ name: "", file: null }]);
+
+const addDocument = () => {
+  setDocuments([...documents, { name: "", file: null }]);
+};
+
+const removeDocument = (index) => {
+  const values = [...documents];
+  values.splice(index, 1);
+  setDocuments(values);
+};
+
+const handleDocumentChange = (index, field, value) => {
+  const values = [...documents];
+  values[index][field] = value;
+  setDocuments(values);
+};
 
   return (
     <div className="w-full flex items-center justify-center px-4 py-10">
