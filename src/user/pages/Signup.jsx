@@ -1195,7 +1195,36 @@ export default function Signup() {
                   <p className="text-xs text-green-600 mt-1">✓ File uploaded successfully</p>
                 )}
                 <p className="text-[11px] text-slate-400 mt-1">
-                  Upload a clear photo or scan (JPG, PNG). Make sure the text is
+                  Upload a clear photo or scan (JPG, PNG) of the front of your NIC. Make sure the text is
+                  readable.
+                </p>
+
+
+                <input
+                  type="file"
+                  id="idDocumentFile"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    setIdDocumentFile(file);
+                    if (file) {
+                      handleFileUpload(file);
+                    }
+                  }}
+                  disabled={uploading}
+                  className="w-full text-sm text-slate-600 file:mr-4 file:py-2.5 file:px-4 
+                             file:rounded-xl file:border-0 file:text-sm file:font-semibold
+                             file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100
+                             disabled:opacity-50"
+                />
+                {uploading && (
+                  <p className="text-xs text-blue-600 mt-1">Uploading...</p>
+                )}
+                {nicBackUuid && (
+                  <p className="text-xs text-green-600 mt-1">✓ File uploaded successfully</p>
+                )}
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Upload a clear photo or scan (JPG, PNG) of the back of your NIC. Make sure the text is
                   readable.
                 </p>
               </div>
