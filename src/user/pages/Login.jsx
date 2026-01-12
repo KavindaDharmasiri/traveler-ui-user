@@ -122,7 +122,12 @@ export default function Login() {
       } else if (err.response?.status === 400) {
         errorMessage = "Missing Username or Password";
       } else if (err.response?.status === 401) {
-        errorMessage = "Invalid credentials";
+        // Check for specific error messages in the response
+        if (err.response?.data?.error === "Account is not active") {
+          errorMessage = "Account is not active. Please contact administrator.";
+        } else {
+          errorMessage = "Invalid credentials";
+        }
       } else if (err.response?.status === 404) {
         errorMessage = "User Not Found";
       }
