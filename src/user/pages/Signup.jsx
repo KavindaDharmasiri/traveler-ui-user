@@ -1297,6 +1297,73 @@ export default function Signup() {
             </>
           )}
 
+           {/* STEP 5: Document Upload (providers only) */}
+{step === 5 && userType === "SERVICE_PROVIDER" && (
+  <div className="space-y-4">
+    <div className="flex items-center justify-between mb-2">
+      <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wider">
+        Required Documents
+      </h3>
+      <button
+        type="button"
+        onClick={addDocument}
+        className="flex items-center gap-1.5 text-xs font-bold py-1.5 px-3 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors"
+      >
+        <span>＋</span> Add More
+      </button>
+    </div>
+
+    <div className="space-y-4">
+      {documents.map((doc, index) => (
+        <div 
+          key={index} 
+          className="relative p-4 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-sm"
+        >
+          {/* Remove Button (Minus) */}
+          {documents.length > 1 && (
+            <button
+              type="button"
+              onClick={() => removeDocument(index)}
+              className="absolute -top-2 -right-2 flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-600 border border-slate-200 transition-all"
+              title="Remove document"
+            >
+              －
+            </button>
+          )}
+
+          {/* Document Name */}
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-slate-700">
+              Document Name
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Business License"
+              value={doc.name}
+              onChange={(e) => handleDocumentChange(index, "name", e.target.value)}
+              required
+              className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+            />
+          </div>
+
+          {/* Document File */}
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-slate-700">
+              Upload Document
+            </label>
+            <input
+              type="file"
+              onChange={(e) => handleDocumentChange(index, "file", e.target.files[0])}
+              required
+              className="w-full rounded-xl border px-3 py-2 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
           {/* Error text */}
           <p
             ref={errorRef}
