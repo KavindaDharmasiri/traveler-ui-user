@@ -51,6 +51,7 @@ export default function Signup() {
   const [errMsg, setErrMsg] = useState("");
   const [passwordMatch, setPasswordMatch] = useState(true);
   const [nicImageUuid, setNicImageUuid] = useState("");
+  const [nicBackUuid, setNicBackUuid] = useState("");
   const [uploading, setUploading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordValid, setPasswordValid] = useState(true);
@@ -432,7 +433,7 @@ export default function Signup() {
     })
     .sort(([, a], [, b]) => a.name.localeCompare(b.name));
 
-  const handleFileUpload = async (file) => {
+  const handleFileUpload = async (file, name) => {
     if (!file) return;
     
     setUploading(true);
@@ -446,7 +447,11 @@ export default function Signup() {
         }
       });
       console.log(response.data)
-      setNicImageUuid(response.data);
+      if (name === "back"){
+        setNicBackUuid(response.data);
+      }else {
+        setNicImageUuid(response.data);
+      }
       Swal.fire({
         icon: 'success',
         title: 'File uploaded successfully!',
@@ -553,6 +558,7 @@ export default function Signup() {
         nicNumber: idNumber,
         uniqIdentifier: email,
         nicImageUuid: nicImageUuid,
+        nicBackUuid: nicBackUuid,
         address: {
           street1: addressLine1,
           street2: addressLine2,
@@ -1196,7 +1202,7 @@ const handleDocumentChange = (index, field, value) => {
                     const file = e.target.files?.[0] || null;
                     setIdDocumentFile(file);
                     if (file) {
-                      handleFileUpload(file);
+                      handleFileUpload(file,"front");
                     }
                   }}
                   disabled={uploading}
@@ -1225,7 +1231,7 @@ const handleDocumentChange = (index, field, value) => {
                     const file = e.target.files?.[0] || null;
                     setIdDocumentFile(file);
                     if (file) {
-                      handleFileUpload(file);
+                      handleFileUpload(file,"back");
                     }
                   }}
                   disabled={uploading}
