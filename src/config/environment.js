@@ -3,7 +3,7 @@ const isProd = import.meta.env.PROD;
 
 export const API_CONFIG = {
   BASE_URL: isDev ? '/' : '/api/',
-  PROD_API_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5555',
+  PROD_API_URL: import.meta.env.VITE_API_BASE_URL || 'http://44.223.75.93:5555',
   ENDPOINTS: {
     AUTH: {
       LOGIN: 'auth/login',
