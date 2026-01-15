@@ -3,7 +3,7 @@ import { API_CONFIG } from '../config/environment';
 import hero_mp4 from './3015510-hd_1920_1080_24fps.mp4'
 
 export const menulinks=[
-    {name:"Home",path:"/"},
+    {name:"Home",path:"/home"},
     {name:"RentItems",path:"/rentItems"},
     {name:"My Bookings",path:"/my-bookings"},
     {name:"My Orders",path:"/my-orders"},
