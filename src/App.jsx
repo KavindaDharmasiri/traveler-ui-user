@@ -26,10 +26,13 @@ import { NotificationProvider } from "./user/component/notification/Notification
 import NotificationModal from "./user/component/notification/NotificationModal";
 import PendingRequests from "./user/pages/PendingRequests";
 import BackpackDetails from "./user/pages/BackpackDetails";
+import LandingPage from "./user/pages/LandingPage";
+import useAuth from "./user/hooks/useAuth";
 
  
 
 export default function App() {
+   const { isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false); // start closed
   const [cartItems, setCartItems] = useState(initialCartItems);
 
@@ -38,8 +41,9 @@ export default function App() {
       <NotificationProvider>
       <>
         <Routes>
+          
           <Route element={<MainLayout />}>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={ <HomePage />  } />
             <Route path="/rentItems" element={<Rent />} />
             <Route path="/item-details/:id/:tenant" element={<ItemDetails />} />
             <Route path="/login" element={<Login />} />
@@ -53,6 +57,7 @@ export default function App() {
             <Route path="/payment/success" element={<PaymentSuccess />} />
             <Route path="/payment/failed" element={<PaymentFailed />} />
             <Route element={<RequireAuth />}>
+              
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/provider" element={<ProviderDashboard />} />
             </Route>
