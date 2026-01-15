@@ -146,7 +146,7 @@ export default function PageTitle({ pastOrders = [] }) {
   return (
     <div className="flex flex-wrap justify-between gap-3 px-4 pb-8">
       <div className="flex flex-col gap-2">
-        <h1 className="text-[#181811] dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+        <h1 className="text-[#181811]  text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
           Your Orders
         </h1>
         <p className="text-[#8c8b5f] text-base font-normal leading-normal">
@@ -157,7 +157,7 @@ export default function PageTitle({ pastOrders = [] }) {
         <button 
           onClick={handleExportHistory}
           disabled={pastOrders.length === 0}
-          className="flex items-center gap-2 bg-white dark:bg-[#2C2C20] border border-[#e6e6db] dark:border-gray-700 px-4 py-2 rounded-full text-sm font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 bg-white  border border-[#e6e6db]  px-4 py-2 rounded-full text-sm font-bold shadow-sm hover:bg-gray-50  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span className="material-symbols-outlined text-[18px]">download</span>
           Export History

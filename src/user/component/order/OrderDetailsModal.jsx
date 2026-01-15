@@ -5,8 +5,8 @@ export default function OrderDetailsModal({ order, isOpen, onClose, imageMapper 
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-gray-200 dark:border-gray-600">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+      <div className="bg-white  rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-gray-200 ">
+        <div className="p-6 border-b border-gray-200  flex justify-between items-center">
           <h2 className="text-2xl font-bold">Order Details - {order.orderCode}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,7 +29,7 @@ export default function OrderDetailsModal({ order, isOpen, onClose, imageMapper 
             <h3 className="font-semibold text-gray-700 mb-4">Order Items ({order.items?.length || 0})</h3>
             <div className="space-y-4">
               {order.items?.map((item, index) => (
-                <div key={item.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                <div key={item.id} className="border border-gray-200  rounded-lg p-4">
                   {item.itemObj?.images && item.itemObj.images.length > 0 && (
                     <div className="mb-4">
                       <div className="flex gap-2 overflow-x-auto">

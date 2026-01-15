@@ -69,7 +69,7 @@ export default function OngoingSection() {
 
   return (
     <div className="mb-12" id="ongoing">
-      <h2 className="text-[#181811] dark:text-white tracking-tight text-2xl font-bold leading-tight px-4 pb-6 pt-2 flex items-center gap-2 ">
+      <h2 className="text-[#181811]  tracking-tight text-2xl font-bold leading-tight px-4 pb-6 pt-2 flex items-center gap-2 ">
         Ongoing Rentals <OngoingBadge count={rentals.length} />
       </h2>
 
