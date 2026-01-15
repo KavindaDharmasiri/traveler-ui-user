@@ -45,11 +45,11 @@ export default function Summary({ items = [] }) {
   };
 
   return (
-    <div className="sticky top-28 flex flex-col gap-6 rounded-xl bg-white dark:bg-white/5 p-6 shadow-lg border border-slate-200 dark:border-white/10">
-        <h3 className="text-xl font-bold text-text-main dark:text-white">Rental Summary</h3>
+    <div className="sticky top-28 flex flex-col gap-6 rounded-xl bg-white p-6 shadow-lg border border-slate-200">
+        <h3 className="text-xl font-bold text-text-main">Rental Summary</h3>
         <div className="flex flex-col gap-3">
             <div className="flex justify-between text-sm">
-                <span className="text-[#64748b] dark:text-gray-400">Subtotal ({itemCount} items)</span>
+                <span className="text-[#64748b]">Subtotal ({itemCount} items)</span>
                 <span className="font-medium">Rs. {subtotal}</span>
             </div>
             {bundleSavings > 0 && (
@@ -59,12 +59,12 @@ export default function Summary({ items = [] }) {
                 </div>
             )}
         </div>
-        <div className="h-px bg-gray-100 dark:bg-white/10 w-full"></div>
+        <div className="h-px bg-gray-100 w-full"></div>
         <div className="flex justify-between items-end">
-            <span className="text-[#64748b] dark:text-gray-400 text-sm font-medium">Total Estimate</span>
+            <span className="text-[#64748b] text-sm font-medium">Total Estimate</span>
             <div className="flex flex-col items-end">
-                <span className="text-3xl font-black text-[#0F172] dark:text-white">Rs. {total}</span>
-                <span className="text-xs text-[#64748b] dark:text-gray-500">Includes taxes</span>
+                <span className="text-3xl font-black text-[#0F172]">Rs. {total}</span>
+                <span className="text-xs text-[#64748b]">Includes taxes</span>
             </div>
         </div>
         <button 
@@ -74,7 +74,7 @@ export default function Summary({ items = [] }) {
         >
             Request All Items
         </button>
-        <div className="flex items-center justify-center gap-2 text-xs text-[#64748b] dark:text-gray-500">
+        <div className="flex items-center justify-center gap-2 text-xs text-[#64748b]">
             <span className="material-symbols-outlined text-sm">verified_user</span>
             <span>Secure request. No payment yet.</span>
         </div>

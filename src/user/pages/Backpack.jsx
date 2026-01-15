@@ -94,10 +94,10 @@ export default function Backpack() {
       <div className="flex flex-col lg:flex-row gap-8 xl:gap-16">
         <div className="flex-1 flex flex-col gap-6">
           <div className="flex flex-col gap-2 mb-4">
-            <h1 className="text-text-main dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">
               Your Backpack
             </h1>
-            <p className="text-text-secondary dark:text-gray-400 text-base font-normal">
+            <p className="text-text-secondary text-base font-normal">
               {backpackItems.length} items ready for your next adventure.
             </p>
           </div>
