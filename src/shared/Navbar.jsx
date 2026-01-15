@@ -127,6 +127,7 @@ export default function Navbar() {
                             );
                         })}
                         
+                        <Link to='/signup'>
                         <button className={`flex items-center gap-2 border pl-1 pr-2 py-1 text-sm font-light rounded-full cursor-pointer ${!isScrolled ? 'border-white text-white' : 'border-gray-700 text-black'} transition-all`}>
                             <div className="w-10 h-10 bg-white text-[#217964] rounded-full flex items-center justify-center"> 
                                 <FontAwesomeIcon icon={faShop} size="lg" />
@@ -135,12 +136,11 @@ export default function Navbar() {
                                 Become Provider
                             </div>
                         </button>
+                        </Link>
                     </div>
 
                     <div className="hidden md:flex items-center gap-4">
-                        <div className={`cursor-pointer ${!isScrolled ? "text-white hover:opacity-50 transition-opacity" : "text-gray-700 hover:text-[#217964]"}`}>
-                            <FontAwesomeIcon icon={faMagnifyingGlass} />
-                        </div>
+                        
                         
                         {isLoggedIn && (
                             <>
