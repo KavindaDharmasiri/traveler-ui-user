@@ -224,12 +224,12 @@ export default function PastRentalCard({ order, onClick }) {
   const status = order.status?.toLowerCase() === 'completed' ? 'completed' : 'cancelled';
    const statusBadge =
     status === "completed" ? (
-      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 ">
         <span className="material-symbols-outlined text-[14px]">check_circle</span>
         Completed
       </span>
     ) : (
-      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500 ">
         <span className="material-symbols-outlined text-[14px]">cancel</span>
         Cancelled
       </span>
@@ -237,20 +237,20 @@ export default function PastRentalCard({ order, onClick }) {
 
   const titleClass =
     status === "cancelled"
-      ? "text-lg font-bold text-[#181811] dark:text-white opacity-60 line-through decoration-red-500/50"
-      : "text-lg font-bold text-[#181811] dark:text-white opacity-80";
+      ? "text-lg font-bold text-[#181811]  opacity-60 line-through decoration-red-500/50"
+      : "text-lg font-bold text-[#181811]  opacity-80";
 
   const priceClass =
     status === "cancelled"
       ? "text-sm font-bold text-[#8c8b5f] line-through"
-      : "text-sm font-bold text-[#181811] dark:text-white";
+      : "text-sm font-bold text-[#181811] ";
 
   return (
     <div 
       onClick={handleCardClick}
-      className="group flex flex-col md:flex-row bg-white/50 dark:bg-[#23220f]/50 border border-[#e6e6db] dark:border-[#38382f] rounded-xl overflow-hidden hover:bg-white dark:hover:bg-[#23220f] transition-colors cursor-pointer"
+      className="group flex flex-col md:flex-row bg-white/50  border border-[#e6e6db] dark:border-[#38382f] rounded-xl overflow-hidden hover:bg-white  transition-colors cursor-pointer"
     >
-      <div className="w-full md:w-40 h-32 md:h-auto bg-[#f0f0f0] dark:bg-[#2C2C20] relative flex-shrink-0 grayscale group-hover:grayscale-0 transition-all">
+      <div className="w-full md:w-40 h-32 md:h-auto bg-[#f0f0f0]  relative flex-shrink-0 grayscale group-hover:grayscale-0 transition-all">
         {imageUrl.includes('placeholder') ? (
           <div className="absolute inset-0 bg-gradient-to-br from-[#217964] to-[#1a5f4e] flex items-center justify-center">
             <div className="flex flex-col items-center gap-1">

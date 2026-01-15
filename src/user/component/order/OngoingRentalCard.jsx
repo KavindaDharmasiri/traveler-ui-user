@@ -35,7 +35,7 @@ export default function OngoingRentalCard({ order, onClick }) {
         Picked Up
       </span>
     ) : (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#e6e6db] dark:bg-[#38382f] text-[#181811] dark:text-white">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#e6e6db]  text-[#181811] ">
         Confirmed
       </span>
     );
@@ -43,9 +43,9 @@ export default function OngoingRentalCard({ order, onClick }) {
   return (
     <div 
       onClick={handleCardClick}
-      className="group flex flex-col md:flex-row bg-white dark:bg-[#23220f] border border-[#e6e6db] dark:border-[#38382f] rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-300 cursor-pointer"
+      className="group flex flex-col md:flex-row bg-white  border border-[#e6e6db]  rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-300 cursor-pointer"
     >
-      <div className="w-full md:w-48 h-48 md:h-auto bg-[#f0f0f0] dark:bg-[#2C2C20] relative flex-shrink-0">
+      <div className="w-full md:w-48 h-48 md:h-auto bg-[#f0f0f0]  relative flex-shrink-0">
         {imageUrl.includes('placeholder') ? (
           <div className="absolute inset-0 bg-gradient-to-br from-[#217964] to-[#1a5f4e] flex items-center justify-center">
             <div className="flex flex-col items-center gap-2">
@@ -96,7 +96,7 @@ export default function OngoingRentalCard({ order, onClick }) {
                 Traveler
               </span>
             </div>
-            <h3 className="text-xl font-bold text-[#181811] dark:text-white mb-1">
+            <h3 className="text-xl font-bold text-[#181811]  mb-1">
               {title}
             </h3>
             <p className="text-sm text-[#8c8b5f]">{orderInfo}</p>

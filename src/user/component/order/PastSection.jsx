@@ -64,7 +64,7 @@ export default function PastSection() {
 
   return (
     <div className="pb-12" id="past">
-      <h2 className="text-[#181811] dark:text-white tracking-tight text-2xl font-bold leading-tight px-4 pb-6 pt-6 border-t border-[#e6e6db] dark:border-[#38382f]">
+      <h2 className="text-[#181811]  tracking-tight text-2xl font-bold leading-tight px-4 pb-6 pt-6 border-t border-[#e6e6db] ">
         Past Rentals
       </h2>
 

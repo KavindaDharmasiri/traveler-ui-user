@@ -7,7 +7,7 @@ export default function Breadcrumbs() {
         Home
       </a>
       <span className="text-[#8c8b5f] text-sm font-medium leading-normal">/</span>
-      <span className="text-[#181811] dark:text-white text-sm font-medium leading-normal">Orders</span>
+      <span className="text-[#181811]  text-sm font-medium leading-normal">Orders</span>
     </div>
   )
 }
