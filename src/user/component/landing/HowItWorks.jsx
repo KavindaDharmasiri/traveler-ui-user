@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function HowItWorks() {
   return (
-     <section id="How-it-Works" className="py-20 px-6 max-w-7xl mx-auto text-center">
+     <section id="how-it-works" className="py-20 px-6 max-w-7xl mx-auto text-center">
       <h2 className="text-3xl font-bold text-gray-900  mb-4">How it Works</h2>
       <p className="text-gray-500  max-w-lg mx-auto mb-16">
         Rent everything you need for your trip in just a few simple steps.

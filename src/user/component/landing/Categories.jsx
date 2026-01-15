@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function Categories() {
   return (
-     <section id="Categories" className="py-12 md:py-20 px-6 max-w-7xl mx-auto">
+     <section id="categories" className="py-12 md:py-20 px-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-end mb-10">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 ">Explore Categories</h2>
         <a className="text-primary font-semibold text-sm flex items-center hover:underline" href="#">

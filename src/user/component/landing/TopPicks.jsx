@@ -3,7 +3,7 @@ import TopPickCard from './TopPickCard'
 
 export default function TopPicks() {
   return (
-    <section id="Top-Picks" className="bg-surface-light  py-16 md:py-24">
+    <section id="top-picks" className="bg-surface-light  py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
