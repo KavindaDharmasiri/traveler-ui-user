@@ -42,23 +42,23 @@ export default function App() {
       <>
         <Routes>
           <Route path="/" element={ <LandingPage />  } />
+          
+          <Route element={<MainLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route element={<MainLayout />}>
-            <Route path="/home" element={ <HomePage />  } />
-            <Route path="/rentItems" element={<Rent />} />
-            <Route path="/item-details/:id/:tenant" element={<ItemDetails />} />
-            
-            <Route path="/my-bookings" element={<OrderPast />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/backpack" element={<Backpack />} />
-            <Route path="/my-orders" element={<PendingRequests />} />
-            <Route path="/backpack/:id" element={<BackpackDetails />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/payment/success" element={<PaymentSuccess />} />
-            <Route path="/payment/failed" element={<PaymentFailed />} />
             <Route element={<RequireAuth />}>
+              <Route path="/home" element={ <HomePage />  } />
+              <Route path="/rentItems" element={<Rent />} />
+              <Route path="/item-details/:id/:tenant" element={<ItemDetails />} />
               
+              <Route path="/my-bookings" element={<OrderPast />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/backpack" element={<Backpack />} />
+              <Route path="/my-orders" element={<PendingRequests />} />
+              <Route path="/backpack/:id" element={<BackpackDetails />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/payment/success" element={<PaymentSuccess />} />
+              <Route path="/payment/failed" element={<PaymentFailed />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/provider" element={<ProviderDashboard />} />
             </Route>

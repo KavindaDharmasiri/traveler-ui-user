@@ -8,20 +8,20 @@ export default function SearchCardForm() {
           search
         </span>
         <input
-          className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border-none focus:ring-2 focus:ring-primary dark:text-white placeholder-gray-400 text-sm font-medium"
+          className="w-full pl-12 pr-4 py-3 bg-gray-50  rounded-xl border-none focus:ring-2 focus:ring-primary  placeholder-gray-400 text-sm font-medium"
           placeholder="What are you looking for?"
           type="text"
         />
       </div>
 
-      <div className="w-px h-10 bg-gray-200 dark:bg-gray-700 hidden md:block"></div>
+      <div className="w-px h-10 bg-gray-200  hidden md:block"></div>
 
       <div className="flex-1 w-full relative">
         <span className="material-icons-round absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
           location_on
         </span>
         <input
-          className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border-none focus:ring-2 focus:ring-primary dark:text-white placeholder-gray-400 text-sm font-medium"
+          className="w-full pl-12 pr-4 py-3 bg-gray-50  rounded-xl border-none focus:ring-2 focus:ring-primary  placeholder-gray-400 text-sm font-medium"
           placeholder="Location"
           type="text"
         />
