@@ -3,12 +3,7 @@ import { Mail, ChevronRight } from 'lucide-react';
 import { RequestItemCard } from '../component/PendingBackpacks/RequestItemCard';
 import { useParams } from 'react-router-dom';
 
-const mockItems = [
-  { id: 1, name: "Hiking Boots", tenant: "Outdoor Gear", price: 15, state: "pending", h: "01", m: "45", s: "00", image: "https://images.unsplash.com/photo-1520639889313-7272161b2089?w=400" },
-  { id: 2, name: "Dome Tent", tenant: "Alex's Rentals", price: 25, state: "urgent", h: "00", m: "15", s: "32", image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=400" },
-  { id: 3, name: "Camping Stove", tenant: "Camping World", price: 8, state: "accepted", image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400" },
-  { id: 4, name: "Sleeping Bag", tenant: "Mountain Gear", price: 12, state: "timeout", image: "https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=400" }
-];
+const mockItems = [];
 
 export default function BackpackDetails() {
   const { id } = useParams(); // This will be "8821"
