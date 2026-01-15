@@ -42,12 +42,13 @@ export default function App() {
       <>
         <Routes>
           <Route path="/" element={ <LandingPage />  } />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route element={<MainLayout />}>
             <Route path="/home" element={ <HomePage />  } />
             <Route path="/rentItems" element={<Rent />} />
             <Route path="/item-details/:id/:tenant" element={<ItemDetails />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            
             <Route path="/my-bookings" element={<OrderPast />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/backpack" element={<Backpack />} />
