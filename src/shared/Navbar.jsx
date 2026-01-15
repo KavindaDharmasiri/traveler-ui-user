@@ -67,6 +67,10 @@ export default function Navbar() {
         if (isLoggedIn) {
             fetchUserData();
             fetchCartCount();
+            
+            // Poll cart count every 2 seconds
+            const interval = setInterval(fetchCartCount, 2000);
+            return () => clearInterval(interval);
         }
     }, [isLoggedIn]);
 

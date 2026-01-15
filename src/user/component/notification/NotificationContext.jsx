@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { notificationService } from "../../api/notificationService";
+import axios from "../../api/axios";
 
 const NotificationContext = createContext(null);
 
@@ -43,12 +44,21 @@ export const NotificationProvider = ({ children }) => {
     }
   };
 
+  const fetchCartCount = async () => {
+    try {
+      const response = await axios.get('core/api/v1/cart/count');
+      setUnreadCount(response.data);
+    } catch (error) {
+      console.error("Failed to fetch cart count:", error);
+    }
+  };
+
   useEffect(() => {
     fetchNotifications();
-    fetchUnreadCount();
+    fetchCartCount();
     const interval = setInterval(() => {
       fetchNotifications();
-      fetchUnreadCount();
+      fetchCartCount();
     }, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -59,7 +69,7 @@ export const NotificationProvider = ({ children }) => {
       setNotifications((prev) =>
         prev.map((n) => n.id === id ? { ...n, category: "Read Messages", isRead: true } : n)
       );
-      fetchUnreadCount();
+      fetchCartCount();
     } catch (error) {
       console.error("Failed to mark as read:", error);
     }

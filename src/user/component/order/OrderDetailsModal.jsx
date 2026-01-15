@@ -1,7 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function OrderDetailsModal({ order, isOpen, onClose, imageMapper = {} }) {
+  const navigate = useNavigate();
   if (!isOpen || !order) return null;
+
+  const isCartOrder = order.status === 'CART';
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -16,14 +20,16 @@ export default function OrderDetailsModal({ order, isOpen, onClose, imageMapper 
         </div>
         
         <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <h3 className="font-semibold text-gray-700 mb-2">Order Information</h3>
-              <p><span className="font-medium">Customer:</span> {order.customerName}</p>
-              <p><span className="font-medium">Status:</span> {order.status}</p>
-              <p><span className="font-medium">Order Code:</span> {order.orderCode}</p>
+          {!isCartOrder && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 className="font-semibold text-gray-700 mb-2">Order Information</h3>
+                <p><span className="font-medium">Customer:</span> {order.customerName}</p>
+                <p><span className="font-medium">Status:</span> {order.status}</p>
+                <p><span className="font-medium">Order Code:</span> {order.orderCode}</p>
+              </div>
             </div>
-          </div>
+          )}
           
           <div>
             <h3 className="font-semibold text-gray-700 mb-4">Order Items ({order.items?.length || 0})</h3>
@@ -89,13 +95,15 @@ export default function OrderDetailsModal({ order, isOpen, onClose, imageMapper 
                       )}
                     </div>
                     <div className="space-y-2 text-sm">
-                      <p><span className="font-medium">Status:</span> 
-                        <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                          item.status === 'ACCEPTED' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {item.status}
-                        </span>
-                      </p>
+                      {!isCartOrder && (
+                        <p><span className="font-medium">Status:</span> 
+                          <span className={`ml-2 px-2 py-1 rounded text-xs ${
+                            item.status === 'ACCEPTED' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {item.status}
+                          </span>
+                        </p>
+                      )}
                       <p><span className="font-medium">Quantity:</span> {item.qty}</p>
                       <p><span className="font-medium">Rental Days:</span> {item.rentalDays}</p>
                       <p><span className="font-medium">Total Price:</span> Rs. {item.totalPrice}</p>
@@ -134,6 +142,20 @@ export default function OrderDetailsModal({ order, isOpen, onClose, imageMapper 
               ))}
             </div>
           </div>
+          
+          {isCartOrder && (
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => {
+                  onClose();
+                  navigate('/checkout');
+                }}
+                className="bg-[#217964] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#1a5f4e] transition-colors"
+              >
+                Continue Payment
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

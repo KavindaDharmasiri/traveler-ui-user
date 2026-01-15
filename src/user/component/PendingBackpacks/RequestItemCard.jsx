@@ -4,7 +4,7 @@ import { DetailStatusBadge } from './DetailStatusBadge';
 import { CountdownDisplay } from './CountdownDisplay';
 
 
-export const RequestItemCard = ({ item }) => {
+export const RequestItemCard = ({ item, imageMapper }) => {
   const isAccepted = item.state === 'accepted';
   const isDisabled = item.state === 'timeout' || item.state === 'rejected';
 
@@ -15,7 +15,7 @@ export const RequestItemCard = ({ item }) => {
       
       {/* Thumbnail */}
       <div className="w-full md:w-48 h-40 md:h-auto overflow-hidden shrink-0">
-        <img src={item.image} className="w-full h-full object-cover" alt="" />
+        <img src={imageMapper[item.image]} className="w-full h-full object-cover" alt="" />
       </div>
 
       {/* Content */}
