@@ -41,9 +41,9 @@ export default function App() {
       <NotificationProvider>
       <>
         <Routes>
-          
+          <Route path="/" element={ <LandingPage />  } />
           <Route element={<MainLayout />}>
-            <Route path="/" element={ <HomePage />  } />
+            <Route path="/home" element={ <HomePage />  } />
             <Route path="/rentItems" element={<Rent />} />
             <Route path="/item-details/:id/:tenant" element={<ItemDetails />} />
             <Route path="/login" element={<Login />} />

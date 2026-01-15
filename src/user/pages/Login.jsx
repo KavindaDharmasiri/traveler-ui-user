@@ -91,7 +91,7 @@ export default function Login() {
 
       // Navigate based on user type - only after all validation passes
       if (type === 'TRAVELLER') {
-        navigate('/', { replace: true });
+        navigate('/home', { replace: true });
       } else if (type === 'SERVICE_PROVIDER') {
         console.log('provider login')
         const authData = {
