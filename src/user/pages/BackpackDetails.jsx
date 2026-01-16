@@ -35,7 +35,6 @@ export default function BackpackDetails() {
         
         // Find orders matching the orderCode
         const matchingOrders = Object.values(allOrders)
-          .flatMap(tenantGroup => Object.values(tenantGroup))
           .flat()
           .filter(order => order.orderCode === id);
 
@@ -109,7 +108,7 @@ export default function BackpackDetails() {
 
       <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8 border-b border-slate-100 pb-6">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">{backpackData?.groupName || 'Loading...'}</h1>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">{id}</h1>
           <p className="text-slate-500 text-sm mt-1 font-medium">
             Request ID: #{id} • {items.length} Items • {backpackData?.pickupDate} - {backpackData?.returnDate}
           </p>

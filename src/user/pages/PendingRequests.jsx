@@ -39,13 +39,11 @@ export default function PendingRequests() {
         
         // Collect all image UUIDs
         const allImageUuids = [];
-        Object.values(backpacksResponse.data).forEach(tenantGroup => {
-          Object.values(tenantGroup).forEach(orders => {
-            orders.forEach(order => {
-              if (order.itemObj?.images) {
-                allImageUuids.push(...order.itemObj.images);
-              }
-            });
+        Object.values(backpacksResponse.data).forEach(orders => {
+          orders.forEach(order => {
+            if (order.itemObj?.images) {
+              allImageUuids.push(...order.itemObj.images);
+            }
           });
         });
         
@@ -71,42 +69,40 @@ export default function PendingRequests() {
     return () => clearInterval(interval);
   }, []);
 
-  const groupedOrders = Object.entries(backpacks).map(([tenantId, groups]) => {
-    return Object.entries(groups).map(([groupName, orders]) => {
-      const acceptedCount = orders.filter(o => o.status === 'ACCEPTED').length;
-      const totalCount = orders.length;
-      const allAccepted = acceptedCount === totalCount;
-      
-      // Calculate time left based on updateDate
-      const updateDate = new Date(orders[0]?.updateDate);
-      const updateHour = updateDate.getHours();
-      const isNightTime = updateHour >= 18 || updateHour < 6; // 6 PM to 6 AM
-      const hoursLimit = isNightTime ? 3 : 1;
-      const expiryTime = new Date(updateDate.getTime() + hoursLimit * 60 * 60 * 1000);
-      const now = new Date();
-      const remainingMs = expiryTime - now;
-      
-      let timeLeft = "Expired";
-      if (remainingMs > 0) {
-        const hours = Math.floor(remainingMs / (1000 * 60 * 60));
-        const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
-        timeLeft = `${hours}h ${minutes}m`;
-      }
-      
-      return {
-        id: orders[0]?.orderCode,
-        title: groupName,
-        status: allAccepted ? 'Accepted' : 'Pending',
-        variant: allAccepted ? 'accepted' : 'pending',
-        progressCurrent: acceptedCount,
-        progressTotal: totalCount,
-        image: orders[0]?.itemObj?.images?.[0],
-        timeLeft,
-        updateDate: orders[0]?.updateDate,
-        orders
-      };
-    });
-  }).flat();
+  const groupedOrders = Object.entries(backpacks).map(([orderCode, orders]) => {
+    const acceptedCount = orders.filter(o => o.status === 'ACCEPTED').length;
+    const totalCount = orders.length;
+    const allAccepted = acceptedCount === totalCount;
+    
+    // Calculate time left based on updateDate
+    const updateDate = new Date(orders[0]?.updateDate);
+    const updateHour = updateDate.getHours();
+    const isNightTime = updateHour >= 18 || updateHour < 6; // 6 PM to 6 AM
+    const hoursLimit = isNightTime ? 3 : 1;
+    const expiryTime = new Date(updateDate.getTime() + hoursLimit * 60 * 60 * 1000);
+    const now = new Date();
+    const remainingMs = expiryTime - now;
+    
+    let timeLeft = "Expired";
+    if (remainingMs > 0) {
+      const hours = Math.floor(remainingMs / (1000 * 60 * 60));
+      const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+      timeLeft = `${hours}h ${minutes}m`;
+    }
+    
+    return {
+      id: orderCode,
+      title: orderCode,
+      status: allAccepted ? 'Accepted' : 'Pending',
+      variant: allAccepted ? 'accepted' : 'pending',
+      progressCurrent: acceptedCount,
+      progressTotal: totalCount,
+      image: orders[0]?.itemObj?.images?.[0],
+      timeLeft,
+      updateDate: orders[0]?.updateDate,
+      orders
+    };
+  });
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
