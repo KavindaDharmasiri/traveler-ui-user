@@ -5,7 +5,7 @@ export default function Travlerwhite() {
      <a href="#" className="flex items-center shrink-0">
       <svg
         viewBox="0 0 400 400"
-        className="h-8 md:h-10 lg:h-48 w-auto fill-white block"
+        className="h-32 md:h-32 lg:h-48 w-auto fill-white block"
         xmlns="http://www.w3.org/2000/svg"
         aria-label="TravelMarket logo"
       >

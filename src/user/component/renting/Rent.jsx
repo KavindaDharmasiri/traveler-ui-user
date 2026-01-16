@@ -1,18 +1,27 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, use } from 'react'
 import Title from './Title'
 import RentalItemCard from './RentalItemCard'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFilter, faSearch } from '@fortawesome/free-solid-svg-icons'
 import axios from '../../api/axios'
 import { API_CONFIG } from '../../../config/environment'
+import { useSearchParams } from 'react-router-dom'
 
 export default function Rent() {
-    const [input, setInput] = useState('')
+    const [searchParams, setSearchParams] = useSearchParams();
+    const selectedCategory=searchParams.get('category')||'ALL';
+    const handleCategoryChange=(cat)=>{
+       setSearchParams({category: cat})
+    }
+    // Local state for the input field to keep it smooth while typing
+    const searchQuery = searchParams.get('search') || '';
+    const [input, setInput] = useState(searchQuery);
+
     const [providers, setProviders] = useState([])
     const [filteredItems, setFilteredItems] = useState([])
     const [allItems, setAllItems] = useState([])
     const [loading, setLoading] = useState(true)
-    const [selectedCategory, setSelectedCategory] = useState('ALL')
+    
     const [imageMapper, setImageMapper] = useState({})
     const [currentPage, setCurrentPage] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
@@ -38,6 +47,21 @@ export default function Rent() {
         fetchItems()
     }, [])
 
+  // Sync input field if URL changes (e.g., clicking a Home card)
+  useEffect(() => {
+    setInput(searchQuery);
+  }, [searchQuery]);
+
+  
+
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setInput(val);
+    const params = Object.fromEntries(searchParams);
+    if (!val) delete params.search;
+    else params.search = val;
+    setSearchParams(params);
+  };
     const checkVerificationStatus = async () => {
         try {
             const response = await axios.get('auth/me')
@@ -138,7 +162,7 @@ export default function Rent() {
         setFilteredItems(filtered)
     }
 
-    const categories = ['ALL', 'ELECTRONICS', 'VEHICLES', 'CAMPING', 'HOTELS', 'OUTDO0OR', 'WATERSPORTS', 'LUGGAGE']
+    const categories = ['ALL', 'ELECTRONICS', 'VEHICLES', 'CAMPING', 'HOTELS', 'OUTDO0OR', 'WATERSPORTS', 'LUGGAGE', 'PHOTOGRAPHY', 'WINTERSPORTS', 'HIKING']
 
     if (loading) {
         return (
@@ -208,24 +232,22 @@ export default function Rent() {
                         </p>
                     </div>
 
-                    {/* Search Bar */}
-                    <div className='relative max-w-2xl w-full mb-8 animate-slide-up'>
-                        <div className='flex items-center bg-white/95 backdrop-blur-sm px-6 py-4 rounded-2xl shadow-2xl border border-white/20'>
-                            <FontAwesomeIcon icon={faSearch} className='w-5 h-5 mr-4 text-teal-600' />
-                            <input 
-                                onChange={(e) => setInput(e.target.value)} 
-                                value={input} 
-                                type='text' 
-                                placeholder='Search by name, provider, or category...' 
-                                className='w-full outline-none text-gray-700 placeholder-gray-500 text-lg bg-transparent'
-                            />
-                            <FontAwesomeIcon 
-                                icon={faFilter} 
-                                className={`w-5 h-5 ml-4 cursor-pointer transition-all duration-300 transform hover:scale-110 ${
-                                    showFilters ? 'text-teal-700 rotate-180' : 'text-teal-600 hover:text-teal-700'
-                                }`}
-                                onClick={() => setShowFilters(!showFilters)}
-                            />
+                   {/* Search Input Section */}
+                    <div className='relative max-w-2xl w-full mb-8 mx-auto'>
+                        <div className='flex items-center bg-white/95 backdrop-blur-sm px-6 py-4 rounded-2xl shadow-2xl'>
+                        <FontAwesomeIcon icon={faSearch} className='w-5 h-5 mr-4 text-teal-600' />
+                        <input 
+                            onChange={handleSearchChange} 
+                            value={input} 
+                            type='text' 
+                            placeholder='Search items...' 
+                            className='w-full outline-none text-gray-700 text-lg bg-transparent'
+                        />
+                        <FontAwesomeIcon 
+                            icon={faFilter} 
+                            onClick={() => setShowFilters(!showFilters)}
+                            className={`w-5 h-5 ml-4 cursor-pointer ${showFilters ? 'text-teal-700' : 'text-teal-600'}`}
+                        />
                         </div>
                     </div>
 
@@ -357,7 +379,7 @@ export default function Rent() {
                         {categories.map((category, index) => (
                             <button
                                 key={category}
-                                onClick={() => setSelectedCategory(category)}
+                                onClick={() => handleCategoryChange(category)}
                                 className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
                                     selectedCategory === category
                                         ? 'bg-white text-teal-700 shadow-lg scale-105'

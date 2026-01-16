@@ -3,16 +3,16 @@ import TopPickCard from './TopPickCard'
 
 export default function TopPicks() {
   return (
-    <section className="bg-surface-light dark:bg-gray-900 py-16 md:py-24">
+    <section id="top-picks" className="bg-surface-light  py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Top Picks</h2>
-            <p className="text-gray-500 dark:text-gray-400">Highly rated rentals for your next trip</p>
+            <h2 className="text-3xl font-bold text-gray-900  mb-2">Top Picks</h2>
+            <p className="text-gray-500 ">Highly rated rentals for your next trip</p>
           </div>
 
-          <button className="flex items-center gap-2 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-            <span className="material-icons-round text-gray-500 dark:text-gray-400 text-lg">tune</span>
+          <button className="flex items-center gap-2 bg-white  border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:bg-gray-50 transition-colors">
+            <span className="material-icons-round text-gray-500 text-lg">tune</span>
             Filters
           </button>
         </div>

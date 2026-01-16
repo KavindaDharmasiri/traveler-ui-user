@@ -7,18 +7,20 @@ import TopPicks from '../component/landing/TopPicks'
 import HowItWorks from '../component/landing/HowItWorks'
 import Homefooter from '../component/landing/Homefooter'
 import ThemeStyles from '../../shared/ThemeStyles'
+import OwnerBanner from '../component/landing/OwnerBanner'
 
 export default function LandingPage() {
   return (
      <>
       <ThemeStyles />
-      <div className="bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 font-sans antialiased">
+      <div className="bg-background-light  text-gray-900  font-sans antialiased">
         <Heronav />
         <Hero />
         <Spacer />
+        <HowItWorks />
+        <OwnerBanner/>
         <Categories />
         <TopPicks />
-        <HowItWorks />
         <Homefooter />
       </div>
     </>
