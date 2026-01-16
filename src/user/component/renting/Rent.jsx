@@ -103,7 +103,7 @@ export default function Rent() {
             if (filters.maxPrice) params.append('maxPrice', filters.maxPrice)
             if (filters.minRating) params.append('minRating', filters.minRating)
             
-            const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/provider/item/getAllForTraveller?${params}`)
+            const response = await axios.get(`core/api/v1/provider/item/getAllForTraveller?${params}`)
             const data = response.data || {}
             
             setProviders(data.providers || [])
