@@ -1,7 +1,8 @@
 import React from 'react'
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function ShopCTA() {
- 
+    const navigate=useNavigate();
     const img =
     "https://lh3.googleusercontent.com/aida-public/AB6AXuCGiUiY-dASWG2rAepsYi6s3IZbpgjN5810jWq9zekULCwgtkopByfZME3oS-iLbPzFWDJrg3zpyHr4aRRigjNmDVcJmM1hMQmcYbYRgMziCWg3e9IwwVLvJKgEm9DSc1fxaVrIKO0gMA2nu_7iHOY21D8b2MrHUQhrqbpEf34kalZ4_8dTTyDnb_AJ6n2bORppxIyu_hCgCD_h332MSwokMqosjUbiuq5QSeTFA35z-6eaafJCAjQ6lGHuj5zbomNH_VPliVgb-xPl";
 
@@ -23,7 +24,7 @@ export default function ShopCTA() {
             </div>
 
             <div className="pt-2">
-              <button className="bg-[#d500f9] hover:bg-[#c000e0] text-white px-8 py-3.5 rounded-lg font-bold text-sm md:text-base shadow-lg shadow-[rgba(88,28,135,0.20)] hover:shadow-[rgba(88,28,135,0.40)] transition-all duration-300 transform hover:-translate-y-0.5">
+              <button onClick={() => navigate('/signup?role=SERVICE_PROVIDER')} className="bg-[#d500f9] hover:bg-[#c000e0] text-white px-8 py-3.5 rounded-lg font-bold text-sm md:text-base shadow-lg shadow-[rgba(88,28,135,0.20)] hover:shadow-[rgba(88,28,135,0.40)] transition-all duration-300 transform hover:-translate-y-0.5">
                 List your Shop
               </button>
             </div>

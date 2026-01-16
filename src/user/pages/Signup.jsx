@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
 // 🔧 adjust paths as needed for your project structure
@@ -10,6 +10,10 @@ import { API_CONFIG } from "../../config/environment"
 export default function Signup() {
   const navigate = useNavigate();
 
+  const [searchParams] = useSearchParams();
+// This is NOT state, just a variable that updates when the URL does
+ const userType = searchParams.get('role') || "TRAVELLER";
+
   const nameRef = useRef(null);
   const errorRef = useRef(null);
 
@@ -17,7 +21,7 @@ export default function Signup() {
   const [step, setStep] = useState(1);
 
   // type + account info
-  const [userType, setUserType] = useState("TRAVELLER"); // TRAVELLER | SERVICE_PROVIDER
+  // const [userType, setUserType] = useState("TRAVELLER"); // TRAVELLER | SERVICE_PROVIDER
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

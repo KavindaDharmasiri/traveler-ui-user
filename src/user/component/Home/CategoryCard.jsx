@@ -1,8 +1,8 @@
 import React from 'react'
 
-export default function CategoryCard({ title, image, className = "", subtitle, gradient = "from-black/70 via-black/20 to-transparent" }) {
+export default function CategoryCard({ title, image, className = "", subtitle, gradient = "from-black/70 via-black/20 to-transparent", onClick }) {
   return (
-     <div className={`relative group overflow-hidden rounded-2xl cursor-pointer ${className}`}>
+     <div onClick={onClick} className={`relative group overflow-hidden rounded-2xl cursor-pointer ${className}`}>
       <div
         className="absolute inset-0 bg-gray-200 transition-transform duration-700 group-hover:scale-105"
         style={{ backgroundImage: `url("${image}")`, backgroundSize: "cover", backgroundPosition: "center" }}

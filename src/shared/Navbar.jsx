@@ -1,5 +1,5 @@
 import React from 'react'
-import {Link} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 import { menulinks } from '../assets/assets' 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShop,faBagShopping,faBell,faMagnifyingGlass} from '@fortawesome/free-solid-svg-icons'
@@ -11,6 +11,7 @@ import { useNotifications } from '../user/component/notification/NotificationCon
 import Swal from 'sweetalert2';
 
 export default function Navbar() {
+    const navigate=useNavigate();
     const [isScrolled, setIsScrolled] = React.useState(false); 
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
     const [cartCount, setCartCount] = React.useState(0);
@@ -127,8 +128,8 @@ export default function Navbar() {
                             );
                         })}
                         
-                        <Link to='/signup'>
-                        <button className={`flex items-center gap-2 border pl-1 pr-2 py-1 text-sm font-light rounded-full cursor-pointer ${!isScrolled ? 'border-white text-white' : 'border-gray-700 text-black'} transition-all`}>
+                        
+                        <button onClick={() => navigate('/signup?role=SERVICE_PROVIDER')} className={`flex items-center gap-2 border pl-1 pr-2 py-1 text-sm font-light rounded-full cursor-pointer ${!isScrolled ? 'border-white text-white' : 'border-gray-700 text-black'} transition-all`}>
                             <div className="w-10 h-10 bg-white text-[#217964] rounded-full flex items-center justify-center"> 
                                 <FontAwesomeIcon icon={faShop} size="lg" />
                             </div>
@@ -136,7 +137,7 @@ export default function Navbar() {
                                 Become Provider
                             </div>
                         </button>
-                        </Link>
+                        
                     </div>
 
                     <div className="hidden md:flex items-center gap-4">

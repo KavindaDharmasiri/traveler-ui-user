@@ -1,8 +1,14 @@
 import React from 'react'
 import CategoryCard from './CategoryCard';
 import Icon from './Icon';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function BrowseByCategory() {
+  const navigate=useNavigate();
+
+  const handleCardClick=(category)=>{
+    navigate(`/rentItems?category=${category}`);
+  }
   const imgs = {
     camping:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuCmi0_InCT9NiPIxMG5jK2gvZnRtiEjuBQmQol_ZZtrrM5c5XBkz_rE-HqPPZ25wECrQszuAtXBmq5WjJKle6NKUY11S5B_B6lgdYDEeKdguwpS14ju6D2o2qfJsgoUwkLejvvdz8Mzszxl0Ccy5orw695BUABo0e7px9hO0v4BV7c6pXmUIOkg3fndKSETnka8OIrfTq4ojA6WthEzMyyPd3XH8nkEqJwyFIJp-APG5nX0z2Mmc26_Gxlm3wpwq5YepwN8FBRefIfU",
@@ -26,16 +32,18 @@ export default function BrowseByCategory() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 grid-rows-2 gap-4 h-[500px] md:h-[600px]">
-        <CategoryCard
+        
+        <CategoryCard onClick={()=>handleCardClick('CAMPING')}
           title="Camping Gear"
           subtitle="Most Popular"
           image={imgs.camping}
           className="col-span-2 row-span-2"
         />
-        <CategoryCard title="Photography" image={imgs.photo} className="col-span-1 row-span-1" gradient="from-black/60 to-transparent" />
-        <CategoryCard title="Winter Sports" image={imgs.winter} className="col-span-1 row-span-1" gradient="from-black/60 to-transparent" />
-        <CategoryCard title="Luggage" image={imgs.luggage} className="col-span-1 row-span-1" gradient="from-black/60 to-transparent" />
-        <CategoryCard title="Hiking" image={imgs.hiking} className="col-span-1 row-span-1" gradient="from-black/60 to-transparent" />
+        
+        <CategoryCard onClick={()=>handleCardClick('PHOTOGRAPHY')} title="Photography" image={imgs.photo} className="col-span-1 row-span-1" gradient="from-black/60 to-transparent" />
+        <CategoryCard onClick={()=>handleCardClick('WINTERSPORTS')} title="Winter Sports" image={imgs.winter} className="col-span-1 row-span-1" gradient="from-black/60 to-transparent" />
+        <CategoryCard onClick={()=>handleCardClick('LUGGAGE')} title="Luggage" image={imgs.luggage} className="col-span-1 row-span-1" gradient="from-black/60 to-transparent" />
+        <CategoryCard onClick={()=>handleCardClick('HIKING')} title="Hiking" image={imgs.hiking} className="col-span-1 row-span-1" gradient="from-black/60 to-transparent" />
       </div>
     </section>
   )
