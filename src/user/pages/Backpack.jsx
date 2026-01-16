@@ -31,7 +31,7 @@ export default function Backpack() {
 
   const fetchBackpackItems = async () => {
     try {
-      const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/backpack/all`);
+      const response = await axios.get(`core/api/v1/backpack/all`);
       const data = response.data;
       
       // Collect all image UUIDs from items
