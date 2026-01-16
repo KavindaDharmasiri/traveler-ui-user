@@ -34,7 +34,7 @@ export default function PendingRequests() {
     //fetch data from backend
     const fetchBackpacks = async () => {
       try{
-        const backpacksResponse=await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/order`);
+        const backpacksResponse=await axios.get('core/api/v1/order');
         setBackpacks(backpacksResponse.data);
         
         // Collect all image UUIDs
