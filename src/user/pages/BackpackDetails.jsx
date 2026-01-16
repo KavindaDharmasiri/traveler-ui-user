@@ -30,7 +30,7 @@ export default function BackpackDetails() {
   useEffect(() => {
     const fetchBackpackDetails = async () => {
       try {
-        const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/order`);
+        const response = await axios.get(`core/api/v1/order`);
         const allOrders = response.data;
         
         // Find orders matching the orderCode
