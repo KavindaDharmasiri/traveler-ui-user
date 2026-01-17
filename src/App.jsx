@@ -17,6 +17,7 @@ import PaymentSuccess from "./user/pages/PaymentSuccess";
 import PaymentFailed from "./user/pages/PaymentFailed";
 import OrderPast from "./user/pages/OrderPast";
 import CheckoutPage from "./user/pages/CheckoutPage";
+import AboutUs from "./user/pages/AboutUs";
 import { useState } from "react";
 import {initialCartItems} from "./user/cartData";
 
@@ -61,6 +62,7 @@ export default function App() {
               <Route path="/payment/failed" element={<PaymentFailed />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/provider" element={<ProviderDashboard />} />
+              <Route path="/about-us" element={<AboutUs/>}/>
             </Route>
           </Route>
         </Routes>

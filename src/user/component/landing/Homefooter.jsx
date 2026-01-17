@@ -1,4 +1,5 @@
 import React from 'react'
+import {Link} from 'react-router-dom'
 import traveler_logo from '../../../assets/traveler_logo.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -66,7 +67,7 @@ export default function Homefooter() {
           <div>
             <h4 className="font-bold text-lg mb-6">Company</h4>
             <ul className="space-y-4 text-sm text-gray-400">
-              <li><a className="hover:text-primary transition-colors" href="#">About Us</a></li>
+              <li><Link to="/about-us" className="hover:text-primary transition-colors">About Us</Link></li>
               
             </ul>
           </div>

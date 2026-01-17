@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom';
 import traveler_logo from '../assets/traveler_logo.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -69,7 +70,7 @@ export default function Footer() {
                 <div className='min-w-[160px]'>
                     <p className='text-lg text-gray-800 font-semibold'>COMPANY</p>
                     <ul className='mt-4 flex flex-col gap-2 text-sm'>
-                        <li><a href="#" className='hover:text-gray-800 transition-colors'>About</a></li>
+                        <li><Link to="/about-us" className='hover:text-gray-800 transition-colors'>About</Link></li>
 {/*                         <li><a href="#" className='hover:text-gray-800 transition-colors'>Careers</a></li>
                         <li><a href="#" className='hover:text-gray-800 transition-colors'>Press</a></li>
                         <li><a href="#" className='hover:text-gray-800 transition-colors'>Blog</a></li>
