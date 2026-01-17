@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 export default function SearchCardForm() {
   return (
@@ -26,11 +27,12 @@ export default function SearchCardForm() {
           type="text"
         />
       </div>
-
+      <Link to="/login">
       <button className="w-full md:w-auto bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
         Search
         <span className="material-icons-round text-sm">arrow_forward</span>
       </button>
+      </Link>
     </div>
   )
 }
