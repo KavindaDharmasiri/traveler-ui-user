@@ -8,21 +8,45 @@ export default function OngoingRentalCard({ order, onClick }) {
     if (onClick) onClick();
   };
 
+  // Check if this is a cart item or regular order
+  const isCartItem = !!order.cartItems;
+  
+  // Transform cart data to order format if needed
+  const transformedOrder = isCartItem ? {
+    id: order.id,
+    orderCode: order.orderCode,
+    customerName: 'You',
+    status: 'CART',
+    items: order.cartItems.map(ci => ({
+      id: ci.id,
+      itemObj: ci.itemObj,
+      totalPrice: ci.totalPrice,
+      rentalDays: ci.rentalDays,
+      pickupDate: ci.pickupDate,
+      returnDate: ci.returnDate,
+      providerName: ci.providerName,
+      qty: ci.qty
+    }))
+  } : order;
+
   // Transform order data to component props
-  const imageUrl = order.items?.[0]?.itemObj?.images?.[0] ? 
-    `https://via.placeholder.com/300x200?text=${order.items[0].itemObj.name}` : 
+  const imageUrl = transformedOrder.items?.[0]?.itemObj?.images?.[0] ? 
+    `https://via.placeholder.com/300x200?text=${transformedOrder.items[0].itemObj.name}` : 
     "https://via.placeholder.com/300x200?text=Order";
-  const imageAlt = order.items?.[0]?.itemObj?.name || "Order item";
-  const title = order.orderCode;
-  const orderInfo = `Customer: ${order.customerName} • Status: ${order.status}`;
-  const statusType = order.status === 'PAYED' ? 'picked' : 'confirmed';
+  const imageAlt = transformedOrder.items?.[0]?.itemObj?.name || "Order item";
+  const title = transformedOrder.orderCode;
+  const orderInfo = isCartItem ? `${transformedOrder.items?.length || 0} items in cart` : `Customer: ${transformedOrder.customerName} • Status: ${transformedOrder.status}`;
+  const statusType = transformedOrder.status === 'PAYED' ? 'picked' : 'confirmed';
   
   // Create meta items from order data
-  const metaItems = [
-    { label: "Order Code", icon: "receipt", iconColor: "text-primary", value: order.orderCode },
-    { label: "Customer", icon: "person", iconColor: "text-primary", value: order.customerName },
-    { label: "Status", icon: "info", iconColor: "text-primary", value: order.status },
-    { label: "Items", icon: "inventory", iconColor: "text-primary", value: `${order.items?.length || 0} items` },
+  const metaItems = isCartItem ? [
+    { label: "Order Code", icon: "receipt", iconColor: "text-primary", value: transformedOrder.orderCode },
+    { label: "Items", icon: "inventory", iconColor: "text-primary", value: `${transformedOrder.items?.length || 0} items` },
+  ] : [
+    { label: "Order Code", icon: "receipt", iconColor: "text-primary", value: transformedOrder.orderCode },
+    { label: "Customer", icon: "person", iconColor: "text-primary", value: transformedOrder.customerName },
+    { label: "Status", icon: "info", iconColor: "text-primary", value: transformedOrder.status },
+    { label: "Items", icon: "inventory", iconColor: "text-primary", value: `${transformedOrder.items?.length || 0} items` },
   ];
 
      const status =
@@ -81,6 +105,11 @@ export default function OngoingRentalCard({ order, onClick }) {
         {order.status === 'PAYED' && (
           <div className="absolute top-3 left-3 bg-emerald-500 text-white backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold shadow-sm">
             PAID
+          </div>
+        )}
+        {transformedOrder.status === 'CART' && (
+          <div className="absolute top-3 left-3 bg-blue-500 text-white backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold shadow-sm">
+            IN CART
           </div>
         )}
       </div>

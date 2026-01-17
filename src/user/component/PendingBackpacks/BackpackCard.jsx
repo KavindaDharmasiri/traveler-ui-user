@@ -4,7 +4,7 @@ import { StatusBadge } from './StatusBadge'
 import { Timer, MoreVertical,  CreditCard, Eye, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export default function BackpackCard({request}) {
+export default function BackpackCard({request, imageMapper}) {
 
     const isFinished = request.timeLeft === "Ready";
     
@@ -12,7 +12,7 @@ export default function BackpackCard({request}) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden group">
     <div className="relative h-40">
-      <img src={request.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform" alt="" />
+      <img src={imageMapper[request.image]} className="w-full h-full object-cover group-hover:scale-105 transition-transform" alt="" />
     </div>
     <div className="p-5 flex flex-col gap-4">
       <div className="flex justify-between">

@@ -37,12 +37,20 @@ export default function OngoingSection() {
   const fetchOngoingOrders = async () => {
     setLoading(true);
     try {
+      // Fetch cart data
+      const cartResponse = await axios.get('core/api/v1/cart');
+      const cartData = cartResponse.data || [];
+      
+      // Fetch past orders
       const response = await axios.get('core/api/v1/order/past');
       const orders = response.data || [];
       const ongoingOrders = orders.filter(order => 
         order.status === 'PAYED'
       );
-      setRentals(ongoingOrders);
+      
+      // Combine cart and ongoing orders
+      const allOngoing = [...cartData, ...ongoingOrders];
+      setRentals(allOngoing);
     } catch (error) {
       console.error('Error fetching ongoing orders:', error);
       setRentals([]);
@@ -52,11 +60,28 @@ export default function OngoingSection() {
   };
 
   const handleOrderClick = async (order) => {
-    setSelectedOrder(order);
+    // Transform cart data if needed
+    const transformedOrder = order.cartItems ? {
+      id: order.id,
+      orderCode: order.orderCode,
+      customerName: 'You',
+      status: 'CART',
+      items: order.cartItems.map(ci => ({
+        id: ci.id,
+        itemObj: ci.itemObj,
+        totalPrice: ci.totalPrice,
+        rentalDays: ci.rentalDays,
+        pickupDate: ci.pickupDate,
+        returnDate: ci.returnDate,
+        providerName: ci.providerName
+      }))
+    } : order;
+    
+    setSelectedOrder(transformedOrder);
     setShowModal(true);
     
     // Fetch images when popup opens
-    const allImageUuids = order.items?.flatMap(item => item.itemObj?.images || []) || [];
+    const allImageUuids = transformedOrder.items?.flatMap(item => item.itemObj?.images || []) || [];
     if (allImageUuids.length > 0) {
       await fetchImages(allImageUuids);
     }

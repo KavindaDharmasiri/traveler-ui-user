@@ -10,6 +10,7 @@ import { API_CONFIG } from "../../config/environment";
 
 export default function Booking() {
   const [bookingData, setBookingData] = useState([]);
+  const [cartData, setCartData] = useState([]);
   const [loadingList, setLoadingList] = useState(true);
 
   const [filterStatus, setFilterStatus] = useState(null);
@@ -18,18 +19,25 @@ export default function Booking() {
   const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
 
-  // 1) Load all bookings
+  // 1) Load all bookings and cart
   useEffect(() => {
     const fetchBookingData = async () => {
       setLoadingList(true);
       try {
         const token = localStorage.getItem("accessToken");
 
+        // Fetch orders
         const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/order`, {
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
 
+        // Fetch cart
+        const cartResponse = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/cart`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+
         console.log('API Response:', response.data);
+        console.log('Cart Response:', cartResponse.data);
 
         // Group items by order code
         let orderdata = [];
@@ -68,9 +76,11 @@ export default function Booking() {
         orderdata = Array.from(orderMap.values());
         console.log('Grouped orderdata:', orderdata);
         setBookingData(orderdata);
+        setCartData(cartResponse.data || []);
       } catch (error) {
         console.error("Error fetching booking data:", error);
         setBookingData([]);
+        setCartData([]);
       } finally {
         setLoadingList(false);
       }
@@ -187,6 +197,33 @@ export default function Booking() {
       </div>
 
       <main className="max-w-4xl mx-auto space-y-6">
+        {cartData.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Ongoing Orders</h2>
+            {cartData.map((cart, idx) => (
+              <OrderCard
+                key={cart.id || `cart-${idx}`}
+                order={{
+                  id: cart.orderCode,
+                  orderCode: cart.orderCode,
+                  customerName: 'You',
+                  status: 'ONGOING',
+                  items: cart.cartItems.map(ci => ({
+                    ...ci.itemObj,
+                    totalPrice: ci.totalPrice,
+                    rentalDays: ci.rentalDays,
+                    pickupDate: ci.pickupDate,
+                    returnDate: ci.returnDate,
+                    providerName: ci.providerName
+                  }))
+                }}
+                onViewDetails={(id) => setSelectedOrderId(id)}
+              />
+            ))}
+          </div>
+        )}
+
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">All Orders</h2>
         {loadingList ? (
           <div className="text-center p-12 bg-white rounded-lg shadow-sm">
             <h2 className="text-2xl font-semibold text-gray-700">Loading your orders...</h2>

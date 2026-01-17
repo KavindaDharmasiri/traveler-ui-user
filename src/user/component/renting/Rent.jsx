@@ -101,8 +101,8 @@ export default function Rent() {
     const fetchFilters = async () => {
         try {
             const [filtersResponse, providersResponse] = await Promise.all([
-                axios.get(`${API_CONFIG.BASE_URL}core/api/v1/provider/item/filters`),
-                axios.get(`${API_CONFIG.BASE_URL}auth/providers`)
+                axios.get(`core/api/v1/provider/item/filters`),
+                axios.get(`auth/providers`)
             ])
             
             setAvailableFilters({
@@ -127,7 +127,7 @@ export default function Rent() {
             if (filters.maxPrice) params.append('maxPrice', filters.maxPrice)
             if (filters.minRating) params.append('minRating', filters.minRating)
             
-            const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/provider/item/getAllForTraveller?${params}`)
+            const response = await axios.get(`core/api/v1/provider/item/getAllForTraveller?${params}`)
             const data = response.data || {}
             
             setProviders(data.providers || [])
