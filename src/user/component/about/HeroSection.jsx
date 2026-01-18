@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 export default function HeroSection() {
   return (
@@ -17,18 +18,20 @@ export default function HeroSection() {
         <div className="relative h-full max-w-[1280px] mx-auto px-8 flex items-center justify-start">
           <div className="max-w-xl w-full p-12 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl">
             <div className="flex flex-col gap-4">
-              <span className="uppercase tracking-widest text-primary text-xs font-bold">Our Mission</span>
-              <h1 className="text-5xl font-black leading-tight text-text-main">
+              <span className="uppercase tracking-widest text-[#217864] text-xs font-bold">Our Mission</span>
+              <h1 className="text-5xl font-black leading-tight text-[#121716]">
                 Making Adventure Accessible.
               </h1>
-              <p className="text-text-secondary text-lg leading-relaxed">
+              <p className="text-[#68827c] text-lg leading-relaxed">
                 We believe the cost of gear shouldn't be a barrier to experiencing the world. By connecting travelers with local equipment, we empower you to explore freely and sustainably.
               </p>
               <div className="pt-4">
-                <button className="h-12 px-6 rounded-xl bg-primary hover:bg-primary-dark text-white text-base font-bold transition-all shadow-lg shadow-primary/30 flex items-center gap-2 w-fit">
+                <Link to="/rentItems">
+                <button className="h-12 px-6 rounded-xl bg-[#217864] hover:bg-[#1a5e4e] text-white text-base font-bold transition-all shadow-lg shadow-[#217864]/30 flex items-center gap-2 w-fit">
                   Explore Rentals
                   <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
                 </button>
+                </Link>
               </div>
             </div>
           </div>

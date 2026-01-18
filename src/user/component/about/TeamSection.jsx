@@ -9,11 +9,11 @@ export default function TeamSection() {
   ];
 
   return (
-    <section className="py-20 px-8 bg-background-light">
+    <section className="py-20 px-8 bg-[#fbfaf9]">
       <div className="max-w-[960px] mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-text-main mb-4">The Explorers Behind the Screen</h2>
-          <p className="text-text-secondary">Meet the team dedicated to making your next journey possible.</p>
+          <h2 className="text-3xl font-bold text-[#121716] mb-4">The Explorers Behind the Screen</h2>
+          <p className="text-[#68827c]">Meet the team dedicated to making your next journey possible.</p>
         </div>
         <div className="grid grid-cols-4 gap-x-8 gap-y-12">
           {team.map((member, index) => (
@@ -24,10 +24,10 @@ export default function TeamSection() {
                   style={{ backgroundImage: `url("${member.img}")` }}
                 ></div>
               </div>
-              <h3 className="text-lg font-bold text-text-main">{member.name}</h3>
-              <p className="text-sm text-primary font-medium mb-2">{member.role}</p>
+              <h3 className="text-lg font-bold text-[#121716]">{member.name}</h3>
+              <p className="text-sm text-[#217864] font-medium mb-2">{member.role}</p>
               <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <a className="text-gray-400 hover:text-primary" href="#">
+                <a className="text-gray-400 hover:text-[#217864]" href="#">
                   <span className="material-symbols-outlined text-lg">mail</span>
                 </a>
               </div>

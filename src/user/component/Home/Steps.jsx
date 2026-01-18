@@ -9,9 +9,9 @@ export default function Steps() {
       desc: "Select premium equipment from our curated collection for your dates.",
     },
     {
-      icon: "local_shipping",
-      title: "2. We deliver to you",
-      desc: "Your gear is shipped directly to your destination or hotel.",
+      icon: "storefront",
+      title: "2. Pick up your gear",
+      desc: "Visit our local hub to collect your booked items at your convenience.",
     },
     {
       icon: "landscape",

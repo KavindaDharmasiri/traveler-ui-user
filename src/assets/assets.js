@@ -1,6 +1,6 @@
 import axios from '../user/api/axios';
 import { API_CONFIG } from '../config/environment';
-import hero_mp4 from './3015510-hd_1920_1080_24fps.mp4'
+
 
 export const menulinks=[
     {name:"Home",path:"/home"},
@@ -18,9 +18,7 @@ export const cityList=['Akkaraipattu','Aluthgama','Ampara','Anuradhapura','Awiss
 'Sigiriya','Talawakele','Trincomalee','Vavuniya','Wadduwa','Wattala','Wellawaya'
 ] 
 
-export const assets={
-    hero_mp4
-}
+
 
 export const dummyItemData = []
 

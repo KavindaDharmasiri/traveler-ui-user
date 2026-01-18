@@ -29,6 +29,7 @@ import PendingRequests from "./user/pages/PendingRequests";
 import BackpackDetails from "./user/pages/BackpackDetails";
 import LandingPage from "./user/pages/LandingPage";
 import useAuth from "./user/hooks/useAuth";
+import HelpCenter from "./user/component/helpCenter/HelpCenter";
 
  
 
@@ -47,6 +48,9 @@ export default function App() {
           <Route element={<MainLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/about-us" element={<AboutUs/>}/>
+          <Route path="/help-center" element={<HelpCenter/>}/>
+          
             <Route element={<RequireAuth />}>
               <Route path="/home" element={ <HomePage />  } />
               <Route path="/rentItems" element={<Rent />} />
@@ -62,7 +66,7 @@ export default function App() {
               <Route path="/payment/failed" element={<PaymentFailed />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/provider" element={<ProviderDashboard />} />
-              <Route path="/about-us" element={<AboutUs/>}/>
+              
             </Route>
           </Route>
         </Routes>

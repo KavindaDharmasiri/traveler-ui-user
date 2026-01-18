@@ -6,11 +6,11 @@ export default function StorySection() {
       <div className="max-w-[1080px] mx-auto grid grid-cols-2 gap-16 items-center">
         {/* Text Side */}
         <div className="relative">
-          <div className="absolute -top-10 -left-10 w-24 h-24 bg-primary/10 rounded-full blur-xl"></div>
-          <h2 className="relative text-4xl font-bold text-text-main mb-6">
+          <div className="absolute -top-10 -left-10 w-24 h-24 bg-[#217864]/10 rounded-full blur-xl"></div>
+          <h2 className="relative text-4xl font-bold text-[#121716] mb-6">
             It started with a missing backpack...
           </h2>
-          <div className="space-y-6 text-lg text-text-secondary leading-relaxed">
+          <div className="space-y-6 text-lg text-[#68827c] leading-relaxed">
             <p>
               In 2018, our founder Sarah landed in Patagonia ready for a month-long trek, only to find her gear hadn't arrived. The local rental options were scarce, expensive, and unreliable.
             </p>
@@ -23,12 +23,12 @@ export default function StorySection() {
           </div>
           <div className="mt-8 pt-8 border-t border-gray-100 flex gap-12">
             <div>
-              <p className="text-3xl font-bold text-primary">50k+</p>
-              <p className="text-sm text-text-secondary mt-1">Rentals Completed</p>
+              <p className="text-3xl font-bold text-[#217864]">50k+</p>
+              <p className="text-sm text-[#68827c] mt-1">Rentals Completed</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-primary">42</p>
-              <p className="text-sm text-text-secondary mt-1">Countries Active</p>
+              <p className="text-3xl font-bold text-[#217864]">42</p>
+              <p className="text-sm text-[#68827c] mt-1">Countries Active</p>
             </div>
           </div>
         </div>
