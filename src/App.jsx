@@ -34,7 +34,6 @@ import HelpCenter from "./user/component/helpCenter/HelpCenter";
  
 
 export default function App() {
-   const { isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false); // start closed
   const [cartItems, setCartItems] = useState(initialCartItems);
 
