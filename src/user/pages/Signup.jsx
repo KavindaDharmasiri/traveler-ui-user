@@ -609,7 +609,6 @@ export default function Signup() {
 
       // reset all fields
       setStep(1);
-      setUserType("TRAVELLER");
       setName("");
       setEmail("");
       setPassword("");
@@ -767,7 +766,10 @@ const handleDocumentUpload = async (file, index) => {
                       name="userType"
                       value="TRAVELLER"
                       checked={userType === "TRAVELLER"}
-                      onChange={(e) => setUserType(e.target.value)}
+                      onChange={(e) => {
+                        const newRole = e.target.value;
+                        navigate(`/signup?role=${newRole}`, { replace: true });
+                      }}
                       className="text-teal-600 focus:ring-teal-500"
                     />
                     <span>Traveller</span>
@@ -779,7 +781,10 @@ const handleDocumentUpload = async (file, index) => {
                       name="userType"
                       value="SERVICE_PROVIDER"
                       checked={userType === "SERVICE_PROVIDER"}
-                      onChange={(e) => setUserType(e.target.value)}
+                      onChange={(e) => {
+                        const newRole = e.target.value;
+                        navigate(`/signup?role=${newRole}`, { replace: true });
+                      }}
                       className="text-teal-600 focus:ring-teal-500"
                     />
                     <span>Service Provider</span>
