@@ -1,7 +1,7 @@
 import React from "react";
 import CategoryCard from "./CategoryCard";
 import Icon from "./Icon";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import vehicle from "../../../assets/vehicle.jpg";
 
 export default function BrowseByCategory() {
@@ -29,13 +29,14 @@ export default function BrowseByCategory() {
         <h2 className="text-2xl md:text-3xl font-bold text-[#121716]">
           Browse by Category
         </h2>
-
+        <Link to="/rentItems">
         <button
           onClick={() => navigate("/rentItems")}
           className="text-[#217864] font-bold text-sm flex items-center hover:underline"
         >
           View all <Icon name="arrow_forward" className="text-sm ml-1" />
         </button>
+        </Link>
       </div>
 
       {/* ✅ Mobile & Tablet Slider */}
