@@ -24,7 +24,7 @@ export default function OwnerBanner() {
             </div>
 
             {/* Right Image Side */}
-            <div className="bg-[#2a5d56] flex-1 relative min-h-[300px] md:min-h-full">
+            <div className="bg-[#2a5d56] flex-1 relative  md:min-h-full hidden md:block">
             <img 
                 src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1000" 
                 alt="Happy traveler"

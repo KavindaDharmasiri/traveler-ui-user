@@ -1,4 +1,15 @@
 import React from 'react'
+import {Link} from 'react-router-dom'
+import traveler_logo from '../../../assets/traveler_logo.png'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faFacebookF, 
+  faInstagram, 
+  faThreads, 
+  faTiktok 
+} from '@fortawesome/free-brands-svg-icons';
+
+
 
 export default function Homefooter() {
   return (
@@ -6,20 +17,49 @@ export default function Homefooter() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2 mb-6">
-              <span className="material-icons-round text-primary text-3xl">terrain</span>
-              <span className="text-xl font-bold tracking-tight">TravelMarket</span>
-            </div>
+             <div className="h-24  flex items-center overflow-hidden">
+                                     {/* Updated Logo: Applying w-60 h-28 (240x112 pixels) and using variable traveler_logo */}
+                                     <img 
+                                         src={traveler_logo} // Using placeholder URL
+                                         alt='traveler logo' 
+                                         className="w-60 h-34 object-contain mb-2 rounded-lg"
+                                     />
+                                 </div>
             <p className="text-gray-400 text-sm leading-relaxed max-w-xs mb-8">
               The world's leading marketplace for travel rentals. Gear, vehicles, and stays—all in one place for
               your convenience.
             </p>
             <div className="flex gap-4">
-              <a className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors" href="#">
-                <span className="material-icons-round text-white text-sm">public</span>
+              {/* Facebook */}
+              <a 
+                href="#" 
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"
+              >
+                <FontAwesomeIcon icon={faFacebookF} className="text-white text-sm" />
               </a>
-              <a className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors" href="#">
-                <span className="material-icons-round text-white text-sm">email</span>
+
+              {/* Instagram */}
+              <a 
+                href="#" 
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"
+              >
+                <FontAwesomeIcon icon={faInstagram} className="text-white text-sm" />
+              </a>
+
+              {/* Threads */}
+              <a 
+                href="#" 
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"
+              >
+                <FontAwesomeIcon icon={faThreads} className="text-white text-sm" />
+              </a>
+
+              {/* TikTok */}
+              <a 
+                href="#" 
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"
+              >
+                <FontAwesomeIcon icon={faTiktok} className="text-white text-sm" />
               </a>
             </div>
           </div>
@@ -27,10 +67,8 @@ export default function Homefooter() {
           <div>
             <h4 className="font-bold text-lg mb-6">Company</h4>
             <ul className="space-y-4 text-sm text-gray-400">
-              <li><a className="hover:text-primary transition-colors" href="#">About Us</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#">Careers</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#">Blog</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#">Press</a></li>
+              <li><Link to="/about-us" className="hover:text-primary transition-colors">About Us</Link></li>
+              
             </ul>
           </div>
 
@@ -38,8 +76,6 @@ export default function Homefooter() {
             <h4 className="font-bold text-lg mb-6">Support</h4>
             <ul className="space-y-4 text-sm text-gray-400">
               <li><a className="hover:text-primary transition-colors" href="#">Help Center</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#">Safety Information</a></li>
-              <li><a className="hover:text-primary transition-colors" href="#">Cancellation Options</a></li>
               <li><a className="hover:text-primary transition-colors" href="#">Contact Us</a></li>
             </ul>
           </div>
@@ -73,7 +109,7 @@ export default function Homefooter() {
         </div>
 
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
-          <p>© 2023 TravelMarket Inc. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Travler. All rights reserved.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <a className="hover:text-white transition-colors" href="#">Privacy</a>
             <a className="hover:text-white transition-colors" href="#">Terms</a>

@@ -147,7 +147,7 @@ export default function PageTitle({ pastOrders = [] }) {
     <div className="flex flex-wrap justify-between gap-3 px-4 pb-8">
       <div className="flex flex-col gap-2">
         <h1 className="text-[#181811]  text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
-          Your Orders
+          Your Bookings
         </h1>
         <p className="text-[#8c8b5f] text-base font-normal leading-normal">
           Track your current rentals and review past history.

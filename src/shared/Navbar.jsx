@@ -101,8 +101,8 @@ export default function Navbar() {
                     />
                 </Link>
 
-                <div className="flex items-center justify-between w-full px-4 md:px-16 lg:px-24 xl:px-32">
-                    <div className="hidden md:flex items-center gap-4 lg:gap-8">
+                <div className="flex items-center justify-between w-full px-4 md:px-12 lg:px-24 xl:px-32">
+                    <div className="hidden min-[1200px]:flex items-center gap-4 lg:gap-8">
                         {menulinks.map((link, i) => {
                             const requiresAuth = link.path === '/my-bookings' || link.path === '/profile' || link.path === '/rentItems';
                             
@@ -144,7 +144,7 @@ export default function Navbar() {
                         
                     </div>
 
-                    <div className="hidden md:flex items-center gap-4">
+                    <div className="hidden min-[1200px]:flex items-center gap-4">
                         
                         
                         {isLoggedIn && (
@@ -245,16 +245,81 @@ export default function Navbar() {
                         )}
                     </div>
 
-                    <div className="flex items-center gap-3 md:hidden ml-auto">
-                        <svg onClick={() => setIsMenuOpen(!isMenuOpen)} className={`h-6 w-6 cursor-pointer transition-all duration-500 ${!isScrolled ? "text-white" : "text-gray-700"}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <div className="flex items-center gap-3 min-[1200px]:hidden ml-auto relative z-[60]">
+                        
+                            <>
+                            {/* Cart */}
+                            <button
+                                type="button"
+                                onClick={() => setIsOpen(true)}
+                                className={`relative z-[70] cursor-pointer ${
+                                !isScrolled
+                                    ? "text-white hover:opacity-50 transition-opacity"
+                                    : "text-gray-700 hover:text-[#217964]"
+                                }`}
+                                aria-label="Open cart"
+                            >
+                                <FontAwesomeIcon icon={faBagShopping} />
+                                <span className="absolute -bottom-2 -right-1 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
+                                {cartCount}
+                                </span>
+                            </button>
+
+                            {/* Notification */}
+                            <button
+                                type="button"
+                                onClick={() => openNotif(true)}
+                                className={`relative z-[70] cursor-pointer ${
+                                !isScrolled
+                                    ? "text-white hover:opacity-50 transition-opacity"
+                                    : "text-gray-700 hover:text-[#217964]"
+                                }`}
+                                aria-label="Open notifications"
+                            >
+                                <FontAwesomeIcon icon={faBell} />
+                                {unreadCount > 0 && (
+                                <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+                                    {unreadCount}
+                                </span>
+                                )}
+                            </button>
+
+                            {/* Backpack */}
+                            <Link
+                                to="/backpack"
+                                className={`relative z-[70] cursor-pointer ${
+                                !isScrolled
+                                    ? "text-white hover:opacity-50 transition-opacity"
+                                    : "text-gray-700 hover:text-[#217964]"
+                                }`}
+                                aria-label="Backpack"
+                            >
+                                <Backpack />
+                            </Link>
+                            </>
+                        
+
+                        {/* Hamburger */}
+                        <button
+                            type="button"
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className={`relative z-[60] h-6 w-6 cursor-pointer transition-all duration-500 ${
+                            !isScrolled ? "text-white" : "text-gray-700"
+                            }`}
+                            aria-label="Open menu"
+                        >
+                            <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <line x1="4" y1="6" x2="20" y2="6" />
                             <line x1="4" y1="12" x2="20" y2="12" />
                             <line x1="4" y1="18" x2="20" y2="18" />
-                        </svg>
-                    </div>
-                </div>
+                            </svg>
+                        </button>
+                        </div>
 
-                <div className={`fixed top-0 left-0 w-full h-screen bg-white text-base flex flex-col md:hidden items-center justify-center gap-6 font-medium text-gray-800 transition-all duration-500 z-50 ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+                </div>
+                 
+                <div className={`fixed top-0 left-0 w-full h-screen bg-white text-base flex flex-col min-[1200px]:hidden items-center justify-center gap-6 font-medium text-gray-800 transition-all duration-500 z-50 ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+                    
                     <button className="absolute top-4 right-4" onClick={() => setIsMenuOpen(false)}>
                         <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <line x1="18" y1="6" x2="6" y2="18" />
@@ -274,6 +339,7 @@ export default function Navbar() {
                     </Link>
                 </div>
             </nav>
+            
             <div className='h-[70px] md:h-[90px]'></div>
         </>
     );
