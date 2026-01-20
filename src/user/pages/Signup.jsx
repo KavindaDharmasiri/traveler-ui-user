@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import UserAgreementModal from "../component/UserAgreement/UserAgreementModal";
 
 // 🔧 adjust paths as needed for your project structure
 import traveler_logo from "../../assets/traveler_logo.png";
@@ -19,6 +20,7 @@ export default function Signup() {
 
   // wizard step
   const [step, setStep] = useState(1);
+  const [showAgreement, setShowAgreement] = useState(false);
 
   // type + account info
   // const [userType, setUserType] = useState("TRAVELLER"); // TRAVELLER | SERVICE_PROVIDER
@@ -547,7 +549,12 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setShowAgreement(true);
+  };
 
+  const handleAgreementAccept = async () => {
+    setShowAgreement(false);
+    
     if (!validateStep()) return;
 
     try {
@@ -649,6 +656,10 @@ export default function Signup() {
         confirmButtonColor: "#0f766e",
       });
     }
+  };
+
+  const handleAgreementDecline = () => {
+    setShowAgreement(false);
   };
   const [documents, setDocuments] = useState([{ name: "", file: null, uuid: "" }]);
   const [documentUploading, setDocumentUploading] = useState({});
@@ -1230,115 +1241,119 @@ const handleDocumentUpload = async (file, index) => {
                 />
               </div>
 
-              {/* NIC Front Image */}
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-slate-700">
-                  NIC Image (Front)
-                </label>
-                {!nicImageUuid ? (
-                  <>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0] || null;
-                        if (file) {
-                          handleFileUpload(file, "front");
-                        }
-                      }}
-                      disabled={uploading}
-                      className="w-full text-sm text-slate-600 file:mr-4 file:py-2.5 file:px-4 
-                                 file:rounded-xl file:border-0 file:text-sm file:font-semibold
-                                 file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100
-                                 disabled:opacity-50"
-                    />
-                    {uploading && (
-                      <p className="text-xs text-blue-600 mt-1">Uploading...</p>
-                    )}
-                    <p className="text-[11px] text-slate-400 mt-1">
-                      Upload a clear photo or scan (JPG, PNG) of the front of your NIC. Make sure the text is readable.
-                    </p>
-                  </>
-                ) : (
-                  <div className="flex items-center justify-between p-3 rounded-xl border border-green-200 bg-green-50">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              {/* NIC Front Image - Only for SERVICE_PROVIDER */}
+              {userType === "SERVICE_PROVIDER" && (
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-slate-700">
+                    NIC Image (Front)
+                  </label>
+                  {!nicImageUuid ? (
+                    <>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          if (file) {
+                            handleFileUpload(file, "front");
+                          }
+                        }}
+                        disabled={uploading}
+                        className="w-full text-sm text-slate-600 file:mr-4 file:py-2.5 file:px-4 
+                                   file:rounded-xl file:border-0 file:text-sm file:font-semibold
+                                   file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100
+                                   disabled:opacity-50"
+                      />
+                      {uploading && (
+                        <p className="text-xs text-blue-600 mt-1">Uploading...</p>
+                      )}
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        Upload a clear photo or scan (JPG, PNG) of the front of your NIC. Make sure the text is readable.
+                      </p>
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-green-200 bg-green-50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-green-800">NIC Front Uploaded</p>
+                          <p className="text-xs text-green-600">File uploaded successfully</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setNicImageUuid("")}
+                        className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-green-800">NIC Front Uploaded</p>
-                        <p className="text-xs text-green-600">File uploaded successfully</p>
-                      </div>
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setNicImageUuid("")}
-                      className="p-2 text-red-500 hover:text-red-700 transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
 
-              {/* NIC Back Image */}
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-slate-700">
-                  NIC Image (Back)
-                </label>
-                {!nicBackUuid ? (
-                  <>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0] || null;
-                        if (file) {
-                          handleFileUpload(file, "back");
-                        }
-                      }}
-                      disabled={uploading}
-                      className="w-full text-sm text-slate-600 file:mr-4 file:py-2.5 file:px-4 
-                                 file:rounded-xl file:border-0 file:text-sm file:font-semibold
-                                 file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100
-                                 disabled:opacity-50"
-                    />
-                    {uploading && (
-                      <p className="text-xs text-blue-600 mt-1">Uploading...</p>
-                    )}
-                    <p className="text-[11px] text-slate-400 mt-1">
-                      Upload a clear photo or scan (JPG, PNG) of the back of your NIC. Make sure the text is readable.
-                    </p>
-                  </>
-                ) : (
-                  <div className="flex items-center justify-between p-3 rounded-xl border border-green-200 bg-green-50">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              {/* NIC Back Image - Only for SERVICE_PROVIDER */}
+              {userType === "SERVICE_PROVIDER" && (
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-slate-700">
+                    NIC Image (Back)
+                  </label>
+                  {!nicBackUuid ? (
+                    <>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          if (file) {
+                            handleFileUpload(file, "back");
+                          }
+                        }}
+                        disabled={uploading}
+                        className="w-full text-sm text-slate-600 file:mr-4 file:py-2.5 file:px-4 
+                                   file:rounded-xl file:border-0 file:text-sm file:font-semibold
+                                   file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100
+                                   disabled:opacity-50"
+                      />
+                      {uploading && (
+                        <p className="text-xs text-blue-600 mt-1">Uploading...</p>
+                      )}
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        Upload a clear photo or scan (JPG, PNG) of the back of your NIC. Make sure the text is readable.
+                      </p>
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-green-200 bg-green-50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-green-800">NIC Back Uploaded</p>
+                          <p className="text-xs text-green-600">File uploaded successfully</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setNicBackUuid("")}
+                        className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-green-800">NIC Back Uploaded</p>
-                        <p className="text-xs text-green-600">File uploaded successfully</p>
-                      </div>
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setNicBackUuid("")}
-                      className="p-2 text-red-500 hover:text-red-700 transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </>
           )}
 
@@ -1600,6 +1615,12 @@ const handleDocumentUpload = async (file, index) => {
           </p>
         </form>
       </div>
+      
+      <UserAgreementModal 
+        isOpen={showAgreement}
+        onAgree={handleAgreementAccept}
+        onDecline={handleAgreementDecline}
+      />
     </div>
   );
 }
