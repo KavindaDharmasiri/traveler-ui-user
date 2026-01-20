@@ -162,7 +162,7 @@ export default function Rent() {
         setFilteredItems(filtered)
     }
 
-    const categories = ['ALL', 'ELECTRONICS', 'VEHICLES', 'CAMPING', 'HOTELS', 'OUTDO0OR', 'WATERSPORTS', 'LUGGAGE', 'PHOTOGRAPHY', 'WINTERSPORTS', 'HIKING']
+    const categories = ['ALL', 'ELECTRONICS', 'VEHICLES', 'CAMPING', 'HOTELS', 'OUTDO0OR', 'WATERSPORTS', 'LUGGAGE', 'PHOTOGRAPHY', 'HIKING']
 
     if (loading) {
         return (

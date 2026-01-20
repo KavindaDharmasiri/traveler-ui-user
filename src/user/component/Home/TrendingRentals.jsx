@@ -45,7 +45,7 @@ export default function TrendingRentals() {
   return (
     <section className="pb-8">
       <div className="flex items-center justify-between mb-6 px-1">
-        <h2 className="text-2xl md:text-3xl font-bold text-[#121716]">Trending Rentals</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-[#121716]">Featured Items</h2>
         <div className="flex gap-2">
           <button className="size-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 hover:text-[#217864] transition-colors" aria-label="Previous">
             <Icon name="chevron_left" />

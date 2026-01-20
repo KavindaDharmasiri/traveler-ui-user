@@ -12,7 +12,10 @@ import {
 export default function Footer() {
     // Placeholder image URL (80x80 pixels, matching the w-20 h-20 size)
     const traveler_logo_url = "https://placehold.co/80x80/217964/ffffff?text=LOGO";
-
+   
+    const handleNavigation = (url) => {
+    window.location.href = url;
+  };
   return (
         <div className='text-gray-500/80 pt-10 px-6 md:px-16 lg:px-24 xl:px-32'>
             <div className='flex flex-wrap items-start justify-between gap-12 md:gap-10'>
@@ -33,44 +36,56 @@ export default function Footer() {
                         your convenience.
                     </p>
                     <div className='flex items-center gap-4 mt-5'>
-                        {/* Facebook */}
-                        <a href="#">
+                       {/* Facebook */}
+                        <div 
+                            onClick={() => handleNavigation('https://www.facebook.com/profile.php?id=61586668252389&mibextid=ZbWKwL')}
+                            className="cursor-pointer"
+                        >
                             <FontAwesomeIcon 
                             icon={faFacebookF} 
-                            className="w-6 h-6 text-gray-400 hover:text-gray-800 transition-colors cursor-pointer" 
+                            className="w-6 h-6 text-gray-400 hover:text-gray-800 transition-colors" 
                             />
-                        </a>
+                        </div>
 
                         {/* Instagram */}
-                        <a href="#">
+                        <div 
+                            onClick={() => handleNavigation('https://www.instagram.com/traveler_pvtltd?igsh=ZzB1ZXV4cTdzZnd6')}
+                            className="cursor-pointer"
+                        >
                             <FontAwesomeIcon 
                             icon={faInstagram} 
-                            className="w-6 h-6 text-gray-400 hover:text-gray-800 transition-colors cursor-pointer" 
+                            className="w-6 h-6 text-gray-400 hover:text-gray-800 transition-colors" 
                             />
-                        </a>
+                        </div>
 
                         {/* Threads */}
-                        <a href="#">
+                        <div 
+                            onClick={() => handleNavigation('https://www.threads.com/@traveler_pvtltd')}
+                            className="cursor-pointer"
+                        >
                             <FontAwesomeIcon 
                             icon={faThreads} 
-                            className="w-6 h-6 text-gray-400 hover:text-gray-800 transition-colors cursor-pointer" 
+                            className="w-6 h-6 text-gray-400 hover:text-gray-800 transition-colors" 
                             />
-                        </a>
+                        </div>
 
                         {/* TikTok */}
-                        <a href="#">
+                        <div 
+                            onClick={() => handleNavigation('https://www.tiktok.com/@travler672?_r=1&_t=ZS-938urCNIs2X')}
+                            className="cursor-pointer"
+                        >
                             <FontAwesomeIcon 
                             icon={faTiktok} 
-                            className="w-6 h-6 text-gray-400 hover:text-gray-800 transition-colors cursor-pointer" 
+                            className="w-6 h-6 text-gray-400 hover:text-gray-800 transition-colors" 
                             />
-                        </a>
+                        </div>
                     </div>
                 </div>
 
                 <div className='min-w-[160px]'>
                     <p className='text-lg text-gray-800 font-semibold'>COMPANY</p>
                     <ul className='mt-4 flex flex-col gap-2 text-sm'>
-                        <li><Link to="/about-us" className='hover:text-gray-800 transition-colors'>About</Link></li>
+                        <li><Link to="/about-us" className='hover:text-gray-800 transition-colors'>About Us</Link></li>
 {/*                         <li><a href="#" className='hover:text-gray-800 transition-colors'>Careers</a></li>
                         <li><a href="#" className='hover:text-gray-800 transition-colors'>Press</a></li>
                         <li><a href="#" className='hover:text-gray-800 transition-colors'>Blog</a></li>
@@ -81,7 +96,7 @@ export default function Footer() {
                 <div className='min-w-[160px]'>
                     <p className='text-lg text-gray-800 font-semibold'>SUPPORT</p>
                     <ul className='mt-4 flex flex-col gap-2 text-sm'>
-                        <li><a href="#" className='hover:text-gray-800 transition-colors'>Help Center</a></li>
+                        <li><Link to="/help-center" className='hover:text-gray-800 transition-colors'>Help Center</Link></li>
 {/*                         <li><a href="#" className='hover:text-gray-800 transition-colors'>Safety Information</a></li>
                         <li><a href="#" className='hover:text-gray-800 transition-colors'>Cancellation Options</a></li> */}
                         <li><a href="#" className='hover:text-gray-800 transition-colors'>Contact Us</a></li>

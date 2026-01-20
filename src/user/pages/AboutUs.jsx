@@ -11,7 +11,7 @@ const AboutUs = () => {
   return (
     <div className="bg-background-light text-text-main font-display antialiased flex flex-col min-h-screen overflow-x-hidden">
       
-      <Navbar />
+      
 
       <main className="flex-grow">
         <HeroSection />
@@ -21,7 +21,7 @@ const AboutUs = () => {
         <CtaSection />
       </main>
 
-      <Footer />
+      
       
     </div>
   );

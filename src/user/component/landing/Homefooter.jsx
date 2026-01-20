@@ -12,6 +12,10 @@ import {
 
 
 export default function Homefooter() {
+  
+  const handleNavigation = (url) => {
+    window.location.href = url;
+  }
   return (
      <footer className="bg-background-dark text-white pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-6">
@@ -30,37 +34,38 @@ export default function Homefooter() {
               your convenience.
             </p>
             <div className="flex gap-4">
+              
               {/* Facebook */}
-              <a 
-                href="#" 
-                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"
+              <div 
+                onClick={() => handleNavigation('https://www.facebook.com/profile.php?id=61586668252389&mibextid=ZbWKwL')}
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"
               >
                 <FontAwesomeIcon icon={faFacebookF} className="text-white text-sm" />
-              </a>
+              </div>
 
               {/* Instagram */}
-              <a 
-                href="#" 
-                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"
+              <div 
+                onClick={() => handleNavigation('https://www.instagram.com/traveler_pvtltd?igsh=ZzB1ZXV4cTdzZnd6')}
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"
               >
                 <FontAwesomeIcon icon={faInstagram} className="text-white text-sm" />
-              </a>
+              </div>
 
               {/* Threads */}
-              <a 
-                href="#" 
-                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"
+              <div 
+                onClick={() => handleNavigation('https://www.threads.com/@traveler_pvtltd')}
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"
               >
                 <FontAwesomeIcon icon={faThreads} className="text-white text-sm" />
-              </a>
+              </div>
 
               {/* TikTok */}
-              <a 
-                href="#" 
-                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"
+              <div 
+                onClick={() => handleNavigation('https://www.tiktok.com/@travler672?_r=1&_t=ZS-938urCNIs2X')}
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"
               >
                 <FontAwesomeIcon icon={faTiktok} className="text-white text-sm" />
-              </a>
+              </div>
             </div>
           </div>
 
@@ -75,7 +80,7 @@ export default function Homefooter() {
           <div>
             <h4 className="font-bold text-lg mb-6">Support</h4>
             <ul className="space-y-4 text-sm text-gray-400">
-              <li><a className="hover:text-primary transition-colors" href="#">Help Center</a></li>
+              <li><Link to="/help-center" className="hover:text-primary transition-colors">Help Center</Link></li>
               <li><a className="hover:text-primary transition-colors" href="#">Contact Us</a></li>
             </ul>
           </div>
