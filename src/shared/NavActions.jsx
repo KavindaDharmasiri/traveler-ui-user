@@ -10,9 +10,9 @@ export default function NavActions() {
       </button>
      </Link> 
 
-      <button className="text-white md:hidden">
+      {/* <button className="text-white md:hidden">
         <span className="material-icons-round">menu</span>
-      </button>
+      </button> */}
     </div>
   )
 }

@@ -245,7 +245,8 @@ export default function Navbar() {
                         )}
                     </div>
 
-                    <div className="flex items-center gap-3 min-[1200px]:hidden ml-auto relative z-[60]">
+                    <div className={`flex items-center gap-3 min-[1200px]:hidden ml-auto ${isMenuOpen ? "hidden" : "flex"}`}>
+
                         
                             <>
                             {/* Cart */}
@@ -334,9 +335,47 @@ export default function Navbar() {
                         </Link>
                     ))}
 
-                    <Link to='/login' className="bg-[#217964] text-white px-8 py-2.5 rounded-full transition-all duration-500" onClick={() => setIsMenuOpen(false)}>
-                        Login
-                    </Link>
+                    <Link to='/profile' group relative inline-block onClick={() => setIsMenuOpen(false)}>
+                            Profile
+                        <span className="block h-0.5 bg-[#217964] absolute bottom-0 left-0 w-full transition-transform duration-300 ease-out scale-x-0 group-hover:scale-x-100 origin-left">
+                             
+                        </span>
+                     </Link>
+
+                    <button
+  className="bg-[#217964] text-white px-8 py-2.5 rounded-full transition-all duration-500"
+  onClick={() => {
+    setIsMenuOpen(false);
+
+    Swal.fire({
+      icon: 'question',
+      title: 'Logout',
+      text: 'Are you sure you want to logout?',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, logout',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#0f766e',
+      cancelButtonColor: '#6b7280'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const refreshToken = localStorage.getItem('refreshToken');
+        localStorage.clear();
+        window.location.href = '/login';
+
+        if (refreshToken) {
+          axios
+            .post(`auth/logout?refreshToken=${refreshToken}`)
+            .catch(error => {
+              console.error('Logout error:', error);
+            });
+        }
+      }
+    });
+  }}
+>
+  Logout
+</button>
+
                 </div>
             </nav>
             
