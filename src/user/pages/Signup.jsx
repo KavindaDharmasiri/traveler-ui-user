@@ -66,6 +66,8 @@ export default function Signup() {
   const [selectedCountry, setSelectedCountry] = useState('LK');
   const [countrySearch, setCountrySearch] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
+  const mapInputRef = useRef(null);
 
   // travellers: 3 steps, providers: 5 steps
   const totalSteps = userType === "SERVICE_PROVIDER" ? 5 : 3;
@@ -73,6 +75,43 @@ export default function Signup() {
   useEffect(() => {
     nameRef.current?.focus();
   }, []);
+
+  const [selectedCoords, setSelectedCoords] = useState(null);
+
+  useEffect(() => {
+    if (showMapModal) {
+      // Load Leaflet CSS and JS dynamically
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => {
+        const map = window.L.map('map').setView([6.9271, 79.8612], 13);
+        
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        
+        let marker = null;
+        
+        map.on('click', (e) => {
+          const lat = e.latlng.lat;
+          const lng = e.latlng.lng;
+          
+          if (marker) {
+            map.removeLayer(marker);
+          }
+          
+          marker = window.L.marker([lat, lng]).addTo(map);
+          setSelectedCoords({ lat, lng });
+          const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+          mapInputRef.current.value = mapsUrl;
+        });
+      };
+      document.head.appendChild(script);
+    }
+  }, [showMapModal]);
 
   useEffect(() => {
     setErrMsg("");
@@ -636,12 +675,12 @@ export default function Signup() {
       console.log("AXIOS ERROR:", err);
       console.log("AXIOS ERROR.response:", err?.response);
 
-      let errorMessage = "Signup Failed";
-
+      let errorMessage = err.response.data.error;
+      console.log(err.response.data.error)
       if (!err?.response) {
         errorMessage = "No Server Response";
       } else if (err.response?.status === 400) {
-        errorMessage = "Missing or invalid fields";
+        errorMessage = err.response.data.error;
       } else if (err.response?.status === 409) {
         errorMessage = "User already exists";
       }
@@ -1202,15 +1241,27 @@ const handleDocumentUpload = async (file, index) => {
                 >
                   Google Maps Location Link {userType === "SERVICE_PROVIDER" && <span className="text-red-500">*</span>}
                 </label>
-                <input
-                  type="url"
-                  id="googleMapsUrl"
-                  placeholder="https://maps.google.com/..."
-                  onChange={(e) => setGoogleMapsUrl(e.target.value)}
-                  value={googleMapsUrl}
-                  required={userType === "SERVICE_PROVIDER"}
-                  className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
-                />
+                <div className="relative">
+                  <input
+                    type="url"
+                    id="googleMapsUrl"
+                    placeholder="https://maps.google.com/..."
+                    onChange={(e) => setGoogleMapsUrl(e.target.value)}
+                    value={googleMapsUrl}
+                    required={userType === "SERVICE_PROVIDER"}
+                    className="w-full rounded-xl border px-3 py-2.5 pr-10 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowMapModal(true)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-teal-600 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </>
           )}
@@ -1626,6 +1677,65 @@ const handleDocumentUpload = async (file, index) => {
         onAgree={handleAgreementAccept}
         onDecline={handleAgreementDecline}
       />
+      
+      {/* Map Selection Modal */}
+      {showMapModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold text-slate-800">Select Location</h3>
+              <button
+                onClick={() => setShowMapModal(false)}
+                className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="flex-1 p-4">
+              <div 
+                id="map" 
+                className="w-full h-full rounded-xl"
+                style={{ minHeight: '400px' }}
+              ></div>
+            </div>
+            
+            <div className="p-4 border-t bg-slate-50 rounded-b-2xl">
+              <div className="flex items-center gap-3 mb-3">
+                <input
+                  ref={mapInputRef}
+                  type="text"
+                  placeholder="Paste Google Maps link here or search for a location"
+                  className="flex-1 rounded-xl border px-3 py-2.5 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                  defaultValue={googleMapsUrl}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowMapModal(false)}
+                  className="px-4 py-2 rounded-xl text-sm font-medium border border-slate-300 text-slate-700 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const inputValue = mapInputRef.current?.value || '';
+                    setGoogleMapsUrl(inputValue);
+                    setShowMapModal(false);
+                  }}
+                  className="px-4 py-2 rounded-xl text-white text-sm font-semibold bg-teal-600 hover:bg-teal-700 transition"
+                >
+                  Save Location
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
