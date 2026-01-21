@@ -69,8 +69,8 @@ export default function Signup() {
   const [showMapModal, setShowMapModal] = useState(false);
   const mapInputRef = useRef(null);
 
-  // travellers: 3 steps, providers: 5 steps
-  const totalSteps = userType === "SERVICE_PROVIDER" ? 5 : 3;
+  // travellers: 2 steps, providers: 5 steps
+  const totalSteps = userType === "SERVICE_PROVIDER" ? 5 : 2;
 
   useEffect(() => {
     nameRef.current?.focus();
@@ -536,24 +536,42 @@ export default function Signup() {
       }
     }
 
-    // STEP 2: contact + address (both types)
+    // STEP 2: contact + address (SERVICE_PROVIDER only) OR NIC verification (TRAVELLER only)
     if (step === 2) {
-      if (!contactNumber || !addressLine1 || !city || !state || !postalCode) {
-        showError("Address required", "Please fill all address fields.");
-        return false;
-      }
-      if (userType === "SERVICE_PROVIDER" && !googleMapsUrl) {
-        showError("Google Maps Link required", "Please provide a Google Maps location link.");
-        return false;
-      }
-      if (!validateContact(contactNumber)) {
-        showError("Invalid contact", "Please enter a valid phone number.");
-        return false;
+      if (userType === "SERVICE_PROVIDER") {
+        if (!contactNumber || !addressLine1 || !city || !state || !postalCode) {
+          showError("Address required", "Please fill all address fields.");
+          return false;
+        }
+        if (!googleMapsUrl) {
+          showError("Google Maps Link required", "Please provide a Google Maps location link.");
+          return false;
+        }
+        if (!validateContact(contactNumber)) {
+          showError("Invalid contact", "Please enter a valid phone number.");
+          return false;
+        }
+      } else if (userType === "TRAVELLER") {
+        if (!idNumber) {
+          showError(
+            "Verification required",
+            "Please provide your NIC/Passport number."
+          );
+          return false;
+        }
+        if (!contactNumber) {
+          showError("Contact required", "Please provide your contact number.");
+          return false;
+        }
+        if (!validateContact(contactNumber)) {
+          showError("Invalid contact", "Please enter a valid phone number.");
+          return false;
+        }
       }
     }
 
-    // STEP 3: NIC verification (both types)
-    if (step === 3) {
+    // STEP 3: NIC verification (SERVICE_PROVIDER only)
+    if (step === 3 && userType === "SERVICE_PROVIDER") {
       if (!idNumber) {
         showError(
           "Verification required",
@@ -1027,8 +1045,8 @@ const handleDocumentUpload = async (file, index) => {
             </>
           )}
 
-          {/* STEP 2: Contact + Address / Map */}
-          {step === 2 && (
+          {/* STEP 2: Contact + Address (SERVICE_PROVIDER only) OR NIC Verification (TRAVELLER) */}
+          {step === 2 && userType === "SERVICE_PROVIDER" && (
             <>
               {/* Contact number */}
               <div className="space-y-1">
@@ -1266,8 +1284,117 @@ const handleDocumentUpload = async (file, index) => {
             </>
           )}
 
-          {/* STEP 3: NIC Verification (both types) */}
-          {step === 3 && (
+          {/* STEP 2: NIC Verification (TRAVELLER only) */}
+          {step === 2 && userType === "TRAVELLER" && (
+            <>
+              <div className="mt-2 mb-1">
+                <p className="text-sm font-semibold text-slate-800">
+                  Identity Verification
+                </p>
+                <p className="text-xs text-slate-500">
+                  Add your NIC number and contact details for verification.
+                </p>
+              </div>
+
+              {/* Contact number */}
+              <div className="space-y-1">
+                <label
+                  htmlFor="contact"
+                  className="block text-sm font-medium text-slate-700"
+                >
+                  Contact Number
+                </label>
+                <div className="flex gap-2">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Type country name..."
+                      value={showCountryDropdown ? countrySearch : countries[selectedCountry].name}
+                      onChange={(e) => {
+                        setCountrySearch(e.target.value);
+                        setShowCountryDropdown(true);
+                      }}
+                      onFocus={() => {
+                        setCountrySearch('');
+                        setShowCountryDropdown(true);
+                      }}
+                      className="w-48 rounded-xl border px-3 py-2.5 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                    />
+                    {showCountryDropdown && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                        {filteredCountries.length > 0 ? (
+                          filteredCountries.map(([code, country]) => (
+                            <div
+                              key={code}
+                              onClick={() => {
+                                setSelectedCountry(code);
+                                setCountrySearch('');
+                                setShowCountryDropdown(false);
+                                if (contactNumber) validateContact(contactNumber);
+                              }}
+                              className="px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm flex justify-between"
+                            >
+                              <span>{country.name}</span>
+                              <span className="text-slate-400">{country.code}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-3 py-2 text-sm text-slate-400">
+                            No countries found
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    type="tel"
+                    id="contact"
+                    placeholder={countries[selectedCountry].placeholder}
+                    autoComplete="off"
+                    onChange={(e) => {
+                      setContactNumber(e.target.value);
+                      validateContact(e.target.value);
+                    }}
+                    onFocus={() => setShowCountryDropdown(false)}
+                    value={contactNumber}
+                    required
+                    className={`flex-1 rounded-xl border px-3 py-2.5 text-sm outline-none focus:ring-2 ${
+                      !contactValid && contactNumber
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-100"
+                        : "border-slate-200 focus:border-teal-600 focus:ring-teal-100"
+                    }`}
+                  />
+                </div>
+                {!contactValid && contactNumber && (
+                  <p className="text-xs text-red-500 mt-1">
+                    Please enter a valid {countries[selectedCountry].name} phone number
+                  </p>
+                )}
+              </div>
+
+              {/* NIC Number */}
+              <div className="space-y-1">
+                <label
+                  htmlFor="idNumber"
+                  className="block text-sm font-medium text-slate-700"
+                >
+                  NIC Number
+                </label>
+                <input
+                  type="text"
+                  id="idNumber"
+                  placeholder="e.g. 991234567V"
+                  value={idNumber}
+                  onChange={(e) => setIdNumber(e.target.value)}
+                  required
+                  className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                />
+              </div>
+            </>
+          )}
+
+          {/* STEP 3: NIC Verification (SERVICE_PROVIDER only) */}
+          {step === 3 && userType === "SERVICE_PROVIDER" && (
             <>
               <div className="mt-2 mb-1">
                 <p className="text-sm font-semibold text-slate-800">
