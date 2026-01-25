@@ -45,7 +45,7 @@ export default function ItemDetails() {
   useEffect(() => {
     const fetchItem = async () => {
       try {
-        const response = await axios.get(`${API_CONFIG.BASE_URL}core/api/v1/provider/item/${id}/${tenant}`, {
+        const response = await axios.get(`core/api/v1/provider/item/${id}/${tenant}`, {
           headers: {
             'X-Tenant-Id': tenant
           }
