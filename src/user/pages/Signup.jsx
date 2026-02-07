@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import UserAgreementModal from "../component/UserAgreement/UserAgreementModal";
 
 // 🔧 adjust paths as needed for your project structure
 import traveler_logo from "../../assets/traveler_logo.png";
@@ -10,14 +11,19 @@ import { API_CONFIG } from "../../config/environment"
 export default function Signup() {
   const navigate = useNavigate();
 
+  const [searchParams] = useSearchParams();
+// This is NOT state, just a variable that updates when the URL does
+ const userType = searchParams.get('role') || "TRAVELLER";
+
   const nameRef = useRef(null);
   const errorRef = useRef(null);
 
   // wizard step
   const [step, setStep] = useState(1);
+  const [showAgreement, setShowAgreement] = useState(false);
 
   // type + account info
-  const [userType, setUserType] = useState("TRAVELLER"); // TRAVELLER | SERVICE_PROVIDER
+  // const [userType, setUserType] = useState("TRAVELLER"); // TRAVELLER | SERVICE_PROVIDER
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,6 +57,7 @@ export default function Signup() {
   const [errMsg, setErrMsg] = useState("");
   const [passwordMatch, setPasswordMatch] = useState(true);
   const [nicImageUuid, setNicImageUuid] = useState("");
+  const [nicBackUuid, setNicBackUuid] = useState("");
   const [uploading, setUploading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordValid, setPasswordValid] = useState(true);
@@ -59,13 +66,52 @@ export default function Signup() {
   const [selectedCountry, setSelectedCountry] = useState('LK');
   const [countrySearch, setCountrySearch] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
+  const mapInputRef = useRef(null);
 
-  // travellers: 3 steps, providers: 4 steps
-  const totalSteps = userType === "SERVICE_PROVIDER" ? 4 : 3;
+  // travellers: 2 steps, providers: 5 steps
+  const totalSteps = userType === "SERVICE_PROVIDER" ? 5 : 2;
 
   useEffect(() => {
     nameRef.current?.focus();
   }, []);
+
+  const [selectedCoords, setSelectedCoords] = useState(null);
+
+  useEffect(() => {
+    if (showMapModal) {
+      // Load Leaflet CSS and JS dynamically
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => {
+        const map = window.L.map('map').setView([6.9271, 79.8612], 13);
+        
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        
+        let marker = null;
+        
+        map.on('click', (e) => {
+          const lat = e.latlng.lat;
+          const lng = e.latlng.lng;
+          
+          if (marker) {
+            map.removeLayer(marker);
+          }
+          
+          marker = window.L.marker([lat, lng]).addTo(map);
+          setSelectedCoords({ lat, lng });
+          const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+          mapInputRef.current.value = mapsUrl;
+        });
+      };
+      document.head.appendChild(script);
+    }
+  }, [showMapModal]);
 
   useEffect(() => {
     setErrMsg("");
@@ -432,7 +478,7 @@ export default function Signup() {
     })
     .sort(([, a], [, b]) => a.name.localeCompare(b.name));
 
-  const handleFileUpload = async (file) => {
+  const handleFileUpload = async (file, name) => {
     if (!file) return;
     
     setUploading(true);
@@ -446,7 +492,11 @@ export default function Signup() {
         }
       });
       console.log(response.data)
-      setNicImageUuid(response.data);
+      if (name === "back"){
+        setNicBackUuid(response.data);
+      }else {
+        setNicImageUuid(response.data);
+      }
       Swal.fire({
         icon: 'success',
         title: 'File uploaded successfully!',
@@ -486,24 +536,42 @@ export default function Signup() {
       }
     }
 
-    // STEP 2: contact + address (both types)
+    // STEP 2: contact + address (SERVICE_PROVIDER only) OR NIC verification (TRAVELLER only)
     if (step === 2) {
-      if (!contactNumber || !addressLine1 || !city || !state || !postalCode) {
-        showError("Address required", "Please fill all address fields.");
-        return false;
-      }
-      if (userType === "SERVICE_PROVIDER" && !googleMapsUrl) {
-        showError("Google Maps Link required", "Please provide a Google Maps location link.");
-        return false;
-      }
-      if (!validateContact(contactNumber)) {
-        showError("Invalid contact", "Please enter a valid phone number.");
-        return false;
+      if (userType === "SERVICE_PROVIDER") {
+        if (!contactNumber || !addressLine1 || !city || !state || !postalCode) {
+          showError("Address required", "Please fill all address fields.");
+          return false;
+        }
+        if (!googleMapsUrl) {
+          showError("Google Maps Link required", "Please provide a Google Maps location link.");
+          return false;
+        }
+        if (!validateContact(contactNumber)) {
+          showError("Invalid contact", "Please enter a valid phone number.");
+          return false;
+        }
+      } else if (userType === "TRAVELLER") {
+        if (!idNumber) {
+          showError(
+            "Verification required",
+            "Please provide your NIC/Passport number."
+          );
+          return false;
+        }
+        if (!contactNumber) {
+          showError("Contact required", "Please provide your contact number.");
+          return false;
+        }
+        if (!validateContact(contactNumber)) {
+          showError("Invalid contact", "Please enter a valid phone number.");
+          return false;
+        }
       }
     }
 
-    // STEP 3: NIC verification (both types)
-    if (step === 3) {
+    // STEP 3: NIC verification (SERVICE_PROVIDER only)
+    if (step === 3 && userType === "SERVICE_PROVIDER") {
       if (!idNumber) {
         showError(
           "Verification required",
@@ -538,7 +606,12 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setShowAgreement(true);
+  };
 
+  const handleAgreementAccept = async () => {
+    setShowAgreement(false);
+    
     if (!validateStep()) return;
 
     try {
@@ -553,6 +626,7 @@ export default function Signup() {
         nicNumber: idNumber,
         uniqIdentifier: email,
         nicImageUuid: nicImageUuid,
+        nicBackUuid: nicBackUuid,
         address: {
           street1: addressLine1,
           street2: addressLine2,
@@ -567,7 +641,13 @@ export default function Signup() {
           holderName: accountName,
           bank: bankName,
           branch
-        }
+        },
+        documents: documents
+          .filter(doc => doc.name.trim() !== "" && doc.uuid)
+          .map(doc => ({
+            docName: doc.name,
+            docUuid: doc.uuid
+          }))
       };
 
       const response = await axios.post(
@@ -586,7 +666,6 @@ export default function Signup() {
 
       // reset all fields
       setStep(1);
-      setUserType("TRAVELLER");
       setName("");
       setEmail("");
       setPassword("");
@@ -614,12 +693,12 @@ export default function Signup() {
       console.log("AXIOS ERROR:", err);
       console.log("AXIOS ERROR.response:", err?.response);
 
-      let errorMessage = "Signup Failed";
-
+      let errorMessage = err.response.data.error;
+      console.log(err.response.data.error)
       if (!err?.response) {
         errorMessage = "No Server Response";
       } else if (err.response?.status === 400) {
-        errorMessage = "Missing or invalid fields";
+        errorMessage = err.response.data.error;
       } else if (err.response?.status === 409) {
         errorMessage = "User already exists";
       }
@@ -634,6 +713,64 @@ export default function Signup() {
       });
     }
   };
+
+  const handleAgreementDecline = () => {
+    setShowAgreement(false);
+  };
+  const [documents, setDocuments] = useState([{ name: "", file: null, uuid: "" }]);
+  const [documentUploading, setDocumentUploading] = useState({});
+
+const addDocument = () => {
+  setDocuments([...documents, { name: "", file: null, uuid: "" }]);
+};
+
+const removeDocument = (index) => {
+  const values = [...documents];
+  values.splice(index, 1);
+  setDocuments(values);
+};
+
+const handleDocumentChange = (index, field, value) => {
+  const values = [...documents];
+  values[index][field] = value;
+  setDocuments(values);
+};
+
+const handleDocumentUpload = async (file, index) => {
+  if (!file) return;
+  
+  setDocumentUploading(prev => ({ ...prev, [index]: true }));
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  try {
+    const response = await axios.post('storage/files/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    
+    const values = [...documents];
+    values[index].uuid = response.data;
+    setDocuments(values);
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'Document uploaded successfully!',
+      timer: 2000,
+      showConfirmButton: false
+    });
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Upload failed',
+      text: 'Failed to upload document. Please try again.',
+      confirmButtonColor: '#0f766e'
+    });
+  } finally {
+    setDocumentUploading(prev => ({ ...prev, [index]: false }));
+  }
+};
 
   return (
     <div className="w-full flex items-center justify-center px-4 py-10">
@@ -686,7 +823,10 @@ export default function Signup() {
                       name="userType"
                       value="TRAVELLER"
                       checked={userType === "TRAVELLER"}
-                      onChange={(e) => setUserType(e.target.value)}
+                      onChange={(e) => {
+                        const newRole = e.target.value;
+                        navigate(`/signup?role=${newRole}`, { replace: true });
+                      }}
                       className="text-teal-600 focus:ring-teal-500"
                     />
                     <span>Traveller</span>
@@ -698,7 +838,10 @@ export default function Signup() {
                       name="userType"
                       value="SERVICE_PROVIDER"
                       checked={userType === "SERVICE_PROVIDER"}
-                      onChange={(e) => setUserType(e.target.value)}
+                      onChange={(e) => {
+                        const newRole = e.target.value;
+                        navigate(`/signup?role=${newRole}`, { replace: true });
+                      }}
                       className="text-teal-600 focus:ring-teal-500"
                     />
                     <span>Service Provider</span>
@@ -902,8 +1045,8 @@ export default function Signup() {
             </>
           )}
 
-          {/* STEP 2: Contact + Address / Map */}
-          {step === 2 && (
+          {/* STEP 2: Contact + Address (SERVICE_PROVIDER only) OR NIC Verification (TRAVELLER) */}
+          {step === 2 && userType === "SERVICE_PROVIDER" && (
             <>
               {/* Contact number */}
               <div className="space-y-1">
@@ -1116,46 +1259,164 @@ export default function Signup() {
                 >
                   Google Maps Location Link {userType === "SERVICE_PROVIDER" && <span className="text-red-500">*</span>}
                 </label>
+                <div className="relative">
+                  <input
+                    type="url"
+                    id="googleMapsUrl"
+                    placeholder="https://maps.google.com/..."
+                    onChange={(e) => setGoogleMapsUrl(e.target.value)}
+                    value={googleMapsUrl}
+                    required={userType === "SERVICE_PROVIDER"}
+                    className="w-full rounded-xl border px-3 py-2.5 pr-10 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowMapModal(true)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-teal-600 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* STEP 2: NIC Verification (TRAVELLER only) */}
+          {step === 2 && userType === "TRAVELLER" && (
+            <>
+              <div className="mt-2 mb-1">
+                <p className="text-sm font-semibold text-slate-800">
+                  Identity Verification
+                </p>
+                <p className="text-xs text-slate-500">
+                  Add your NIC number and contact details for verification.
+                </p>
+              </div>
+
+              {/* Contact number */}
+              <div className="space-y-1">
+                <label
+                  htmlFor="contact"
+                  className="block text-sm font-medium text-slate-700"
+                >
+                  Contact Number
+                </label>
+                <div className="flex gap-2">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Type country name..."
+                      value={showCountryDropdown ? countrySearch : countries[selectedCountry].name}
+                      onChange={(e) => {
+                        setCountrySearch(e.target.value);
+                        setShowCountryDropdown(true);
+                      }}
+                      onFocus={() => {
+                        setCountrySearch('');
+                        setShowCountryDropdown(true);
+                      }}
+                      className="w-48 rounded-xl border px-3 py-2.5 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                    />
+                    {showCountryDropdown && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                        {filteredCountries.length > 0 ? (
+                          filteredCountries.map(([code, country]) => (
+                            <div
+                              key={code}
+                              onClick={() => {
+                                setSelectedCountry(code);
+                                setCountrySearch('');
+                                setShowCountryDropdown(false);
+                                if (contactNumber) validateContact(contactNumber);
+                              }}
+                              className="px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm flex justify-between"
+                            >
+                              <span>{country.name}</span>
+                              <span className="text-slate-400">{country.code}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-3 py-2 text-sm text-slate-400">
+                            No countries found
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    type="tel"
+                    id="contact"
+                    placeholder={countries[selectedCountry].placeholder}
+                    autoComplete="off"
+                    onChange={(e) => {
+                      setContactNumber(e.target.value);
+                      validateContact(e.target.value);
+                    }}
+                    onFocus={() => setShowCountryDropdown(false)}
+                    value={contactNumber}
+                    required
+                    className={`flex-1 rounded-xl border px-3 py-2.5 text-sm outline-none focus:ring-2 ${
+                      !contactValid && contactNumber
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-100"
+                        : "border-slate-200 focus:border-teal-600 focus:ring-teal-100"
+                    }`}
+                  />
+                </div>
+                {!contactValid && contactNumber && (
+                  <p className="text-xs text-red-500 mt-1">
+                    Please enter a valid {countries[selectedCountry].name} phone number
+                  </p>
+                )}
+              </div>
+
+              {/* NIC Number */}
+              <div className="space-y-1">
+                <label
+                  htmlFor="idNumber"
+                  className="block text-sm font-medium text-slate-700"
+                >
+                  NIC Number
+                </label>
                 <input
-                  type="url"
-                  id="googleMapsUrl"
-                  placeholder="https://maps.google.com/..."
-                  onChange={(e) => setGoogleMapsUrl(e.target.value)}
-                  value={googleMapsUrl}
-                  required={userType === "SERVICE_PROVIDER"}
+                  type="text"
+                  id="idNumber"
+                  placeholder="e.g. 991234567V"
+                  value={idNumber}
+                  onChange={(e) => setIdNumber(e.target.value)}
+                  required
                   className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                 />
               </div>
             </>
           )}
 
-          {/* STEP 3: NIC Verification (both types) */}
-          {step === 3 && (
+          {/* STEP 3: NIC Verification (SERVICE_PROVIDER only) */}
+          {step === 3 && userType === "SERVICE_PROVIDER" && (
             <>
               <div className="mt-2 mb-1">
                 <p className="text-sm font-semibold text-slate-800">
-                  {userType === "SERVICE_PROVIDER" ? "Identity / Business Verification" : "Identity Verification"}
+                  Identity Verification
                 </p>
                 <p className="text-xs text-slate-500">
-                  {userType === "SERVICE_PROVIDER" 
-                    ? "Add your NIC, passport, or business registration number and upload a clear photo or scan of the document."
-                    : "Add your NIC or passport number and upload a clear photo or scan of the document for verification."
-                  }
+                  Add your NIC number and upload a clear photo or scan of the document for verification.
                 </p>
               </div>
 
-              {/* NIC / BR Number */}
+              {/* NIC Number */}
               <div className="space-y-1">
                 <label
                   htmlFor="idNumber"
                   className="block text-sm font-medium text-slate-700"
                 >
-                  {userType === "SERVICE_PROVIDER" ? "NIC / Passport / BR Number" : "NIC / Passport Number"}
+                  NIC Number
                 </label>
                 <input
                   type="text"
                   id="idNumber"
-                  placeholder={userType === "SERVICE_PROVIDER" ? "e.g. 991234567V / N1234567 / BR-2024-00123" : "e.g. 991234567V / N1234567"}
+                  placeholder="e.g. 991234567V"
                   value={idNumber}
                   onChange={(e) => setIdNumber(e.target.value)}
                   required
@@ -1163,42 +1424,119 @@ export default function Signup() {
                 />
               </div>
 
-              {/* Document image upload */}
-              <div className="space-y-1">
-                <label
-                  htmlFor="idDocumentFile"
-                  className="block text-sm font-medium text-slate-700"
-                >
-                  {userType === "SERVICE_PROVIDER" ? "NIC / Passport / BR Image" : "NIC / Passport Image"}
-                </label>
-                <input
-                  type="file"
-                  id="idDocumentFile"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] || null;
-                    setIdDocumentFile(file);
-                    if (file) {
-                      handleFileUpload(file);
-                    }
-                  }}
-                  disabled={uploading}
-                  className="w-full text-sm text-slate-600 file:mr-4 file:py-2.5 file:px-4 
-                             file:rounded-xl file:border-0 file:text-sm file:font-semibold
-                             file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100
-                             disabled:opacity-50"
-                />
-                {uploading && (
-                  <p className="text-xs text-blue-600 mt-1">Uploading...</p>
-                )}
-                {nicImageUuid && (
-                  <p className="text-xs text-green-600 mt-1">✓ File uploaded successfully</p>
-                )}
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Upload a clear photo or scan (JPG, PNG). Make sure the text is
-                  readable.
-                </p>
-              </div>
+              {/* NIC Front Image - Only for SERVICE_PROVIDER */}
+              {userType === "SERVICE_PROVIDER" && (
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-slate-700">
+                    NIC Image (Front)
+                  </label>
+                  {!nicImageUuid ? (
+                    <>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          if (file) {
+                            handleFileUpload(file, "front");
+                          }
+                        }}
+                        disabled={uploading}
+                        className="w-full text-sm text-slate-600 file:mr-4 file:py-2.5 file:px-4 
+                                   file:rounded-xl file:border-0 file:text-sm file:font-semibold
+                                   file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100
+                                   disabled:opacity-50"
+                      />
+                      {uploading && (
+                        <p className="text-xs text-blue-600 mt-1">Uploading...</p>
+                      )}
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        Upload a clear photo or scan (JPG, PNG) of the front of your NIC. Make sure the text is readable.
+                      </p>
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-green-200 bg-green-50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-green-800">NIC Front Uploaded</p>
+                          <p className="text-xs text-green-600">File uploaded successfully</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setNicImageUuid("")}
+                        className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* NIC Back Image - Only for SERVICE_PROVIDER */}
+              {userType === "SERVICE_PROVIDER" && (
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-slate-700">
+                    NIC Image (Back)
+                  </label>
+                  {!nicBackUuid ? (
+                    <>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          if (file) {
+                            handleFileUpload(file, "back");
+                          }
+                        }}
+                        disabled={uploading}
+                        className="w-full text-sm text-slate-600 file:mr-4 file:py-2.5 file:px-4 
+                                   file:rounded-xl file:border-0 file:text-sm file:font-semibold
+                                   file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100
+                                   disabled:opacity-50"
+                      />
+                      {uploading && (
+                        <p className="text-xs text-blue-600 mt-1">Uploading...</p>
+                      )}
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        Upload a clear photo or scan (JPG, PNG) of the back of your NIC. Make sure the text is readable.
+                      </p>
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-green-200 bg-green-50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-green-800">NIC Back Uploaded</p>
+                          <p className="text-xs text-green-600">File uploaded successfully</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setNicBackUuid("")}
+                        className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </>
           )}
 
@@ -1297,6 +1635,113 @@ export default function Signup() {
             </>
           )}
 
+          {/* STEP 5: Document Upload (providers only) */}
+{step === 5 && userType === "SERVICE_PROVIDER" && (
+  <div className="space-y-4">
+    <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wider mb-2">
+      Required Documents
+    </h3>
+
+    {/* Scroll container: vertical only, no horizontal scroll */}
+    <div className="overflow-y-auto overflow-x-hidden max-h-[400px] space-y-3 pr-1 custom-scrollbar">
+      {documents.map((doc, index) => {
+        // Check if the document is "complete" (has name and uuid)
+        const isComplete = doc.name.trim() !== "" && doc.uuid;
+        const isUploading = documentUploading[index];
+
+        return (
+          <div key={index} className="relative transition-all duration-300">
+            {isComplete ? (
+              /* COMPLETED STATE: Show summary with tick */
+              <div className="flex items-center justify-between p-3 rounded-xl border border-teal-200 bg-teal-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-teal-100 text-teal-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-700">{doc.name}</p>
+                    <p className="text-xs text-teal-600 font-medium">Document uploaded</p>
+                  </div>
+                </div>
+                
+                <button
+                  type="button"
+                  onClick={() => {
+                    const values = [...documents];
+                    values[index] = { name: "", file: null, uuid: "" };
+                    setDocuments(values);
+                  }}
+                  className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              /* ACTIVE EDITING STATE: Show full form */
+              <div className="relative p-4 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-sm">
+                {documents.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeDocument(index)}
+                    className="absolute -top-2 -right-2 flex items-center justify-center w-7 h-7 rounded-full bg-white text-slate-400 hover:text-red-500 border border-slate-200 shadow-sm transition-all"
+                  >
+                    －
+                  </button>
+                )}
+
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-slate-700">Document Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Business License"
+                    value={doc.name}
+                    onChange={(e) => handleDocumentChange(index, "name", e.target.value)}
+                    required
+                    className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-slate-700">Upload Document</label>
+                  <input
+                    type="file"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      handleDocumentChange(index, "file", file);
+                      if (file) {
+                        handleDocumentUpload(file, index);
+                      }
+                    }}
+                    disabled={isUploading}
+                    required
+                    className="w-full rounded-xl border px-3 py-2 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer disabled:opacity-50"
+                  />
+                  {isUploading && (
+                    <p className="text-xs text-blue-600 mt-1">Uploading document...</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Add Button Inside the Scroll Area */}
+      <button
+        type="button"
+        onClick={addDocument}
+        className="w-full py-3 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center gap-2 text-slate-500 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50/30 transition-all text-sm font-medium"
+      >
+        <span>＋</span> Add Another Document
+      </button>
+    </div>
+  </div>
+)}
+
           {/* Error text */}
           <p
             ref={errorRef}
@@ -1353,6 +1798,71 @@ export default function Signup() {
           </p>
         </form>
       </div>
+      
+      <UserAgreementModal 
+        isOpen={showAgreement}
+        onAgree={handleAgreementAccept}
+        onDecline={handleAgreementDecline}
+      />
+      
+      {/* Map Selection Modal */}
+      {showMapModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold text-slate-800">Select Location</h3>
+              <button
+                onClick={() => setShowMapModal(false)}
+                className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="flex-1 p-4">
+              <div 
+                id="map" 
+                className="w-full h-full rounded-xl"
+                style={{ minHeight: '400px' }}
+              ></div>
+            </div>
+            
+            <div className="p-4 border-t bg-slate-50 rounded-b-2xl">
+              <div className="flex items-center gap-3 mb-3">
+                <input
+                  ref={mapInputRef}
+                  type="text"
+                  placeholder="Paste Google Maps link here or search for a location"
+                  className="flex-1 rounded-xl border px-3 py-2.5 text-sm outline-none border-slate-200 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                  defaultValue={googleMapsUrl}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowMapModal(false)}
+                  className="px-4 py-2 rounded-xl text-sm font-medium border border-slate-300 text-slate-700 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const inputValue = mapInputRef.current?.value || '';
+                    setGoogleMapsUrl(inputValue);
+                    setShowMapModal(false);
+                  }}
+                  className="px-4 py-2 rounded-xl text-white text-sm font-semibold bg-teal-600 hover:bg-teal-700 transition"
+                >
+                  Save Location
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
