@@ -1,0 +1,24 @@
+import React from 'react'
+import { Link } from 'react-router-dom'
+
+export default function SearchCardTabs() {
+  return (
+     <div className="flex gap-8 border-b border-gray-100  pb-4 mb-4 px-2">
+      
+      <button className="text-primary font-semibold border-b-2 border-primary pb-4 -mb-4.5 px-2">
+        Gear
+      </button>
+      
+       <Link to="/login">
+      <button className="text-gray-500 font-medium hover:text-gray-800 transition-colors">
+        Vehicles
+      </button>
+      </Link>
+      <Link to="/login">
+      <button className="text-gray-500 font-medium hover:text-gray-800 transition-colors">
+        Stays
+      </button>
+      </Link>
+    </div>
+  )
+}

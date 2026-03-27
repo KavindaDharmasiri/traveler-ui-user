@@ -33,7 +33,7 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
     const currentPath = window.location.pathname;
     
-    // Handle 401 (Unauthorized) and 403 (Forbidden)
+    // Handle 401 (Unauthorized) and 403 (Forbidden) - but not 404
     if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       originalRequest._retry = true;
       
@@ -44,7 +44,7 @@ axiosInstance.interceptors.response.use(
       // If no tokens exist or 403 error, redirect to login (unless already there)
       if (!accessToken || !refreshToken || error.response?.status === 403) {
         localStorage.clear();
-        if (currentPath !== '/login' && currentPath !== '/signup') {
+        if (currentPath !== '/login' && currentPath !== '/signup' && currentPath !== '/'&& currentPath !== '/about-us'&& currentPath !== '/help-center') {
           window.location.href = '/login';
         }
         return Promise.reject(error);
@@ -70,7 +70,7 @@ axiosInstance.interceptors.response.use(
           return axiosInstance(originalRequest);
         } catch (refreshError) {
           localStorage.clear();
-          if (currentPath !== '/login' && currentPath !== '/signup') {
+          if (currentPath !== '/login' && currentPath !== '/signup'&& currentPath !== '/' && currentPath !== '/about-us'&& currentPath !== '/help-center') {
             window.location.href = '/login';
           }
           return Promise.reject(refreshError);

@@ -55,7 +55,7 @@ export default function Login() {
 
       console.log("LOGIN RESPONSE:", response.data);
 
-      const { accessToken, refreshToken, tokenType, userId, email, type, name, tenantId, country } = response.data;
+      const { accessToken, refreshToken, tokenType, userId, email, type, name, tenantId, country ,numberVerified,emailVerified} = response.data;
       
       // Validate required fields before proceeding
       if (!accessToken || !type || !email) {
@@ -72,6 +72,8 @@ export default function Login() {
       localStorage.setItem('tenantId', tenantId);
       localStorage.setItem('type', type);
       localStorage.setItem('country', country);
+      localStorage.setItem('numberVerified', numberVerified);
+      localStorage.setItem('emailVerified', emailVerified);
 
       setAuthState({ user: email, accessToken, tenantId });
       
@@ -89,7 +91,7 @@ export default function Login() {
 
       // Navigate based on user type - only after all validation passes
       if (type === 'TRAVELLER') {
-        navigate('/provider', { replace: true });
+        navigate('/home', { replace: true });
       } else if (type === 'SERVICE_PROVIDER') {
         console.log('provider login')
         const authData = {
@@ -105,6 +107,7 @@ export default function Login() {
         };
         const params = new URLSearchParams(authData).toString();
         window.location.href = `${NAVIGATION_CONFIG.TRAVELLER_APP_PROVIDER_URL}?${params}`;
+        localStorage.clear();
       } else {
         navigate(from, { replace: true });
       }
@@ -119,7 +122,12 @@ export default function Login() {
       } else if (err.response?.status === 400) {
         errorMessage = "Missing Username or Password";
       } else if (err.response?.status === 401) {
-        errorMessage = "Invalid credentials";
+        // Check for specific error messages in the response
+        if (err.response?.data?.error === "Account is not active") {
+          errorMessage = "Account is not active. Please contact administrator.";
+        } else {
+          errorMessage = "Invalid credentials";
+        }
       } else if (err.response?.status === 404) {
         errorMessage = "User Not Found";
       }
